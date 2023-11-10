@@ -89,10 +89,10 @@ function Header({ props }) {
               }
               variant={"ghost"}
               colorScheme={"gray"}
-              onPress={() => props.navigation.navigate("Account")}
+              onPress={() => props.navigation.navigate("AccountStack")}
             >
               <Text fontSize={"sm"} fontFamily={"body"}>
-                Account
+                ACCOUNT
               </Text>
             </Button>
           </HStack>

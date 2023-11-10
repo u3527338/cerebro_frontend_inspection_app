@@ -2,9 +2,11 @@ import { AntDesign } from "@expo/vector-icons";
 import { Badge, HStack, Text } from "native-base";
 import { memo } from "react";
 import { Controller } from "react-hook-form";
+import { Dimensions } from "react-native";
 import { MultiSelect } from "react-native-element-dropdown";
 import baseColor from "../../../../../themes/colors/baseColor";
 import primary from "../../../../../themes/colors/primary";
+import secondary from "../../../../../themes/colors/secondary";
 import montserrat from "../../../../../themes/fonts/montserrat";
 
 const MyMultiSelect = ({ control, detail }) => {
@@ -19,16 +21,22 @@ const MyMultiSelect = ({ control, detail }) => {
             labelField="label"
             valueField="value"
             mode="modal"
-            placeholder={detail.session}
+            // placeholder={detail.session}
+            placeholder="Select options"
             search
             searchPlaceholder="Search"
-            value={value}
+            value={value || detail.preset?.split(",")}
             onChange={onChange}
             containerStyle={{
-              backgroundColor: primary[100],
+              backgroundColor: secondary[200],
               borderRadius: 4,
               padding: 8,
-              maxHeight: "85%",
+              paddingBottom: 0,
+              minHeight: Dimensions.get("window").height * 0.5,
+              maxHeight: Dimensions.get("window").height * 0.9,
+              width: Dimensions.get("window").width,
+              position: "absolute",
+              bottom: 0,
             }}
             itemTextStyle={{
               color: baseColor[500],

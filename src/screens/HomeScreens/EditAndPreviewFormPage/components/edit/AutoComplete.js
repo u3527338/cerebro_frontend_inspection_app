@@ -26,6 +26,7 @@ const AutoComplete = ({ control, detail }) => {
               fontFamily: montserrat[400].normal,
               paddingLeft: 8,
             }}
+            hideInputFilter
             inputPlaceholder={"Type To Search"}
             options={detail.list}
             selectedValues={value}

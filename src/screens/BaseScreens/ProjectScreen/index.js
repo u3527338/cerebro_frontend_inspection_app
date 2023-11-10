@@ -69,7 +69,6 @@ const ProjectScreen = () => {
   return (
     <>
       <GlobalHeader />
-
       <VStack flex={1} px={2} pb={12} space={2}>
         <Box px={4} pt={4}>
           <Input

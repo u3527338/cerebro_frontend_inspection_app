@@ -1,11 +1,11 @@
 import { createStackNavigator } from "@react-navigation/stack";
-import FormPage from "../../screens/HomeScreens/FormPage";
+import AddFormPage from "../../screens/HomeScreens/AddFormPage";
 import CategorySelectPage from "../../screens/HomeScreens/CategorySelectPage";
-import StatisticsPage from "../../screens/HomeScreens/StatisticsPage";
+import EditAndPreviewFormPage from "../../screens/HomeScreens/EditAndPreviewFormPage";
+import FormPage from "../../screens/HomeScreens/FormPage";
 import LibraryPage from "../../screens/HomeScreens/LibraryPage";
 import SelectFormPage from "../../screens/HomeScreens/SelectFormPage";
-import EditAndPreviewFormPage from "../../screens/HomeScreens/EditAndPreviewFormPage";
-import AddFormPage from "../../screens/HomeScreens/AddFormPage";
+import StatisticsPage from "../../screens/HomeScreens/StatisticsPage";
 
 const Stack = createStackNavigator();
 
@@ -15,7 +15,7 @@ const FooterRoute = () => {
       initialRouteName={"Form"}
       screenOptions={{
         headerShown: false,
-        animationEnabled: false,
+        // animationEnabled: false,
       }}
     >
       <Stack.Screen name="Form" component={FormPage} />
@@ -31,7 +31,6 @@ const FooterRoute = () => {
         component={SelectFormPage}
         options={{ presentation: "transparentModal" }}
       />
-
       <Stack.Screen name={"Preview"} component={EditAndPreviewFormPage} />
       <Stack.Screen name={"NewForm"} component={AddFormPage} />
     </Stack.Navigator>

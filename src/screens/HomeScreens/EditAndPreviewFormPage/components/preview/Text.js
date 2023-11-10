@@ -1,4 +1,5 @@
 import { Text, VStack } from "native-base";
+import { memo } from "react";
 
 const MyText = ({ control, detail }) => {
   return (
@@ -14,4 +15,4 @@ const MyText = ({ control, detail }) => {
   );
 };
 
-export default MyText;
+export default memo(MyText);

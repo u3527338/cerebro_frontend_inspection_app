@@ -64,9 +64,6 @@ export default function App() {
     };
   }, []);
 
-  if (expoPushToken) console.log("token", expoPushToken);
-  if (notification) console.log("notification", notification);
-
   return (
     <NativeBaseProvider theme={customThemes}>
       <NavigationContainer>

@@ -1,8 +1,8 @@
+import { Checkbox, HStack, Text } from "native-base";
+import { memo } from "react";
 import { Controller } from "react-hook-form";
-import { HStack, ScrollView, Text, Checkbox, VStack } from "native-base";
-import { memo, useEffect } from "react";
 
-const MyCheckBox = ({ detail, control }) => {
+const MyCheckBox = ({ detail, control, preview }) => {
   return (
     <Controller
       name={detail.key}
@@ -14,6 +14,7 @@ const MyCheckBox = ({ detail, control }) => {
             onChange={onChange}
             isChecked={value}
             value={value}
+            defaultIsChecked={detail.preset}
             accessibilityLabel="checkbox"
           />
         </HStack>

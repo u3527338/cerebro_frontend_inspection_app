@@ -1,11 +1,12 @@
-import ProjectScreen from "../screens/BaseScreens/ProjectScreen";
 import { FontAwesome, FontAwesome5, Ionicons } from "@expo/vector-icons";
+import { useContext } from "react";
+import { AuthContext } from "../context/authContext";
+import useDefaultAPI from "../hocks/useDefaultAPI";
+import ProjectScreen from "../screens/BaseScreens/ProjectScreen";
 import SystemScreen from "../screens/BaseScreens/SystemScreen";
 import ComponentTest from "../screens/ComponentTest";
-import { AuthContext } from "../context/authContext";
-import { useContext } from "react";
+import AccountRoute from "./AccountRoute";
 import FooterRoute from "./FooterRoute";
-import useDefaultAPI from "../hocks/useDefaultAPI";
 
 const UseRouteSetting = () => {
   const { setProfile } = useContext(AuthContext);
@@ -39,7 +40,14 @@ const UseRouteSetting = () => {
       onPressHandler: null,
       selectable: true,
     },
-
+    {
+      name: "AccountStack",
+      component: AccountRoute,
+      icon: <FontAwesome5 name="exclamation-circle" />,
+      onPressCallBack: null,
+      onPressHandler: null,
+      selectable: false,
+    },
     {
       name: "HomeStack",
       component: FooterRoute,

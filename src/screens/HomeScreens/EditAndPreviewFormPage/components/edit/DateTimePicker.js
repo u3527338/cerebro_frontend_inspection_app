@@ -1,15 +1,12 @@
 import { MaterialCommunityIcons } from "@expo/vector-icons";
-import DateTimePicker from "@react-native-community/datetimepicker";
+import _ from "lodash";
 import moment from "moment";
-import { Box, HStack, Pressable, Text, VStack } from "native-base";
-import React, { memo, useCallback, useContext, useState } from "react";
+import { Box, HStack, Pressable, Text } from "native-base";
+import React, { memo, useCallback, useState } from "react";
 import { Controller } from "react-hook-form";
-import DateTimePickerModal from "react-native-modal-datetime-picker";
-import { SystemContext } from "../../../../../context/systemContext";
+import { DatePickerModal } from "react-native-paper-dates";
 import primary from "../../../../../themes/colors/primary";
 import secondary from "../../../../../themes/colors/secondary";
-import { DatePickerModal } from "react-native-paper-dates";
-import _ from "lodash";
 
 const dateConverter = (date, formatter = null) =>
   formatter
@@ -66,7 +63,7 @@ const MyDateTimePicker = ({ control, detail }) => {
             <TimePicker
               open={open}
               setOpen={setOpen}
-              title={_.startCase(detail.session)}
+              // title={_.startCase(detail.session)}
               onChange={(range) => {
                 onChange(
                   `${dateConverter(range.startDate)},${dateConverter(
@@ -75,34 +72,48 @@ const MyDateTimePicker = ({ control, detail }) => {
                 );
               }}
               validRange={{
-                startDate: new Date(),
-                endDate: new Date(
-                  new Date().getTime() + backday * milliseconds
+                startDate: new Date(
+                  new Date().getTime() - backday * milliseconds
                 ),
               }}
             />
             <Pressable
               p={2}
-              borderRadius={8}
-              _pressed={{ backgroundColor: primary[100] }}
+              mx={-2}
+              borderRadius={4}
+              backgroundColor={primary[100]}
+              _pressed={{ backgroundColor: primary[200] }}
               underlayColor={secondary[600]}
               onPress={() => {
                 setOpen(true);
               }}
             >
               <HStack justifyContent="space-between" alignItems={"center"}>
-                <Text numberOfLines={1} ellipsizeMode="tail">
-                  {_.startCase(detail.session)}
+                <Text
+                  color={"baseColor.300"}
+                  numberOfLines={1}
+                  ellipsizeMode="tail"
+                  fontSize={"xs"}
+                  maxWidth={"90%"}
+                >
+                  {_.startCase(detail.session || "Dummy Date")}
                 </Text>
 
                 <MaterialCommunityIcons
                   name="calendar-edit"
                   size={18}
-                  color="white"
+                  color="gray"
                 />
               </HStack>
             </Pressable>
-            <Box mt={2} p={2} px={3} borderRadius={5} bg={primary[200]}>
+            <Box
+              mt={2}
+              p={2}
+              px={3}
+              borderRadius={5}
+              borderWidth={1}
+              borderColor="baseColor.400"
+            >
               <Text width="100%" color={"baseColor.400"}>
                 {`${dateConverter(
                   value?.split(",")[0],

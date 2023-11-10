@@ -12,9 +12,7 @@ export default function GlobalHeader({
 }) {
   const navigation = useNavigation();
   const route = useRoute();
-
   const { currentCategory } = useContext(StateContext);
-
   return (
     <>
       {safeArea ? (
@@ -53,8 +51,6 @@ export default function GlobalHeader({
 
         {["Form", "Statistics"].includes(route.name) ? (
           <Box>
-            {/*<Image source={require("../../assets/designExport/AppName.png")}*/}
-            {/*       style={{resizeMode: "contain", width: 180, height: 35}}/>*/}
             <InLineLogo size={0.6} />
           </Box>
         ) : (
@@ -66,16 +62,12 @@ export default function GlobalHeader({
         {RightIcon ? RightIcon : <Box w={8} />}
       </HStack>
 
-      {["NewForm"].includes(route.name) ? (
+      {["NewForm", "Account"].includes(route.name) ? (
         <></>
       ) : (
         <Box>
           <HStack bg={"baseColor.500"} justifyContent={"center"} pb={2}>
-            {currentCategory.id === undefined ? (
-              <Text color={"primary.500"} fontSize={"sm"}>
-                {" "}
-              </Text>
-            ) : (
+            {currentCategory.id === undefined ? null : (
               <>
                 <Text color={"primary.400"} fontSize={"sm"} bold>
                   {currentCategory.inspection.name} inspection -{" "}

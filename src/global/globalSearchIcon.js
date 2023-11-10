@@ -39,7 +39,7 @@ const GlobalSearchIcon = () => {
 
           const users = results.map((r) => ({
             id: r.user_id,
-            item: r.user_detail.full_name,
+            item: r.user_detail?.full_name,
           }));
           const location = _.uniqBy(mapData(projectInfo, "location"), "value");
           const works = _.uniqBy(mapData(projectInfo, "work"), "value");

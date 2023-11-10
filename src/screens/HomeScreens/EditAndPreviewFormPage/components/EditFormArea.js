@@ -1,17 +1,14 @@
-import { useForm } from "react-hook-form";
 import {
-  ScrollView,
-  VStack,
-  HStack,
-  Button,
-  Text,
   Box,
-  Select,
-  CheckIcon,
+  Button,
+  HStack,
   Pressable,
+  ScrollView,
+  Text,
+  VStack,
 } from "native-base";
-import DefaultComponent from "./preview/DefaultComponent";
 import { useEffect, useReducer, useState } from "react";
+import { useForm } from "react-hook-form";
 import FormWrapper from "./FormWrapper";
 
 const SelectActionArea = ({ choices, actionState, callback = () => null }) => (

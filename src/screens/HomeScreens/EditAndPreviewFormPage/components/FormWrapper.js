@@ -19,9 +19,6 @@ const FormWrapper = ({ templateDetail, control, hasNextStep, currentFlow }) => {
       {templateDetail.template.template.map((item, index) => (
         <>
           <VStack px={2} pt={2} bg={item.bgColor} key={index}>
-            <Text color={"baseColor.300"} fontSize={"xs"}>
-              {item.session}
-            </Text>
             {!!intersectionWith(currentPermission, item.editable, isEqual)
               .length &&
             hasNextStep &&
@@ -38,18 +35,7 @@ const FormWrapper = ({ templateDetail, control, hasNextStep, currentFlow }) => {
                 preview={true}
               />
             )}
-            <VStack>
-              {item.caption ? (
-                <Text color={"gray.400"} sub px={2}>
-                  {item.caption}
-                </Text>
-              ) : (
-                <Box h={1} />
-              )}
-              {item.divider ? (
-                <Divider my={1} bg={"baseColor.300"} rounded={"md"} />
-              ) : null}
-            </VStack>
+            <VStack></VStack>
           </VStack>
         </>
       ))}

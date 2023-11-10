@@ -33,7 +33,7 @@ const CustomButton = ({ title, callback }) => (
 
 const FilterForm = ({ control, sessions, handleResetFilter, handleSubmit }) => {
   return (
-    <Box h={"85%"} bg={"baseColor.500"} borderTopRadius={16} py={7} px={9}>
+    <Box h={"85%"} bg={"baseColor.500"} borderTopRadius={16} py={6} px={4}>
       <ScrollView showsVerticalScrollIndicator={false} nestedScrollEnabled>
         {sessions.map((session, i) => (
           <VStack key={i}>
@@ -138,10 +138,10 @@ const GlobalFilter = ({ open, handleCloseModal, queryData }) => {
     },
   ];
 
-  useEffect(() => {
-    reset();
-    resetGlobalFilter();
-  }, [currentProject]);
+  // useEffect(() => {
+  //   reset();
+  //   resetGlobalFilter();
+  // }, [currentProject]);
 
   return (
     <Modal

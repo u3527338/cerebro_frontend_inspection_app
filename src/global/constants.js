@@ -59,13 +59,14 @@ export const API_get_file_from_id = (from_id) =>
 // export const statisticAPI = apiServer + "/api/statistics"
 //
 // // Functional Api
-// export const signImageAPI = apiServer + "/api/signImage"
 export const API_upload_image = apiServer + "/api/file/s/pre-upload";
 // export const listLibraryAPI = apiServer + "/api/listlibrary"
 // export const attachmentAPI = apiServer + "/api/attachment_template"
 export const API_upload_signature = apiServer + "/api/uploadSignature";
 //
-// export const accountsAPI = apiServer + "/accounts/register"
+export const API_accounts = apiServer + "/accounts/register";
+export const API_change_password =
+  apiServer + `/api/auth/profile/change-password`;
 
 // Push Notification
 export const API_push_notification = "https://exp.host/--/api/v2/push/send";

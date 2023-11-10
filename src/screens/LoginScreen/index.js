@@ -1,33 +1,49 @@
-import React, { useContext, useEffect, useState } from "react";
+import { FontAwesome } from "@expo/vector-icons";
+import { useNavigation } from "@react-navigation/native";
+import useAxios from "axios-hooks";
+import * as LocalAuthentication from "expo-local-authentication";
 import {
   Box,
   Button,
   Center,
   HStack,
   Icon,
-  Modal,
   Pressable,
-  Spinner,
   StatusBar,
   Text,
   VStack,
 } from "native-base";
-import baseColor from "../../themes/colors/baseColor";
-import useAxios from "axios-hooks";
-import { API_login } from "../../global/constants";
-import { useNavigation, useRoute } from "@react-navigation/native";
-import { FontAwesome, MaterialCommunityIcons } from "@expo/vector-icons";
-import * as LocalAuthentication from "expo-local-authentication";
 import { Spacer } from "native-base/src/components/primitives/Flex";
-import LoginForm from "../../components/LoginForm";
-import LoginLogo from "../../../assets/LoginLogo";
-import { AuthContext } from "../../context/authContext";
+import React, { useContext, useEffect } from "react";
 import { Dimensions, Platform } from "react-native";
+import LoginLogo from "../../../assets/LoginLogo";
+import LoginForm from "../../components/LoginForm";
+import { AuthContext } from "../../context/authContext";
 import { StateContext } from "../../context/stateContext";
+import { API_login } from "../../global/constants";
+import baseColor from "../../themes/colors/baseColor";
 import usePushNotification from "../../hocks/usePushNotification";
 
 const windowHeight = Dimensions.get("window").height;
 
+const TempSendMessage = () => {
+  const { sendPushNotification } = usePushNotification();
+  const sendMessage = () => {
+    const expoPushToken =
+      Platform.OS === "android"
+        ? "ExponentPushToken[vMEHi6Jy23Bwi8tU5UXjTD]"
+        : "ExponentPushToken[v1Q2frCEsrXmmJe3dGodzX]";
+    const message = `Message from ${Platform.OS}`;
+    sendPushNotification({
+      to: expoPushToken,
+      sound: "default",
+      title: "Dummy Title",
+      body: message,
+      data: { someData: "goes here" },
+    });
+  };
+  return <Button onPress={sendMessage}>Send Message</Button>;
+};
 export default function LoginScreen() {
   const navigation = useNavigation();
 
@@ -43,7 +59,6 @@ export default function LoginScreen() {
     { manual: true }
   );
 
-  const { sendPushNotification, getReceipts } = usePushNotification();
   const prepareLogin = (data) => {
     execute({
       data: {
@@ -51,26 +66,8 @@ export default function LoginScreen() {
         password: data.password,
       },
     }).then((response) => {
-      // toAuthStore(data.username, data.password);
-      // handleLoginResponse(response.data);
-      const temp = {
-        token:
-          Platform.OS === "android"
-            ? "1MmF75AHf0uN_eWpbcvy2g"
-            : "MtR3d6NHXtIUpsUFUw2iP2",
-        body:
-          Platform.OS === "android"
-            ? "Message from android"
-            : "Message from ios",
-      };
-      Platform.OS === "android";
-      sendPushNotification({
-        to: `ExponentPushToken[${temp.token}]`,
-        sound: "default",
-        title: "Original Title",
-        body: temp.body,
-        data: { someData: "goes here" },
-      });
+      toAuthStore(data.username, data.password);
+      handleLoginResponse(response.data);
     });
   };
 
@@ -133,9 +130,7 @@ export default function LoginScreen() {
               onFingerPrint={fingerPrintHandler}
               containerStyle={{ space: 4 }}
             />
-            <Button onPress={getReceipts}>
-              <Text>Get Receipts</Text>
-            </Button>
+            <TempSendMessage />
             <Spacer h={1} />
             <Pressable onPress={qrCodeHandler}>
               <HStack alignItems={"center"} justifyContent={"center"} space={3}>

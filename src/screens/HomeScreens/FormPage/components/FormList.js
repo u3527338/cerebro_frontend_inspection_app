@@ -1,8 +1,10 @@
+import { FontAwesome } from "@expo/vector-icons";
+import { useNavigation } from "@react-navigation/native";
+import { FlashList } from "@shopify/flash-list";
+import useAxios from "axios-hooks";
+import moment from "moment";
 import {
   Box,
-  Center,
-  Divider,
-  FlatList,
   HStack,
   Icon,
   Pressable,
@@ -10,22 +12,11 @@ import {
   Text,
   VStack,
 } from "native-base";
-import useDefaultAPI from "../../../../hocks/useDefaultAPI";
-import {
-  memo,
-  useCallback,
-  useContext,
-  useEffect,
-  useState,
-  useTransition,
-} from "react";
+import { memo, useCallback, useContext, useEffect, useState } from "react";
 import { Dimensions, RefreshControl } from "react-native";
-import { StateContext } from "../../../../context/stateContext";
-import moment from "moment";
-import { FontAwesome, FontAwesome5 } from "@expo/vector-icons";
-import { useNavigation } from "@react-navigation/native";
-import useAxios from "axios-hooks";
 import { AuthContext } from "../../../../context/authContext";
+import { StateContext } from "../../../../context/stateContext";
+import useDefaultAPI from "../../../../hocks/useDefaultAPI";
 
 const windowWidth = Dimensions.get("window").width;
 const windowHeight = Dimensions.get("window").height;
@@ -365,7 +356,7 @@ const FormList = ({ tabName = "" }) => {
           <Box
             bg={"white"}
             my={2}
-            mx={1}
+            mx="auto"
             shadow={1}
             borderLeftWidth={3}
             rounded={"xl"}
@@ -388,15 +379,16 @@ const FormList = ({ tabName = "" }) => {
 
   const keyExtractor = (item) => `${item.state}_${item.id}`;
   const ListEmptyComponent = () => (
-    <Text color={"gray.500"}>
+    <Text textAlign={"center"} color={"gray.500"}>
       {isLoading ? "Now Loading" : "No Data Found"}
     </Text>
   );
 
   return (
     <>
-      {isMount && (
-        <FlatList
+      {/* {isMount && ( */}
+      <Box w="100%" h="100%">
+        <FlashList
           data={content}
           keyExtractor={keyExtractor}
           renderItem={Card}
@@ -406,20 +398,13 @@ const FormList = ({ tabName = "" }) => {
               onRefresh={onRefreshHandler}
             />
           }
+          estimatedItemSize={436}
           onEndReached={getNextPage}
           onEndReachedThreshold={1}
-          initialNumToRender={6}
-          windowSize={8}
-          maxToRenderPerBatch={16}
-          shouldComponentUpdate={() => false}
-          getItemLayout={(data, index) => ({
-            length: 420,
-            offset: 420 * index,
-            index,
-          })}
           ListEmptyComponent={ListEmptyComponent}
         />
-      )}
+      </Box>
+      {/* )} */}
     </>
   );
 };

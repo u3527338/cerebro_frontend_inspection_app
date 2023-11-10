@@ -119,7 +119,7 @@ const SelectFormPage = () => {
 
   const navigator = useNavigation();
   const handleOpenForm = (detail) => {
-    navigator.navigate("NewForm", { detail: detail });
+    navigator.navigate("NewForm", { id: detail.id });
   };
 
   return (

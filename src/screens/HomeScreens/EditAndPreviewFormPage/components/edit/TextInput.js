@@ -14,13 +14,13 @@ const TextInput = ({ control, detail }) => {
             variant={"round"}
             size={"md"}
             color={"baseColor.400"}
-            // selectionColor={"primary.500"}
-            borderColor={"gray.300"}
-            bg={"primary.200"}
+            borderColor={"baseColor.400"}
+            borderWidth={1}
+            bg={"transparent"}
             value={value}
             onChangeText={onChange}
             maxLength={detail.textlimit ? detail.textlimit : 999}
-            _focus={{ borderColor: "baseColor.500", bg: "primary.100" }}
+            _focus={{ bg: "primary.100" }}
           />
         </Box>
       )}

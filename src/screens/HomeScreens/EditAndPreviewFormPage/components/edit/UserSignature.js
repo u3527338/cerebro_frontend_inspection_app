@@ -23,7 +23,7 @@ const SignatureModal = ({ open, callback, closeSignature, label }) => {
   .m-signature-pad {
     font-size: 10px;
     width: 90%;
-    height: 73%;
+    height: 80%;
     margin: 5%;
     border: 1px solid #e8e8e8;
     background-color: #fff;
@@ -39,14 +39,14 @@ const SignatureModal = ({ open, callback, closeSignature, label }) => {
       onBackdropPress={closeSignature}
       propagateSwipe={true}
     >
-      <Box h={"80%"} bg={"white"} py={7} px={9}>
+      <Box h={"80%"} bg={"white"} py={7} px={0}>
         <SignatureScreen
           ref={ref}
           onOK={callback}
           webStyle={style}
           rotated={true}
           // descriptionText={"Signature Pad"}
-          descriptionText={label}
+          descriptionText={_.startCase(label)}
         />
       </Box>
     </Modal>
@@ -64,6 +64,7 @@ const UserSignature = ({ control, detail }) => {
       control={control}
       render={({ field: { onChange, value } }) => {
         const handleSignature = (signature) => {
+          console.log("signature", JSON.stringify(signature));
           uploadSignature({
             signature: signature,
             directory: "signature/uploaded_signature",
@@ -71,22 +72,6 @@ const UserSignature = ({ control, detail }) => {
             console.log(response);
             // onChange(response.data);
           });
-          // axios
-          //   .post(
-          //     API_upload_signature,
-          //     {
-          //       signature: signature,
-          //       directory: "signature/uploaded_signature",
-          //     },
-          //     {
-          //       headers: {
-          //         "Content-Type": "application/json",
-          //         Authorization: `Token ${token}`,
-          //       },
-          //       // params: params,
-          //     }
-          //   )
-          //   .then((response) => console.log(response));
         };
 
         return (
@@ -98,7 +83,8 @@ const UserSignature = ({ control, detail }) => {
                 bold
                 color="baseColor.400"
               >
-                {_.startCase(detail.session)}
+                {/* {_.startCase(detail.session)} */}
+                Signature
               </Text>
 
               <Pressable

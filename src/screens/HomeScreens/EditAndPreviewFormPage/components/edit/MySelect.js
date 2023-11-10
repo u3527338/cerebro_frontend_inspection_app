@@ -1,4 +1,3 @@
-import { Text } from "native-base";
 import { memo } from "react";
 import { Controller } from "react-hook-form";
 import { Dimensions } from "react-native";
@@ -28,16 +27,21 @@ const MySelect = ({ control, detail }) => {
             labelField="label"
             valueField="value"
             placeholder="Select an option"
-            value={value}
+            value={value || detail.preset}
             onChange={(item) => onChange(item.value)}
             containerStyle={{
-              backgroundColor: primary[100],
-              borderRadius: 10,
+              backgroundColor: secondary[200],
+              borderRadius: 4,
               padding: 8,
-              maxHeight: "85%",
+              paddingBottom: 0,
+              minHeight: Dimensions.get("window").height * 0.5,
+              maxHeight: Dimensions.get("window").height * 0.9,
+              width: Dimensions.get("window").width,
+              position: "absolute",
+              bottom: 0,
             }}
             itemTextStyle={{
-              color: baseColor[500],
+              color: baseColor[400],
               fontSize: 12,
               fontWeight: "bold",
               fontFamily: montserrat[700].normal,
@@ -48,8 +52,11 @@ const MySelect = ({ control, detail }) => {
             }}
             activeColor={primary[300]}
             style={{
-              backgroundColor: primary[200],
               borderRadius: 4,
+              borderWidth: 1,
+              borderColor: baseColor[400],
+              backgroundColor: "transparent",
+              opacity: 1,
               paddingHorizontal: 12,
             }}
             placeholderStyle={{

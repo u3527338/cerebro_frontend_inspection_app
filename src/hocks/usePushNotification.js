@@ -9,8 +9,8 @@ const usePushNotification = () => {
     Notifications.setNotificationHandler({
       handleNotification: async () => ({
         shouldShowAlert: true,
-        shouldPlaySound: false,
-        shouldSetBadge: false,
+        shouldPlaySound: true,
+        shouldSetBadge: true,
       }),
     });
   };
@@ -25,24 +25,7 @@ const usePushNotification = () => {
         "Content-Type": "application/json",
       },
       body: JSON.stringify(message),
-    }).then((response) => console.log("response", response));
-  };
-
-  const getReceipts = async () => {
-    await fetch("https://exp.host/--/api/v2/push/getReceipts", {
-      method: "POST",
-      headers: {
-        Accept: "application/json",
-        "Accept-encoding": "gzip, deflate",
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        ids: [
-          "D5B3F03A-3557-4938-BD4E-CE91B42F02D1",
-          "7627c497-3096-4a09-8946-32dc2c1999b9",
-        ],
-      }),
-    }).then((response) => console.log("receipts", response));
+    }).then((response) => console.log("response", JSON.stringify(response)));
   };
 
   const registerForPushNotificationsAsync = async () => {
@@ -67,10 +50,11 @@ const usePushNotification = () => {
         alert("Failed to get push token for push notification!");
         return;
       }
+
       token = await Notifications.getExpoPushTokenAsync({
-        projectId: Constants.expoConfig.extra.eas.projectId,
+        projectId: Constants.expoConfig?.extra?.eas.projectId,
       });
-      console.log(token);
+      console.log("token", token);
     } else {
       alert("Must use physical device for Push Notifications");
     }
@@ -81,7 +65,6 @@ const usePushNotification = () => {
     initPushNotificationConfig,
     sendPushNotification,
     registerForPushNotificationsAsync,
-    getReceipts,
   };
 };
 
