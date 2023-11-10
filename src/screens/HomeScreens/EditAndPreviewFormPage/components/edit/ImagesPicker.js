@@ -243,8 +243,6 @@ const ImagesPicker = ({ control, detail }) => {
   useEffect(() => {
     (async () => {
       if (Platform.OS !== "web") {
-        // const { statusCamera } =
-        //   await ImagePicker.requestCameraPermissionsAsync();
         if (!statusC) requestCPermission();
         if (!statusM) requestMPermission();
       }
