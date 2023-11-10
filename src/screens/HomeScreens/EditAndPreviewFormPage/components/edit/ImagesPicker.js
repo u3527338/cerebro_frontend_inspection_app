@@ -217,16 +217,12 @@ const ImagesPicker = ({ control, detail }) => {
     }
   };
 
-  const handlePreviewFile = (index) => {
-    setPreviewFile(index);
+  const handlePdfPreview = () => {
+    WebBrowser.openBrowserAsync(filePath[previewFile].path);
   };
 
-  const handlePdfPreview = (index) => {
-    WebBrowser.openBrowserAsync(filePath[index].path);
-  };
-
-  const handleDeleteFile = (index, onChange) => {
-    const fileIdToDelete = filePath[index].id;
+  const handleDeleteFile = (onChange) => {
+    const fileIdToDelete = filePath[previewFile].id;
     deleteFileById(fileIdToDelete)
       .then((response) => {
         onChange(
@@ -286,7 +282,7 @@ const ImagesPicker = ({ control, detail }) => {
             <FileGallery
               loading={loading}
               filePath={filePath}
-              handlePreviewFile={handlePreviewFile}
+              handlePreviewFile={setPreviewFile}
             />
 
             <Actionsheet isOpen={isOpen} onClose={onClose}>
@@ -318,7 +314,7 @@ const ImagesPicker = ({ control, detail }) => {
                   justifyContent={"space-between"}
                 >
                   <Pressable
-                    onPress={() => handlePdfPreview(previewFile)}
+                    onPress={handlePdfPreview}
                     justifyContent={"center"}
                     px={2}
                     disabled={!filePath[previewFile]?.path?.includes(".pdf")}
@@ -327,7 +323,7 @@ const ImagesPicker = ({ control, detail }) => {
                     <Text p={1}>Open PDF</Text>
                   </Pressable>
                   <Pressable
-                    onPress={() => handleDeleteFile(previewFile, onChange)}
+                    onPress={() => handleDeleteFile(onChange)}
                     px={2}
                     justifyContent={"center"}
                     backgroundColor="red.700"
