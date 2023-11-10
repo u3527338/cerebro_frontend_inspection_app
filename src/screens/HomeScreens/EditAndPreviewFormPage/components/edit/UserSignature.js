@@ -45,7 +45,6 @@ const SignatureModal = ({ open, callback, closeSignature, label }) => {
           onOK={callback}
           webStyle={style}
           rotated={true}
-          // descriptionText={"Signature Pad"}
           descriptionText={_.startCase(label)}
         />
       </Box>

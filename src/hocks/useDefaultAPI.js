@@ -13,7 +13,7 @@ import {
   API_project_info,
   API_statistics,
   API_switch_project,
-  API_upload_image,
+  API_upload_file,
   API_upload_signature,
   API_userinfo_info,
   API_user_list,
@@ -200,9 +200,9 @@ const useDefaultAPI = () => {
     return execute_get({ url: API_get_file_from_id(from_id) });
   };
 
-  const uploadImage = async (data) => {
+  const uploadFile = async (data) => {
     return execute_post({
-      url: API_upload_image,
+      url: API_upload_file,
       data: data,
       params: {
         project: currentProject.project.id,
@@ -226,12 +226,12 @@ const useDefaultAPI = () => {
     return execute_get({ url: API_get_file_from_path, params: params });
   };
 
-  const deleteImageById = async (imageId) => {
+  const deleteFileById = async (fileId) => {
     return execute_delete({
-      url: API_upload_image,
+      url: API_upload_file,
       params: {
         project: currentProject.project.id,
-        file: imageId,
+        file: fileId,
       },
     });
   };
@@ -254,9 +254,9 @@ const useDefaultAPI = () => {
     getFormData,
     getFileFromPath,
     getFileFromId,
-    uploadImage,
+    uploadFile,
     uploadSignature,
-    deleteImageById,
+    deleteFileById,
   };
 };
 

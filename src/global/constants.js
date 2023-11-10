@@ -59,7 +59,7 @@ export const API_get_file_from_id = (from_id) =>
 // export const statisticAPI = apiServer + "/api/statistics"
 //
 // // Functional Api
-export const API_upload_image = apiServer + "/api/file/s/pre-upload";
+export const API_upload_file = apiServer + "/api/file/s/pre-upload";
 // export const listLibraryAPI = apiServer + "/api/listlibrary"
 // export const attachmentAPI = apiServer + "/api/attachment_template"
 export const API_upload_signature = apiServer + "/api/uploadSignature";

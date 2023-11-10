@@ -64,7 +64,7 @@ const PdfLogo = ({ style = null, color = "red.500" }) => {
   );
 };
 
-const FileGallery = ({ loading, filePath = [], handlePreviewImage }) => {
+const FileGallery = ({ loading, filePath = [], handlePreviewFile }) => {
   if (loading)
     return (
       <Center h={120}>
@@ -81,7 +81,7 @@ const FileGallery = ({ loading, filePath = [], handlePreviewImage }) => {
           mt={3}
           mx={2}
           key={file.id}
-          onPress={() => handlePreviewImage(index)}
+          onPress={() => handlePreviewFile(index)}
         >
           {!file.path.includes(".pdf") ? (
             <ImageSource
@@ -114,13 +114,13 @@ const ImagesPicker = ({ control, detail }) => {
   const [statusM, requestMPermission] =
     ImagePicker.useMediaLibraryPermissions();
   const { isOpen, onOpen, onClose } = useDisclose();
-  const { uploadImage, deleteImageById, getFileFromId } = useDefaultAPI();
+  const { uploadFile, deleteFileById, getFileFromId } = useDefaultAPI();
   const [filePath, setFilePath] = useState([]);
   const [loading, setLoading] = useState(false);
-  const [previewFile, setPreviewImage] = useState(null);
+  const [previewFile, setPreviewFile] = useState(null);
 
-  const processUploadFiles = (payload, imageObj, newFileArr, type) => {
-    return uploadImage(payload).then((response) => {
+  const processUploadFiles = (payload, fileObj, newFileArr, type) => {
+    return uploadFile(payload).then((response) => {
       newFileArr.push({
         id: response.data.file,
         path: response.data.path,
@@ -128,7 +128,7 @@ const ImagesPicker = ({ control, detail }) => {
       const gcs_upload_path = response.data.signed_url;
       return fetch(gcs_upload_path, {
         method: "PUT",
-        body: imageObj,
+        body: fileObj,
         headers: {
           "Content-Type": MIME_TYPE[type],
         },
@@ -136,7 +136,7 @@ const ImagesPicker = ({ control, detail }) => {
     });
   };
 
-  const handleUploadImages = (files, type, onChange) => {
+  const handleUploadFiles = (files, type, onChange) => {
     let newFileArr = [];
     setLoading(true);
     const promises = files.map((file) => {
@@ -145,7 +145,7 @@ const ImagesPicker = ({ control, detail }) => {
         file_type: MIME_TYPE[type],
         size: file.size,
       };
-      let imageObj = {
+      let fileObj = {
         uri: file.uri,
         name: file.uri.split("/").pop(),
         type: MIME_TYPE[type],
@@ -156,17 +156,17 @@ const ImagesPicker = ({ control, detail }) => {
             async (result) => {
               return FileSystem.getInfoAsync(result.uri).then((info) => {
                 payload = { ...payload, size: info.size };
-                imageObj = { ...imageObj, uri: info.uri, size: info.size };
+                fileObj = { ...fileObj, uri: info.uri, size: info.size };
                 return processUploadFiles(
                   payload,
-                  imageObj,
+                  fileObj,
                   newFileArr,
                   FileType.IMAGE
                 );
               });
             }
           )
-        : processUploadFiles(payload, imageObj, newFileArr, FileType.PDF);
+        : processUploadFiles(payload, fileObj, newFileArr, FileType.PDF);
     });
     Promise.all(promises)
       .then(() => {
@@ -188,7 +188,7 @@ const ImagesPicker = ({ control, detail }) => {
 
     if (!result.canceled) {
       const files = result.assets;
-      handleUploadImages(files, FileType.IMAGE, onChange);
+      handleUploadFiles(files, FileType.IMAGE, onChange);
     }
   };
 
@@ -201,7 +201,7 @@ const ImagesPicker = ({ control, detail }) => {
 
     if (result.type === "success") {
       const files = [result];
-      handleUploadImages(files, FileType.PDF, onChange);
+      handleUploadFiles(files, FileType.PDF, onChange);
     }
   };
 
@@ -213,31 +213,31 @@ const ImagesPicker = ({ control, detail }) => {
 
     if (!result.canceled) {
       const files = result.assets;
-      handleUploadImages(files, FileType.IMAGE, onChange);
+      handleUploadFiles(files, FileType.IMAGE, onChange);
     }
   };
 
-  const handlePreviewImage = (index) => {
-    setPreviewImage(index);
+  const handlePreviewFile = (index) => {
+    setPreviewFile(index);
   };
 
   const handlePdfPreview = (index) => {
     WebBrowser.openBrowserAsync(filePath[index].path);
   };
 
-  const handleDeleteImage = (index, onChange) => {
-    const imageIdToDelete = filePath[index].id;
-    deleteImageById(imageIdToDelete)
+  const handleDeleteFile = (index, onChange) => {
+    const fileIdToDelete = filePath[index].id;
+    deleteFileById(fileIdToDelete)
       .then((response) => {
         onChange(
           filePath
-            .filter((images) => images.id !== imageIdToDelete)
+            .filter((files) => files.id !== fileIdToDelete)
             .map((file) => file.id)
             .join(",")
         );
-        setPreviewImage(null);
+        setPreviewFile(null);
       })
-      .catch((err) => alert("Delete Image Error"));
+      .catch((err) => alert("Delete File Error"));
   };
 
   useEffect(() => {
@@ -286,7 +286,7 @@ const ImagesPicker = ({ control, detail }) => {
             <FileGallery
               loading={loading}
               filePath={filePath}
-              handlePreviewImage={handlePreviewImage}
+              handlePreviewFile={handlePreviewFile}
             />
 
             <Actionsheet isOpen={isOpen} onClose={onClose}>
@@ -308,7 +308,7 @@ const ImagesPicker = ({ control, detail }) => {
 
             <Modal
               isVisible={previewFile !== null && previewFile >= 0}
-              onBackdropPress={() => setPreviewImage(null)}
+              onBackdropPress={() => setPreviewFile(null)}
             >
               <Box h={"70%"}>
                 <HStack
@@ -327,7 +327,7 @@ const ImagesPicker = ({ control, detail }) => {
                     <Text p={1}>Open PDF</Text>
                   </Pressable>
                   <Pressable
-                    onPress={() => handleDeleteImage(previewFile, onChange)}
+                    onPress={() => handleDeleteFile(previewFile, onChange)}
                     px={2}
                     justifyContent={"center"}
                     backgroundColor="red.700"
@@ -346,7 +346,7 @@ const ImagesPicker = ({ control, detail }) => {
                     );
                   }}
                   index={previewFile}
-                  onChange={setPreviewImage}
+                  onChange={setPreviewFile}
                   imageUrls={filePath.map((i) => ({ url: i.path }))}
                 />
               </Box>
