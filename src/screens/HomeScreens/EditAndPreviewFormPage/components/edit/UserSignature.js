@@ -1,16 +1,14 @@
-import { Box, HStack, Pressable, ScrollView, Text } from "native-base";
-import { memo, useContext, useRef, useState } from "react";
-import { Controller } from "react-hook-form";
-import SignatureScreen from "react-native-signature-canvas";
-import primary from "../../../../../themes/colors/primary";
-import secondary from "../../../../../themes/colors/secondary";
 import { Ionicons } from "@expo/vector-icons";
+import * as FileSystem from "expo-file-system";
 import _ from "lodash";
+import { Box, Center, HStack, Image, Pressable, Text } from "native-base";
+import { memo, useEffect, useRef, useState } from "react";
+import { Controller } from "react-hook-form";
 import Modal from "react-native-modal";
+import SignatureScreen from "react-native-signature-canvas";
+import LoadingComponent from "../../../../../components/common/LoadingComponent";
 import useDefaultAPI from "../../../../../hocks/useDefaultAPI";
-import axios from "axios";
-import { API_upload_signature } from "../../../../../global/constants";
-import { AuthContext } from "../../../../../context/authContext";
+import primary from "../../../../../themes/colors/primary";
 
 const SignatureModal = ({ open, callback, closeSignature, label }) => {
   const ref = useRef();
@@ -39,23 +37,75 @@ const SignatureModal = ({ open, callback, closeSignature, label }) => {
       onBackdropPress={closeSignature}
       propagateSwipe={true}
     >
-      <Box h={"80%"} bg={"white"} py={7} px={0}>
+      <Box h="80%" bg="white" py={7} px={0}>
         <SignatureScreen
           ref={ref}
           onOK={callback}
           webStyle={style}
           rotated={true}
           descriptionText={_.startCase(label)}
+          imageType="image/png"
         />
       </Box>
     </Modal>
   );
 };
+
 const UserSignature = ({ control, detail }) => {
   const [open, setOpen] = useState(false);
-  const { token, default_project } = useContext(AuthContext);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
+  const [signature, setSignature] = useState(null);
+  const { uploadFile, getFileFromId } = useDefaultAPI();
 
-  const { uploadSignature } = useDefaultAPI();
+  const getSignatureImage = async (signature, onChange) => {
+    setLoading(true);
+    const path = FileSystem.cacheDirectory + "sign.png";
+    FileSystem.writeAsStringAsync(
+      path,
+      signature.replace("data:image/png;base64,", ""),
+      { encoding: FileSystem.EncodingType.Base64 }
+    )
+      .then((res) => {
+        FileSystem.getInfoAsync(path, { size: true, md5: true })
+          .then((file) => {
+            const payload = {
+              file_name: file.uri.split("/").pop(),
+              file_type: "image/png",
+              size: file.size,
+            };
+            const fileObj = {
+              name: file.uri.split("/").pop(),
+              type: "image/png",
+              uri: file.uri,
+              size: file.size,
+            };
+            uploadFile(payload, { storage_path: "signature" })
+              .then((response) => {
+                setSignature(response.data.path);
+                onChange(response.data.file);
+                const gcs_upload_path = response.data.signed_url;
+                fetch(gcs_upload_path, {
+                  method: "PUT",
+                  body: fileObj,
+                  headers: {
+                    "Content-Type": "image/png",
+                  },
+                })
+                  .catch((err) => setError(err.message))
+                  .finally(() => {
+                    setLoading(false);
+                    setOpen(false);
+                  });
+              })
+              .catch((err) => setError(err.message));
+          })
+          .catch((err) => setError(err.message));
+      })
+      .catch((err) => {
+        setError(err.message);
+      });
+  };
 
   return (
     <Controller
@@ -63,39 +113,68 @@ const UserSignature = ({ control, detail }) => {
       control={control}
       render={({ field: { onChange, value } }) => {
         const handleSignature = (signature) => {
-          console.log("signature", JSON.stringify(signature));
-          uploadSignature({
-            signature: signature,
-            directory: "signature/uploaded_signature",
-          }).then((response) => {
-            console.log(response);
-            // onChange(response.data);
-          });
+          getSignatureImage(signature, onChange);
         };
+
+        useEffect(() => {
+          if (!value) {
+            setSignature(null);
+            return;
+          }
+          getFileFromId(value).then((result) => setSignature(result.data.path));
+        }, [value]);
 
         return (
           <>
-            <HStack justifyContent="space-between" alignItems={"center"}>
-              <Text
-                numberOfLines={1}
-                ellipsizeMode="tail"
-                bold
-                color="baseColor.400"
-              >
-                {/* {_.startCase(detail.session)} */}
-                Signature
+            {loading ? (
+              <Box h={60}>
+                <Center>
+                  <LoadingComponent />
+                </Center>
+              </Box>
+            ) : error ? (
+              <Text fontSize={12} color="red.400">
+                {error}
               </Text>
-
-              <Pressable
-                borderRadius={8}
-                _pressed={{ backgroundColor: primary[100] }}
-                onPress={() => {
-                  setOpen(true);
-                }}
+            ) : signature ? (
+              <Box
+                h={100}
+                w={160}
+                borderColor="baseColor.300"
+                borderRadius="sm"
+                borderWidth={1}
               >
-                <Ionicons name="add-outline" size={24} color="gray" />
-              </Pressable>
-            </HStack>
+                <Image
+                  source={{ uri: signature }}
+                  h="100%"
+                  w="100%"
+                  resizeMode="contain"
+                  zIndex={1}
+                  alt={"Cannot load image"}
+                />
+              </Box>
+            ) : (
+              <HStack justifyContent="space-between" alignItems={"center"}>
+                <Text
+                  numberOfLines={1}
+                  ellipsizeMode="tail"
+                  bold
+                  color="baseColor.400"
+                >
+                  Signature
+                </Text>
+
+                <Pressable
+                  borderRadius={8}
+                  _pressed={{ backgroundColor: primary[100] }}
+                  onPress={() => {
+                    setOpen(true);
+                  }}
+                >
+                  <Ionicons name="add-outline" size={24} color="gray" />
+                </Pressable>
+              </HStack>
+            )}
 
             <SignatureModal
               callback={handleSignature}

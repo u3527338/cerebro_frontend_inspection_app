@@ -200,11 +200,12 @@ const useDefaultAPI = () => {
     return execute_get({ url: API_get_file_from_id(from_id) });
   };
 
-  const uploadFile = async (data) => {
+  const uploadFile = async (data, params) => {
     return execute_post({
       url: API_upload_file,
       data: data,
       params: {
+        ...params,
         project: currentProject.project.id,
       },
     });
@@ -214,7 +215,7 @@ const useDefaultAPI = () => {
     return execute_post({
       url: API_upload_signature,
       data: data,
-      params: {},
+      // params: {},
     });
   };
 
