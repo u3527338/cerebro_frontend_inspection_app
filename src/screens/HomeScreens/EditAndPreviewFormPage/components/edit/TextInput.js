@@ -1,6 +1,6 @@
-import { Box, Input, Text, VStack } from "native-base";
-import { Controller } from "react-hook-form";
+import { Box, Input } from "native-base";
 import { memo } from "react";
+import { Controller } from "react-hook-form";
 
 const TextInput = ({ control, detail }) => {
   return (
@@ -10,6 +10,12 @@ const TextInput = ({ control, detail }) => {
       render={({ field: { onChange, onBlur, value } }) => (
         <Box>
           <Input
+            isDisabled={detail.disabled}
+            _disabled={{
+              backgroundColor: "baseColor.100",
+              opacity: 0.5,
+              placeholderTextColor: "baseColor.400",
+            }}
             placeholder={detail.session}
             variant={"round"}
             size={"md"}

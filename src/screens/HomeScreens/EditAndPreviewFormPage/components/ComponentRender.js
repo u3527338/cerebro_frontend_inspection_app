@@ -5,7 +5,7 @@ import MyCheckBox from "./edit/CheckBox";
 import DateTimePicker from "./edit/DateTimePicker";
 import MediaPicker from "./edit/MediaPicker";
 import MyMultiSelect from "./edit/MyMultiSelect";
-import MySelect from "./edit/MySelect";
+import SimpleDropDown from "./edit/SimpleDropDown";
 import NestedDropDown from "./edit/NestedDropDown";
 import RadioButtonGroup from "./edit/RadioButtonGroup";
 import TextInput from "./edit/TextInput";
@@ -41,7 +41,7 @@ const InputRender = ({ control, template, preview }) => {
       return preview ? (
         <DefaultPreview control={control} detail={template} />
       ) : (
-        <MySelect control={control} detail={template} />
+        <SimpleDropDown control={control} detail={template} />
       );
 
     case "checkbox":
@@ -56,10 +56,12 @@ const InputRender = ({ control, template, preview }) => {
         <MyMultiSelect control={control} detail={template} />
       );
 
-    // case "nestedDropDown":
-    // return <NestedDropDown control={control} detail={template} />;
-    // return preview ? <RenderPreviewNestedDropDown template={template} data={formikProps.values}/> :
-    //   <RenderNestedSelect items={template} props={formikProps}/>
+    case "nestedDropDown":
+      return preview ? (
+        <DefaultPreview control={control} detail={template} />
+      ) : (
+        <NestedDropDown control={control} detail={template} />
+      );
 
     case "radio":
     case "radioButtonGroup":
@@ -78,22 +80,17 @@ const InputRender = ({ control, template, preview }) => {
 
     case "imagePicker":
       return preview ? (
-        <MediaPreview control={control} detail={template} />
+        <MediaPreview control={control} detail={template} imageOnly={true} />
       ) : (
-        <MediaPicker control={control} detail={template} isImageType={true} />
+        <MediaPicker control={control} detail={template} imageOnly={true} />
       );
 
     case "libraryPicker":
       return preview ? (
-        <MediaPreview control={control} detail={template} />
+        <MediaPreview control={control} detail={template} imageOnly={false} />
       ) : (
-        <MediaPicker control={control} detail={template} isImageType={false} />
+        <MediaPicker control={control} detail={template} imageOnly={false} />
       );
-
-    // case "checkBox":
-    //   return preview ? <RenderDefault template={template} data={formikProps.values}/> :
-    //     <RenderCheckBox items={template} props={formikProps}/>
-    //
 
     case "signature":
       return preview ? (
@@ -102,13 +99,10 @@ const InputRender = ({ control, template, preview }) => {
         <UserSignature control={control} detail={template} />
       );
 
-    //
     // case "customItem":
     //   return preview ? <RenderPreviewCustomItem template={template} data={formikProps}/> :
     //     <RenderCustomItem items={template} props={formikProps}/>
 
-    // default:
-    //   return <MyCheckBox control={control} detail={template} />;
     default:
       return <DefaultPreview control={control} detail={template} />;
   }

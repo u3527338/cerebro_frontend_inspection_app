@@ -7,10 +7,16 @@ const RadioButtonGroup = ({ control, detail }) => {
     <Controller
       name={detail.key}
       control={control}
-      render={({ field: { onChange, onBlur, value } }) => {
-        useEffect(() => {
-          if (!value) onChange(detail.preset || detail.item[0].title);
-        }, []);
+      render={({
+        field: {
+          onChange,
+          onBlur,
+          value = detail.preset || detail.item[0].title,
+        },
+      }) => {
+        // useEffect(() => {
+        //   if (!value) onChange(detail.preset || detail.item[0].title);
+        // }, []);
 
         return (
           <Radio.Group
@@ -30,15 +36,16 @@ const RadioButtonGroup = ({ control, detail }) => {
               {detail.item.map((item, index) => (
                 <Radio
                   value={item.title}
-                  bg={"transparent"}
-                  key={item.key}
+                  bg="transparent"
+                  key={index}
                   size="sm"
+                  isDisabled={detail.disabled}
                 >
                   <Text
-                    textAlign={"justify"}
-                    color={"baseColor.500"}
+                    textAlign="justify"
+                    color="baseColor.500"
                     bold
-                    fontSize={"sm"}
+                    fontSize="sm"
                   >
                     {item.title}
                   </Text>

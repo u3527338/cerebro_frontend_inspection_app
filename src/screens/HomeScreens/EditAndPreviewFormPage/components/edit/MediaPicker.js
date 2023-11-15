@@ -7,7 +7,6 @@ import * as WebBrowser from "expo-web-browser";
 import {
   Actionsheet,
   Box,
-  Button,
   Center,
   HStack,
   Icon,
@@ -79,13 +78,18 @@ const FileGallery = ({ loading, filePath = [], handlePreviewFile }) => {
       </Center>
     );
 
-  if (filePath.length === 0) return null;
+  if (filePath.length === 0)
+    return (
+      <Text bold color="secondary.400">
+        No File
+      </Text>
+    );
 
   return (
     <ScrollView horizontal>
       {filePath.map((file, index) => (
         <Pressable
-          mt={3}
+          mt={2}
           mx={2}
           key={file.id}
           onPress={() => handlePreviewFile(index)}
@@ -118,7 +122,24 @@ const FileGallery = ({ loading, filePath = [], handlePreviewFile }) => {
   );
 };
 
-const MediaPicker = ({ control, detail, editable = true, isImageType }) => {
+const CustomButton = ({ onPress, disabled, label }) => {
+  return (
+    <Pressable
+      onPress={onPress}
+      _disabled={{ opacity: 0.5 }}
+      _pressed={{ bgColor: "primary.700" }}
+      disabled={disabled}
+      bgColor="primary.400"
+      borderRadius="md"
+      px={3}
+      py={2}
+    >
+      <Text>{label}</Text>
+    </Pressable>
+  );
+};
+
+const MediaPicker = ({ control, detail, editable = true, imageOnly }) => {
   const [statusC, requestCPermission] = ImagePicker.useCameraPermissions();
   const [statusM, requestMPermission] =
     ImagePicker.useMediaLibraryPermissions();
@@ -281,7 +302,7 @@ const MediaPicker = ({ control, detail, editable = true, isImageType }) => {
         }, [value]);
 
         const handleChooseMedia = () => {
-          if (isImageType) {
+          if (imageOnly) {
             handleLaunchImageGallery(onChange);
           } else {
             onOpen();
@@ -291,14 +312,18 @@ const MediaPicker = ({ control, detail, editable = true, isImageType }) => {
         return (
           <>
             {editable && (
-              <HStack justifyContent={"space-around"}>
-                <Button onPress={handleChooseMedia}>
-                  <Text>CHOOSE</Text>
-                </Button>
-                {isImageType && (
-                  <Button onPress={() => handleLaunchCamera(onChange)}>
-                    <Text>TAKE PHOTO</Text>
-                  </Button>
+              <HStack pb={2} justifyContent={"space-around"}>
+                <CustomButton
+                  onPress={handleChooseMedia}
+                  disabled={detail.disabled}
+                  label="CHOOSE"
+                />
+                {imageOnly && (
+                  <CustomButton
+                    onPress={() => handleLaunchCamera(onChange)}
+                    disabled={detail.disabled}
+                    label="TAKE PHOTO"
+                  />
                 )}
               </HStack>
             )}

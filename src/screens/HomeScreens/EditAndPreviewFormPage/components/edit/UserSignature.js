@@ -9,6 +9,7 @@ import SignatureScreen from "react-native-signature-canvas";
 import LoadingComponent from "../../../../../components/common/LoadingComponent";
 import useDefaultAPI from "../../../../../hocks/useDefaultAPI";
 import primary from "../../../../../themes/colors/primary";
+import uuid from "react-native-uuid";
 
 const SignatureModal = ({ open, callback, closeSignature, label }) => {
   const ref = useRef();
@@ -60,7 +61,7 @@ const UserSignature = ({ control, detail }) => {
 
   const getSignatureImage = async (signature, onChange) => {
     setLoading(true);
-    const path = FileSystem.cacheDirectory + "sign.png";
+    const path = `${FileSystem.cacheDirectory}sign${uuid.v4()}.png`;
     FileSystem.writeAsStringAsync(
       path,
       signature.replace("data:image/png;base64,", ""),
@@ -127,11 +128,9 @@ const UserSignature = ({ control, detail }) => {
         return (
           <>
             {loading ? (
-              <Box h={60}>
-                <Center>
-                  <LoadingComponent />
-                </Center>
-              </Box>
+              <Center h={60}>
+                <LoadingComponent />
+              </Center>
             ) : error ? (
               <Text fontSize={12} color="red.400">
                 {error}
@@ -154,7 +153,7 @@ const UserSignature = ({ control, detail }) => {
                 />
               </Box>
             ) : (
-              <HStack justifyContent="space-between" alignItems={"center"}>
+              <HStack justifyContent="space-between" alignItems="center">
                 <Text
                   numberOfLines={1}
                   ellipsizeMode="tail"
@@ -167,11 +166,13 @@ const UserSignature = ({ control, detail }) => {
                 <Pressable
                   borderRadius={8}
                   _pressed={{ backgroundColor: primary[100] }}
+                  _disabled={{ opacity: 0.3 }}
+                  disabled={detail.disabled}
                   onPress={() => {
                     setOpen(true);
                   }}
                 >
-                  <Ionicons name="add-outline" size={24} color="gray" />
+                  <Ionicons name="add-outline" size={20} color="gray" />
                 </Pressable>
               </HStack>
             )}

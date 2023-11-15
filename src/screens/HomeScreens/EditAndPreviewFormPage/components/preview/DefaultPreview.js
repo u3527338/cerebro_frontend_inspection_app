@@ -11,7 +11,8 @@ const DefaultPreview = ({ control, detail }) => {
         <Box>
           <Pressable onPress={() => alert(JSON.stringify(detail.item))}>
             <Text color={"baseColor.400"}>
-              {value || `${detail.type}: DefaultPreview`}
+              {value ||
+                `No value (type: ${detail.type}, component: DefaultPreview)`}
             </Text>
           </Pressable>
         </Box>

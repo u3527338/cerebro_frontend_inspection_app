@@ -5,6 +5,7 @@ import { Box, HStack, Pressable, Text } from "native-base";
 import React, { memo, useCallback, useState } from "react";
 import { Controller } from "react-hook-form";
 import { DatePickerModal } from "react-native-paper-dates";
+import baseColor from "../../../../../themes/colors/baseColor";
 import primary from "../../../../../themes/colors/primary";
 import secondary from "../../../../../themes/colors/secondary";
 
@@ -83,10 +84,12 @@ const MyDateTimePicker = ({ control, detail }) => {
               borderRadius={4}
               backgroundColor={primary[100]}
               _pressed={{ backgroundColor: primary[200] }}
+              _disabled={{ backgroundColor: "transparent", p: 0 }}
               underlayColor={secondary[600]}
               onPress={() => {
                 setOpen(true);
               }}
+              disabled={detail.disabled}
             >
               <HStack justifyContent="space-between" alignItems={"center"}>
                 <Text
@@ -96,14 +99,16 @@ const MyDateTimePicker = ({ control, detail }) => {
                   fontSize={"xs"}
                   maxWidth={"90%"}
                 >
-                  {_.startCase(detail.session || "Dummy Date")}
+                  {_.startCase(detail.session || "Pick A Date")}
                 </Text>
 
-                <MaterialCommunityIcons
-                  name="calendar-edit"
-                  size={18}
-                  color="gray"
-                />
+                {!detail.disabled && (
+                  <MaterialCommunityIcons
+                    name="calendar-edit"
+                    size={18}
+                    color="gray"
+                  />
+                )}
               </HStack>
             </Pressable>
             <Box
@@ -113,6 +118,12 @@ const MyDateTimePicker = ({ control, detail }) => {
               borderRadius={5}
               borderWidth={1}
               borderColor="baseColor.400"
+              style={{
+                backgroundColor: detail.disabled
+                  ? baseColor[100]
+                  : "transparent",
+                opacity: detail.disabled ? 0.5 : 1,
+              }}
             >
               <Text width="100%" color={"baseColor.400"}>
                 {`${dateConverter(

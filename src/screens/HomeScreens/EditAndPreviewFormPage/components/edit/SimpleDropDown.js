@@ -1,3 +1,4 @@
+import _ from "lodash";
 import { memo } from "react";
 import { Controller } from "react-hook-form";
 import { Dimensions } from "react-native";
@@ -7,7 +8,7 @@ import primary from "../../../../../themes/colors/primary";
 import secondary from "../../../../../themes/colors/secondary";
 import montserrat from "../../../../../themes/fonts/montserrat";
 
-const MySelect = ({ control, detail }) => {
+const SimpleDropDown = ({ control, detail }) => {
   const data = detail.item.map((i) => ({
     key: i.key,
     label: i.title,
@@ -21,12 +22,11 @@ const MySelect = ({ control, detail }) => {
       render={({ field: { onChange, value } }) => {
         return (
           <Dropdown
+            disable={!!detail.disabled}
             data={data}
-            // search
-            // searchPlaceholder="Search"
             labelField="label"
             valueField="value"
-            placeholder="Select an option"
+            placeholder={_.startCase(detail.session) || "Select an option"}
             value={value || detail.preset}
             onChange={(item) => onChange(item.value)}
             containerStyle={{
@@ -55,8 +55,8 @@ const MySelect = ({ control, detail }) => {
               borderRadius: 4,
               borderWidth: 1,
               borderColor: baseColor[400],
-              backgroundColor: "transparent",
-              opacity: 1,
+              backgroundColor: detail.disabled ? baseColor[100] : "transparent",
+              opacity: detail.disabled ? 0.5 : 1,
               paddingHorizontal: 12,
             }}
             placeholderStyle={{
@@ -78,4 +78,4 @@ const MySelect = ({ control, detail }) => {
   );
 };
 
-export default memo(MySelect);
+export default memo(SimpleDropDown);

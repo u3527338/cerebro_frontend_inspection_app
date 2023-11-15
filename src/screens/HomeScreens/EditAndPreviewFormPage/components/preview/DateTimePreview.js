@@ -45,9 +45,15 @@ const DateTimePreview = ({ detail, control }) => {
               {_.startCase(detail.session || detail.type)}
             </Text>
 
-            {dates?.map((date, i) => (
-              <FormattedPreview key={i} date={date.date} label={date.label} />
-            ))}
+            {!!dates ? (
+              dates?.map((date, i) => (
+                <FormattedPreview key={i} date={date.date} label={date.label} />
+              ))
+            ) : (
+              <Text bold color="secondary.400">
+                No date
+              </Text>
+            )}
           </VStack>
         );
       }}
