@@ -1,4 +1,4 @@
-import { Box, Pressable, Text } from "native-base";
+import { Text } from "native-base";
 import { memo } from "react";
 import { Controller } from "react-hook-form";
 
@@ -8,14 +8,10 @@ const DefaultPreview = ({ control, detail }) => {
       name={detail.key}
       control={control}
       render={({ field: { onChange, onBlur, value } }) => (
-        <Box>
-          <Pressable onPress={() => alert(JSON.stringify(detail.item))}>
-            <Text color={"baseColor.400"}>
-              {value ||
-                `No value (type: ${detail.type}, component: DefaultPreview)`}
-            </Text>
-          </Pressable>
-        </Box>
+        <Text color={"baseColor.400"}>
+          {value ||
+            `No value (type: ${detail.type}, component: DefaultPreview)`}
+        </Text>
       )}
     />
   );

@@ -35,7 +35,7 @@ const SimpleDropDown = ({ control, detail }) => {
               padding: 8,
               paddingBottom: 0,
               minHeight: Dimensions.get("window").height * 0.5,
-              maxHeight: Dimensions.get("window").height * 0.9,
+              maxHeight: Dimensions.get("window").height * 0.85,
               width: Dimensions.get("window").width,
               position: "absolute",
               bottom: 0,

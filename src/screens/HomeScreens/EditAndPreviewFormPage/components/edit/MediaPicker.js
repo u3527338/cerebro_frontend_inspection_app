@@ -3,7 +3,6 @@ import * as DocumentPicker from "expo-document-picker";
 import * as FileSystem from "expo-file-system";
 import { manipulateAsync } from "expo-image-manipulator";
 import * as ImagePicker from "expo-image-picker";
-import * as WebBrowser from "expo-web-browser";
 import {
   Actionsheet,
   Box,
@@ -18,8 +17,10 @@ import {
 } from "native-base";
 import { memo, useEffect, useState } from "react";
 import { Controller } from "react-hook-form";
-import ImageViewer from "react-native-image-zoom-viewer";
+import { Dimensions } from "react-native";
 import Modal from "react-native-modal";
+import Carousel from "react-native-reanimated-carousel";
+import { WebView } from "react-native-webview";
 import LoadingComponent from "../../../../../components/common/LoadingComponent";
 import useDefaultAPI from "../../../../../hocks/useDefaultAPI";
 
@@ -33,6 +34,17 @@ const MIME_TYPE = {
   pdf: "application/pdf",
 };
 
+const PdfPreview = ({ uri }) => {
+  return (
+    <WebView
+      originWhitelist={["*"]}
+      source={{
+        uri: uri,
+      }}
+      style={{ width: "100%", height: "100%" }}
+    />
+  );
+};
 const ImageSource = ({
   uri,
   size = { height: "100%", width: "100%" },
@@ -250,9 +262,9 @@ const MediaPicker = ({ control, detail, editable = true, imageOnly }) => {
     }
   };
 
-  const handlePdfPreview = () => {
-    WebBrowser.openBrowserAsync(filePath[previewFile].path);
-  };
+  // const handlePdfPreview = () => {
+  //   WebBrowser.openBrowserAsync(filePath[previewFile].path);
+  // };
 
   const handleDeleteFile = (onChange) => {
     const fileIdToDelete = filePath[previewFile].id;
@@ -352,17 +364,20 @@ const MediaPicker = ({ control, detail, editable = true, imageOnly }) => {
             </Actionsheet>
 
             <Modal
-              isVisible={previewFile !== null && previewFile >= 0}
+              isVisible={
+                previewFile !== null && previewFile >= 0 && !!filePath.length
+              }
               onBackdropPress={() => setPreviewFile(null)}
             >
               <Box h={"70%"}>
                 <HStack
+                  w={Dimensions.get("window").width * 0.9}
                   p={2}
                   bg={"baseColor.500"}
                   borderTopRadius={8}
                   justifyContent={"space-between"}
                 >
-                  <Pressable
+                  {/* <Pressable
                     onPress={handlePdfPreview}
                     justifyContent={"center"}
                     px={2}
@@ -370,7 +385,7 @@ const MediaPicker = ({ control, detail, editable = true, imageOnly }) => {
                     _disabled={{ display: "none" }}
                   >
                     <Text p={1}>Open PDF</Text>
-                  </Pressable>
+                  </Pressable> */}
                   {editable && (
                     <Pressable
                       onPress={() => handleDeleteFile(onChange)}
@@ -383,18 +398,25 @@ const MediaPicker = ({ control, detail, editable = true, imageOnly }) => {
                     </Pressable>
                   )}
                 </HStack>
-                <ImageViewer
-                  loadingRender={() => <LoadingComponent />}
-                  renderImage={(props) => {
-                    return props.source.uri.includes(".pdf") ? (
-                      <PdfLogo />
+                <Carousel
+                  width={Dimensions.get("window").width * 0.9}
+                  height={Dimensions.get("window").height * 0.65}
+                  data={filePath}
+                  defaultIndex={previewFile}
+                  onSnapToItem={setPreviewFile}
+                  loop={false}
+                  renderItem={({ index }) => {
+                    return filePath[index].path.includes(".pdf") ? (
+                      <PdfPreview uri={filePath[index].path} />
                     ) : (
-                      <ImageSource uri={props.source.uri} />
+                      <ImageSource uri={filePath[index].path} />
                     );
                   }}
-                  index={previewFile}
-                  onChange={setPreviewFile}
-                  imageUrls={filePath.map((i) => ({ url: i.path }))}
+                  style={{
+                    borderBottomLeftRadius: 8,
+                    borderBottomRightRadius: 8,
+                    backgroundColor: "black",
+                  }}
                 />
               </Box>
             </Modal>

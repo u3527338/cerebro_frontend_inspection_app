@@ -5,6 +5,7 @@ import {
   Button,
   Center,
   HStack,
+  Pressable,
   ScrollView,
   Spacer,
   Text,
@@ -63,6 +64,8 @@ const Body = ({ sessions, hasNextStep, currentStep, loading }) => {
         : currentFlow.role;
   }
 
+  const [disabled, setDisabled] = useState(false);
+  const [preview, setPreview] = useState(false);
   return (
     <VStack space={2} justifyContent={"space-between"} h={"85%"}>
       <ScrollView
@@ -71,6 +74,46 @@ const Body = ({ sessions, hasNextStep, currentStep, loading }) => {
         showsVerticalScrollIndicator={false}
         nestedScrollEnabled
       >
+        <HStack justifyContent={"space-around"} p={2}>
+          <Pressable
+            onPress={() => {
+              setDisabled(false);
+              setPreview(false);
+            }}
+            bgColor={"primary.500"}
+            p={2}
+          >
+            <Text>DEFAULT</Text>
+          </Pressable>
+          <Pressable
+            onPress={() => {
+              setDisabled(!disabled);
+              setPreview(false);
+            }}
+            bgColor={"primary.500"}
+            p={2}
+            disabled={disabled}
+            _disabled={{ opacity: 0.5 }}
+          >
+            <Text>SET DISABLED</Text>
+          </Pressable>
+          <Pressable
+            onPress={() => {
+              setDisabled(false);
+              setPreview(!preview);
+            }}
+            bgColor={"primary.500"}
+            p={2}
+            disabled={preview}
+            _disabled={{ opacity: 0.5 }}
+          >
+            <Text>SET PREVIEW</Text>
+          </Pressable>
+        </HStack>
+        <HStack justifyContent={"space-around"} p={1}>
+          <Text bold color="black">{`Disabled: ${disabled}`}</Text>
+          <Text bold color="black">{`Preview: ${preview}`}</Text>
+        </HStack>
         <VStack
           bg={"white"}
           borderRadius={6}
@@ -80,14 +123,14 @@ const Body = ({ sessions, hasNextStep, currentStep, loading }) => {
           mb={10}
         >
           {sessions.template.map((t, i) => {
-            const preview =
-              !intersectionWith(currentPermission, t.editable, isEqual)
-                .length ||
-              !hasNextStep ||
-              !intersectionWith(editRole, t.editable, isEqual).length;
+            // const preview =
+            //   !intersectionWith(currentPermission, t.editable, isEqual)
+            //     .length ||
+            //   !hasNextStep ||
+            //   !intersectionWith(editRole, t.editable, isEqual).length;
             return (
               <ComponentRender
-                template={t}
+                template={{ ...t, disabled: disabled }}
                 control={control}
                 preview={preview}
                 key={i}

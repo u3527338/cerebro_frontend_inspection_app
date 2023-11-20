@@ -66,7 +66,7 @@ const InputRender = ({ control, template, preview }) => {
     case "radio":
     case "radioButtonGroup":
       return preview ? (
-        <TextInput control={control} detail={template} />
+        <DefaultPreview control={control} detail={template} />
       ) : (
         <RadioButtonGroup control={control} detail={template} />
       );
