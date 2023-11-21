@@ -5,6 +5,7 @@ import { manipulateAsync } from "expo-image-manipulator";
 import * as ImagePicker from "expo-image-picker";
 import {
   Actionsheet,
+  Badge,
   Box,
   Center,
   HStack,
@@ -23,6 +24,7 @@ import Carousel from "react-native-reanimated-carousel";
 import { WebView } from "react-native-webview";
 import LoadingComponent from "../../../../../components/common/LoadingComponent";
 import useDefaultAPI from "../../../../../hocks/useDefaultAPI";
+import { FontAwesome } from "@expo/vector-icons";
 
 const FileType = {
   IMAGE: "image",
@@ -82,7 +84,76 @@ const PdfLogo = ({ style = null, color = "red.500" }) => {
   );
 };
 
-const FileGallery = ({ loading, filePath = [], handlePreviewFile }) => {
+const DeleteBadge = ({ handleDeleteFile, disabled }) => {
+  return (
+    <Pressable
+      mb={-3}
+      mr={-3}
+      zIndex={1}
+      onPress={handleDeleteFile}
+      disabled={disabled}
+      _disabled={{ opacity: 0.5 }}
+    >
+      <Badge
+        colorScheme="danger"
+        rounded={8}
+        variant="solid"
+        alignSelf="flex-end"
+      >
+        <Icon
+          pl={0.5}
+          as={<FontAwesome name="trash-o" />}
+          color="white"
+          size={4}
+        />
+      </Badge>
+    </Pressable>
+  );
+};
+
+const File = ({ file, handlePreviewFile, handleDeleteFile }) => {
+  const [loading, setLoading] = useState(false);
+  return (
+    <Pressable key={file.id} onPress={handlePreviewFile}>
+      <DeleteBadge
+        disabled={loading}
+        handleDeleteFile={() => {
+          setLoading(true);
+          handleDeleteFile(file.id);
+        }}
+      />
+      {!file.path.includes(".pdf") ? (
+        <ImageSource
+          uri={file.path}
+          size={{
+            height: "100px",
+            width: "100px",
+          }}
+          bgColor="primary.100"
+        />
+      ) : (
+        <PdfLogo
+          style={{
+            h: "100px",
+            w: "100px",
+            borderColor: "red.400",
+            borderWidth: 1,
+            borderRadius: "md",
+            borderStyle: "dashed",
+            backgroundColor: "red.100",
+          }}
+        />
+      )}
+    </Pressable>
+  );
+};
+
+const FileGallery = ({
+  loading,
+  filePath = [],
+  handlePreviewFile,
+  handleDeleteFile,
+}) => {
   if (loading)
     return (
       <Center h={120}>
@@ -98,38 +169,19 @@ const FileGallery = ({ loading, filePath = [], handlePreviewFile }) => {
     );
 
   return (
-    <ScrollView horizontal>
-      {filePath.map((file, index) => (
-        <Pressable
-          mt={2}
-          mx={2}
-          key={file.id}
-          onPress={() => handlePreviewFile(index)}
-        >
-          {!file.path.includes(".pdf") ? (
-            <ImageSource
-              uri={file.path}
-              size={{
-                height: "100px",
-                width: "100px",
-              }}
-              bgColor="primary.100"
-            />
-          ) : (
-            <PdfLogo
-              style={{
-                h: "100px",
-                w: "100px",
-                borderColor: "red.400",
-                borderWidth: 1,
-                borderRadius: "md",
-                borderStyle: "dashed",
-                backgroundColor: "red.100",
-              }}
-            />
-          )}
-        </Pressable>
-      ))}
+    <ScrollView horizontal showsHorizontalScrollIndicator={false}>
+      <HStack space={6}>
+        {filePath.map((file, index) => (
+          <File
+            key={file.id}
+            file={file}
+            handlePreviewFile={() => {
+              handlePreviewFile(index);
+            }}
+            handleDeleteFile={handleDeleteFile}
+          />
+        ))}
+      </HStack>
     </ScrollView>
   );
 };
@@ -159,6 +211,7 @@ const MediaPicker = ({ control, detail, editable = true, imageOnly }) => {
   const { uploadFile, deleteFileById, getFileFromId } = useDefaultAPI();
   const [filePath, setFilePath] = useState([]);
   const [loading, setLoading] = useState(false);
+  const [modal, setModal] = useState(false);
   const [previewFile, setPreviewFile] = useState(null);
 
   const processUploadFiles = (payload, fileObj, newFileArr, type) => {
@@ -266,21 +319,6 @@ const MediaPicker = ({ control, detail, editable = true, imageOnly }) => {
   //   WebBrowser.openBrowserAsync(filePath[previewFile].path);
   // };
 
-  const handleDeleteFile = (onChange) => {
-    const fileIdToDelete = filePath[previewFile].id;
-    deleteFileById(fileIdToDelete)
-      .then((response) => {
-        onChange(
-          filePath
-            .filter((files) => files.id !== fileIdToDelete)
-            .map((file) => file.id)
-            .join(",")
-        );
-        setPreviewFile(null);
-      })
-      .catch((err) => alert("Delete File Error"));
-  };
-
   useEffect(() => {
     (async () => {
       if (Platform.OS !== "web") {
@@ -321,6 +359,20 @@ const MediaPicker = ({ control, detail, editable = true, imageOnly }) => {
           }
         };
 
+        const handleDeleteFile = (fileIdToDelete) => {
+          deleteFileById(fileIdToDelete)
+            .then((response) => {
+              onChange(
+                filePath
+                  .filter((files) => files.id !== fileIdToDelete)
+                  .map((file) => file.id)
+                  .join(",")
+              );
+              setPreviewFile(null);
+            })
+            .catch((err) => alert("Delete File Error"));
+        };
+
         return (
           <>
             {editable && (
@@ -343,7 +395,11 @@ const MediaPicker = ({ control, detail, editable = true, imageOnly }) => {
             <FileGallery
               loading={loading}
               filePath={filePath}
-              handlePreviewFile={setPreviewFile}
+              handlePreviewFile={(index) => {
+                setPreviewFile(index);
+                setModal(true);
+              }}
+              handleDeleteFile={handleDeleteFile}
             />
 
             <Actionsheet isOpen={isOpen} onClose={onClose}>
@@ -362,44 +418,15 @@ const MediaPicker = ({ control, detail, editable = true, imageOnly }) => {
             </Actionsheet>
 
             <Modal
-              isVisible={
-                previewFile !== null && previewFile >= 0 && !!filePath.length
-              }
-              onBackdropPress={() => setPreviewFile(null)}
+              isVisible={modal}
+              onBackdropPress={() => {
+                setModal(false);
+              }}
             >
               <Box h={"70%"}>
-                <HStack
-                  w={Dimensions.get("window").width * 0.9}
-                  p={2}
-                  bg={"baseColor.500"}
-                  borderTopRadius={8}
-                  justifyContent={"space-between"}
-                  flexDirection="row-reverse"
-                >
-                  {/* <Pressable
-                    onPress={handlePdfPreview}
-                    justifyContent={"center"}
-                    px={2}
-                    disabled={!filePath[previewFile]?.path?.includes(".pdf")}
-                    _disabled={{ display: "none" }}
-                  >
-                    <Text p={1}>Open PDF</Text>
-                  </Pressable> */}
-                  {editable && (
-                    <Pressable
-                      onPress={() => handleDeleteFile(onChange)}
-                      px={2}
-                      justifyContent={"center"}
-                      backgroundColor="red.700"
-                      borderRadius={4}
-                    >
-                      <Text p={1}>Delete</Text>
-                    </Pressable>
-                  )}
-                </HStack>
                 <Carousel
                   width={Dimensions.get("window").width * 0.9}
-                  height={Dimensions.get("window").height * 0.65}
+                  height={Dimensions.get("window").height * 0.7}
                   data={filePath}
                   defaultIndex={previewFile}
                   onSnapToItem={setPreviewFile}
@@ -412,8 +439,7 @@ const MediaPicker = ({ control, detail, editable = true, imageOnly }) => {
                     );
                   }}
                   style={{
-                    borderBottomLeftRadius: 8,
-                    borderBottomRightRadius: 8,
+                    borderRadius: 8,
                     backgroundColor: "black",
                   }}
                 />
