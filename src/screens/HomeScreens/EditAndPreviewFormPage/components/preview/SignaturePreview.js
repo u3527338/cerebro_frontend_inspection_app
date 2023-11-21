@@ -1,20 +1,9 @@
-import { Controller } from "react-hook-form";
-import {
-  AspectRatio,
-  Box,
-  Center,
-  Image,
-  Text,
-  Spinner,
-  VStack,
-  HStack,
-} from "native-base";
-import LoadingComponent from "../../../../../components/common/LoadingComponent";
+import { Box, Center, HStack, Image, Spinner, Text, VStack } from "native-base";
 import { useEffect, useState } from "react";
+import { Controller } from "react-hook-form";
 import useDefaultAPI from "../../../../../hocks/useDefaultAPI";
-import moment from "moment";
 
-const ImageRender = ({ path, name }) => {
+const ImageRender = ({ path }) => {
   const [loading, setIsLoading] = useState(false);
   const [storagePath, setStoragePath] = useState("");
   const [errorMessage, setErrorMessage] = useState("");
@@ -23,12 +12,10 @@ const ImageRender = ({ path, name }) => {
   const get_media = (media) =>
     media.includes("/") ? getFileFromPath(media) : getFileFromId(media);
   const mediaHandler = () => {
-    console.log("mediaHandler", path[0]);
     if (path[0].length > 3) {
       setIsLoading(true);
       get_media(path[0])
         .then((response) => {
-          console.log("response", response.data);
           setStoragePath(response.data.path);
         })
         .catch(() => setErrorMessage("No Data Found"))
@@ -108,7 +95,7 @@ const SignaturePreview = ({ detail, control }) => {
       name={detail.key}
       control={control}
       render={({ field: { onChange, onBlur, value } }) => (
-        <ImageRender path={value} name={`${detail.key}`} />
+        <ImageRender path={value} />
       )}
     />
   );

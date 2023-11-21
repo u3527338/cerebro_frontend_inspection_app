@@ -1,4 +1,3 @@
-import _ from "lodash";
 import moment from "moment";
 import { HStack, Text, VStack } from "native-base";
 import { memo } from "react";
@@ -26,6 +25,7 @@ const FormattedPreview = ({ date, label }) => {
     </HStack>
   );
 };
+
 const DateTimePreview = ({ detail, control }) => {
   const rangeLabel = ["Start", "End"];
   return (
@@ -40,11 +40,7 @@ const DateTimePreview = ({ detail, control }) => {
         }));
 
         return (
-          <VStack m={0}>
-            <Text m={-2} pb={4} color={"baseColor.300"} fontSize={"xs"}>
-              {_.startCase(detail.session || detail.type)}
-            </Text>
-
+          <>
             {!!dates ? (
               dates?.map((date, i) => (
                 <FormattedPreview key={i} date={date.date} label={date.label} />
@@ -54,7 +50,7 @@ const DateTimePreview = ({ detail, control }) => {
                 No date
               </Text>
             )}
-          </VStack>
+          </>
         );
       }}
     />

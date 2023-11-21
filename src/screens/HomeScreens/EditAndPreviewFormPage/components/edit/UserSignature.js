@@ -14,11 +14,11 @@ import { memo, useContext, useEffect, useRef, useState } from "react";
 import { Controller } from "react-hook-form";
 import Modal from "react-native-modal";
 import SignatureScreen from "react-native-signature-canvas";
+import uuid from "react-native-uuid";
 import LoadingComponent from "../../../../../components/common/LoadingComponent";
+import { AuthContext } from "../../../../../context/authContext";
 import useDefaultAPI from "../../../../../hocks/useDefaultAPI";
 import primary from "../../../../../themes/colors/primary";
-import uuid from "react-native-uuid";
-import { AuthContext } from "../../../../../context/authContext";
 
 const SignatureModal = ({ open, callback, closeSignature, label }) => {
   const ref = useRef();
@@ -67,7 +67,7 @@ const UserSignature = ({ control, detail }) => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const [signature, setSignature] = useState(null);
-  const { uploadFile, getFileFromId } = useDefaultAPI();
+  const { uploadFile, getFileFromId, deleteFileById } = useDefaultAPI();
 
   return (
     <Controller
@@ -123,6 +123,14 @@ const UserSignature = ({ control, detail }) => {
             });
         };
 
+        const handleClearSignature = () => {
+          deleteFileById(value[0])
+            .then((response) => {
+              onChange([]);
+            })
+            .catch((err) => alert("Delete Signature Error"));
+        };
+
         useEffect(() => {
           if (!value[0]) {
             setSignature(null);
@@ -144,22 +152,46 @@ const UserSignature = ({ control, detail }) => {
                 {error}
               </Text>
             ) : signature ? (
-              <Box
-                h={100}
-                w={160}
-                borderColor="baseColor.300"
-                borderRadius="sm"
-                borderWidth={1}
-              >
-                <Image
-                  source={{ uri: signature }}
-                  h="100%"
-                  w="100%"
-                  resizeMode="contain"
-                  zIndex={1}
-                  alt={"Cannot load image"}
-                />
-              </Box>
+              <VStack>
+                <Box
+                  h={100}
+                  w={160}
+                  borderColor="baseColor.300"
+                  borderRadius="sm"
+                  borderWidth={1}
+                >
+                  <Image
+                    source={{ uri: signature }}
+                    h="100%"
+                    w="100%"
+                    resizeMode="contain"
+                    zIndex={1}
+                    alt={"Cannot load image"}
+                  />
+                </Box>
+                <HStack space={2} pt={2}>
+                  <Pressable
+                    onPress={() => {
+                      console.log("save as default signature");
+                    }}
+                    bgColor="primary.400"
+                    borderRadius={4}
+                  >
+                    <Text color="white" p={2}>
+                      SAVE
+                    </Text>
+                  </Pressable>
+                  <Pressable
+                    onPress={handleClearSignature}
+                    bgColor="primary.400"
+                    borderRadius={4}
+                  >
+                    <Text color="white" p={2}>
+                      CLEAR
+                    </Text>
+                  </Pressable>
+                </HStack>
+              </VStack>
             ) : (
               <HStack justifyContent="space-between" alignItems="center">
                 <Text

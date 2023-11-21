@@ -1,13 +1,10 @@
 import { MaterialCommunityIcons } from "@expo/vector-icons";
-import _ from "lodash";
 import moment from "moment";
-import { Box, HStack, Pressable, Text } from "native-base";
+import { Box, HStack, Icon, Pressable, Text } from "native-base";
 import React, { memo, useCallback, useState } from "react";
 import { Controller } from "react-hook-form";
 import { DatePickerModal } from "react-native-paper-dates";
 import baseColor from "../../../../../themes/colors/baseColor";
-import primary from "../../../../../themes/colors/primary";
-import secondary from "../../../../../themes/colors/secondary";
 
 const dateConverter = (date, formatter = null) =>
   formatter
@@ -78,41 +75,8 @@ const MyDateTimePicker = ({ control, detail }) => {
                 ),
               }}
             />
-            <Pressable
-              p={2}
-              mx={-2}
-              borderRadius={4}
-              backgroundColor={primary[100]}
-              _pressed={{ backgroundColor: primary[200] }}
-              _disabled={{ backgroundColor: "transparent", p: 0 }}
-              underlayColor={secondary[600]}
-              onPress={() => {
-                setOpen(true);
-              }}
-              disabled={detail.disabled}
-            >
-              <HStack justifyContent="space-between" alignItems={"center"}>
-                <Text
-                  color={"baseColor.300"}
-                  numberOfLines={1}
-                  ellipsizeMode="tail"
-                  fontSize={"xs"}
-                  maxWidth={"90%"}
-                >
-                  {_.startCase(detail.session || "Pick A Date")}
-                </Text>
 
-                {!detail.disabled && (
-                  <MaterialCommunityIcons
-                    name="calendar-edit"
-                    size={18}
-                    color="gray"
-                  />
-                )}
-              </HStack>
-            </Pressable>
             <Box
-              mt={2}
               p={2}
               px={3}
               borderRadius={5}
@@ -125,12 +89,28 @@ const MyDateTimePicker = ({ control, detail }) => {
                 opacity: detail.disabled ? 0.5 : 1,
               }}
             >
-              <Text width="100%" color={"baseColor.400"}>
-                {`${dateConverter(
-                  value?.split(",")[0],
-                  "ll"
-                )} - ${dateConverter(value?.split(",")[1], "ll")}`}
-              </Text>
+              <HStack justifyContent="space-between" alignItems={"center"}>
+                <Text color={"baseColor.400"}>
+                  {`${dateConverter(
+                    value?.split(",")[0],
+                    "ll"
+                  )} - ${dateConverter(value?.split(",")[1], "ll")}`}
+                </Text>
+                {!detail.disabled && (
+                  <Pressable
+                    onPress={() => {
+                      setOpen(true);
+                    }}
+                    disabled={detail.disabled}
+                  >
+                    <Icon
+                      size={"md"}
+                      as={<MaterialCommunityIcons name="calendar-edit" />}
+                      color="secondary.400"
+                    />
+                  </Pressable>
+                )}
+              </HStack>
             </Box>
           </>
         );

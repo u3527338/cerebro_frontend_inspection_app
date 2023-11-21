@@ -5,9 +5,9 @@ import MyCheckBox from "./edit/CheckBox";
 import DateTimePicker from "./edit/DateTimePicker";
 import MediaPicker from "./edit/MediaPicker";
 import MyMultiSelect from "./edit/MyMultiSelect";
-import SimpleDropDown from "./edit/SimpleDropDown";
 import NestedDropDown from "./edit/NestedDropDown";
 import RadioButtonGroup from "./edit/RadioButtonGroup";
+import SimpleDropDown from "./edit/SimpleDropDown";
 import TextInput from "./edit/TextInput";
 import UserSignature from "./edit/UserSignature";
 import DateTimePreview from "./preview/DateTimePreview";
@@ -109,7 +109,7 @@ const InputRender = ({ control, template, preview }) => {
 };
 
 export const ComponentRender = ({ control, template, preview }) => {
-  const customSession = ["checkbox", "datetimepicker", "autocomplete"];
+  const customSession = ["checkbox", "autocomplete"];
   return (
     <Box bgColor={template.bgColor} px={4} pt={2}>
       {!customSession.includes(template.type) && !!template.session && (
