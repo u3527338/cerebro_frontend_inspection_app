@@ -111,17 +111,25 @@ const DeleteBadge = ({ handleDeleteFile, disabled }) => {
   );
 };
 
-const File = ({ file, handlePreviewFile, handleDeleteFile }) => {
+const File = ({
+  file,
+  handlePreviewFile,
+  handleDeleteFile,
+  editable,
+  disabled,
+}) => {
   const [loading, setLoading] = useState(false);
   return (
     <Pressable key={file.id} onPress={handlePreviewFile}>
-      <DeleteBadge
-        disabled={loading}
-        handleDeleteFile={() => {
-          setLoading(true);
-          handleDeleteFile(file.id);
-        }}
-      />
+      {editable && (
+        <DeleteBadge
+          disabled={loading || disabled}
+          handleDeleteFile={() => {
+            setLoading(true);
+            handleDeleteFile(file.id);
+          }}
+        />
+      )}
       {!file.path.includes(".pdf") ? (
         <ImageSource
           uri={file.path}
@@ -153,6 +161,8 @@ const FileGallery = ({
   filePath = [],
   handlePreviewFile,
   handleDeleteFile,
+  editable,
+  disabled,
 }) => {
   if (loading)
     return (
@@ -170,7 +180,7 @@ const FileGallery = ({
 
   return (
     <ScrollView horizontal showsHorizontalScrollIndicator={false}>
-      <HStack space={6}>
+      <HStack space={6} pr={10}>
         {filePath.map((file, index) => (
           <File
             key={file.id}
@@ -179,6 +189,8 @@ const FileGallery = ({
               handlePreviewFile(index);
             }}
             handleDeleteFile={handleDeleteFile}
+            editable={editable}
+            disabled={disabled}
           />
         ))}
       </HStack>
@@ -400,6 +412,8 @@ const MediaPicker = ({ control, detail, editable = true, imageOnly }) => {
                 setModal(true);
               }}
               handleDeleteFile={handleDeleteFile}
+              editable={editable}
+              disabled={detail.disabled}
             />
 
             <Actionsheet isOpen={isOpen} onClose={onClose}>
@@ -423,27 +437,25 @@ const MediaPicker = ({ control, detail, editable = true, imageOnly }) => {
                 setModal(false);
               }}
             >
-              <Box h={"70%"}>
-                <Carousel
-                  width={Dimensions.get("window").width * 0.9}
-                  height={Dimensions.get("window").height * 0.7}
-                  data={filePath}
-                  defaultIndex={previewFile}
-                  onSnapToItem={setPreviewFile}
-                  loop={false}
-                  renderItem={({ index }) => {
-                    return filePath[index].path.includes(".pdf") ? (
-                      <PdfPreview uri={filePath[index].path} />
-                    ) : (
-                      <ImageSource uri={filePath[index].path} />
-                    );
-                  }}
-                  style={{
-                    borderRadius: 8,
-                    backgroundColor: "black",
-                  }}
-                />
-              </Box>
+              <Carousel
+                width={Dimensions.get("window").width * 0.9}
+                height={Dimensions.get("window").height * 0.7}
+                data={filePath}
+                defaultIndex={previewFile}
+                onSnapToItem={setPreviewFile}
+                loop={false}
+                renderItem={({ index }) => {
+                  return filePath[index].path.includes(".pdf") ? (
+                    <PdfPreview uri={filePath[index].path} />
+                  ) : (
+                    <ImageSource uri={filePath[index].path} />
+                  );
+                }}
+                style={{
+                  borderRadius: 8,
+                  backgroundColor: "black",
+                }}
+              />
             </Modal>
           </>
         );

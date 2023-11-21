@@ -32,7 +32,7 @@ const SignatureModal = ({ open, callback, closeSignature, label }) => {
     font-size: 10px;
     width: 90%;
     height: 80%;
-    margin: 5%;
+    margin-left: 5%;
     border: 1px solid #e8e8e8;
     background-color: #fff;
     box-shadow: 0 1px 4px rgba(0, 0, 0, 0.27), 0 0 40px rgba(0, 0, 0, 0.08) inset;
@@ -47,7 +47,7 @@ const SignatureModal = ({ open, callback, closeSignature, label }) => {
       onBackdropPress={closeSignature}
       propagateSwipe={true}
     >
-      <Box h="80%" bg="white" py={7} px={0}>
+      <Box h="80%" bg="white" py={1} pr={6}>
         <SignatureScreen
           ref={ref}
           onOK={callback}
@@ -176,6 +176,8 @@ const UserSignature = ({ control, detail }) => {
                     }}
                     bgColor="primary.400"
                     borderRadius={4}
+                    disabled={detail.disabled}
+                    _disabled={{ opacity: 0.7 }}
                   >
                     <Text color="white" p={2}>
                       SAVE
@@ -185,6 +187,8 @@ const UserSignature = ({ control, detail }) => {
                     onPress={handleClearSignature}
                     bgColor="primary.400"
                     borderRadius={4}
+                    disabled={detail.disabled}
+                    _disabled={{ opacity: 0.7 }}
                   >
                     <Text color="white" p={2}>
                       CLEAR
