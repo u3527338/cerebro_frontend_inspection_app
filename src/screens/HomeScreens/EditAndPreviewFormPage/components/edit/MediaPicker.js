@@ -349,13 +349,11 @@ const MediaPicker = ({ control, detail, editable = true, imageOnly }) => {
             <Actionsheet isOpen={isOpen} onClose={onClose}>
               <Actionsheet.Content>
                 <Actionsheet.Item
-                  disabled={false}
                   onPress={() => handleLaunchImageGallery(onChange)}
                 >
                   Image
                 </Actionsheet.Item>
                 <Actionsheet.Item
-                  disabled={false}
                   onPress={() => handleLaunchDocumentLibrary(onChange)}
                 >
                   Document
@@ -376,6 +374,7 @@ const MediaPicker = ({ control, detail, editable = true, imageOnly }) => {
                   bg={"baseColor.500"}
                   borderTopRadius={8}
                   justifyContent={"space-between"}
+                  flexDirection="row-reverse"
                 >
                   {/* <Pressable
                     onPress={handlePdfPreview}

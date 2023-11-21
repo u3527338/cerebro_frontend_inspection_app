@@ -1,8 +1,16 @@
 import { Ionicons } from "@expo/vector-icons";
 import * as FileSystem from "expo-file-system";
 import _ from "lodash";
-import { Box, Center, HStack, Image, Pressable, Text } from "native-base";
-import { memo, useEffect, useRef, useState } from "react";
+import {
+  Box,
+  Center,
+  HStack,
+  Image,
+  Pressable,
+  Text,
+  VStack,
+} from "native-base";
+import { memo, useContext, useEffect, useRef, useState } from "react";
 import { Controller } from "react-hook-form";
 import Modal from "react-native-modal";
 import SignatureScreen from "react-native-signature-canvas";
@@ -10,6 +18,7 @@ import LoadingComponent from "../../../../../components/common/LoadingComponent"
 import useDefaultAPI from "../../../../../hocks/useDefaultAPI";
 import primary from "../../../../../themes/colors/primary";
 import uuid from "react-native-uuid";
+import { AuthContext } from "../../../../../context/authContext";
 
 const SignatureModal = ({ open, callback, closeSignature, label }) => {
   const ref = useRef();
@@ -53,76 +62,75 @@ const SignatureModal = ({ open, callback, closeSignature, label }) => {
 };
 
 const UserSignature = ({ control, detail }) => {
+  const { full_name } = useContext(AuthContext);
   const [open, setOpen] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const [signature, setSignature] = useState(null);
   const { uploadFile, getFileFromId } = useDefaultAPI();
 
-  const getSignatureImage = async (signature, onChange) => {
-    setLoading(true);
-    const path = `${FileSystem.cacheDirectory}sign${uuid.v4()}.png`;
-    FileSystem.writeAsStringAsync(
-      path,
-      signature.replace("data:image/png;base64,", ""),
-      { encoding: FileSystem.EncodingType.Base64 }
-    )
-      .then((res) => {
-        FileSystem.getInfoAsync(path, { size: true, md5: true })
-          .then((file) => {
-            const payload = {
-              file_name: file.uri.split("/").pop(),
-              file_type: "image/png",
-              size: file.size,
-            };
-            const fileObj = {
-              name: file.uri.split("/").pop(),
-              type: "image/png",
-              uri: file.uri,
-              size: file.size,
-            };
-            uploadFile(payload, { storage_path: "signature" })
-              .then((response) => {
-                setSignature(response.data.path);
-                onChange(response.data.file);
-                const gcs_upload_path = response.data.signed_url;
-                fetch(gcs_upload_path, {
-                  method: "PUT",
-                  body: fileObj,
-                  headers: {
-                    "Content-Type": "image/png",
-                  },
-                })
-                  .catch((err) => setError(err.message))
-                  .finally(() => {
-                    setLoading(false);
-                    setOpen(false);
-                  });
-              })
-              .catch((err) => setError(err.message));
-          })
-          .catch((err) => setError(err.message));
-      })
-      .catch((err) => {
-        setError(err.message);
-      });
-  };
-
   return (
     <Controller
       name={detail.key}
       control={control}
-      render={({ field: { onChange, value } }) => {
-        const handleSignature = (signature) => {
-          getSignatureImage(signature, onChange);
+      render={({ field: { onChange, value = [] } }) => {
+        const handleSignature = async (signature) => {
+          setLoading(true);
+          setOpen(false);
+          const path = `${FileSystem.cacheDirectory}${uuid.v4()}.png`;
+          FileSystem.writeAsStringAsync(
+            path,
+            signature.replace("data:image/png;base64,", ""),
+            { encoding: FileSystem.EncodingType.Base64 }
+          )
+            .then((res) => {
+              FileSystem.getInfoAsync(path, { size: true, md5: true })
+                .then((file) => {
+                  const payload = {
+                    file_name: file.uri.split("/").pop(),
+                    file_type: "image/png",
+                    size: file.size,
+                  };
+                  const fileObj = {
+                    name: file.uri.split("/").pop(),
+                    type: "image/png",
+                    uri: file.uri,
+                    size: file.size,
+                  };
+                  uploadFile(payload, { storage_path: "signature" })
+                    .then((response) => {
+                      setSignature(response.data.path);
+                      onChange([response.data.file, full_name]);
+                      const gcs_upload_path = response.data.signed_url;
+                      fetch(gcs_upload_path, {
+                        method: "PUT",
+                        body: fileObj,
+                        headers: {
+                          "Content-Type": "image/png",
+                        },
+                      })
+                        .catch((err) => setError(err.message))
+                        .finally(() => {
+                          setLoading(false);
+                        });
+                    })
+                    .catch((err) => setError(err.message));
+                })
+                .catch((err) => setError(err.message));
+            })
+            .catch((err) => {
+              setError(err.message);
+            });
         };
 
         useEffect(() => {
-          if (!value) {
+          if (!value[0]) {
             setSignature(null);
             return;
           }
-          getFileFromId(value).then((result) => setSignature(result.data.path));
+          getFileFromId(value[0]).then((result) =>
+            setSignature(result.data.path)
+          );
         }, [value]);
 
         return (

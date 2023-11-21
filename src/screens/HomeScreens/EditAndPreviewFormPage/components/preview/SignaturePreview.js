@@ -23,10 +23,14 @@ const ImageRender = ({ path, name }) => {
   const get_media = (media) =>
     media.includes("/") ? getFileFromPath(media) : getFileFromId(media);
   const mediaHandler = () => {
+    console.log("mediaHandler", path[0]);
     if (path[0].length > 3) {
       setIsLoading(true);
       get_media(path[0])
-        .then((response) => setStoragePath(response.data.path))
+        .then((response) => {
+          console.log("response", response.data);
+          setStoragePath(response.data.path);
+        })
         .catch(() => setErrorMessage("No Data Found"))
         .finally(() => setIsLoading(false));
     } else {
@@ -68,28 +72,30 @@ const ImageRender = ({ path, name }) => {
               {path[1]}
             </Text>
           </HStack>
-          <AspectRatio ratio={{ base: 16 / 9 }} height={{ base: 120 }}>
-            {!errorMessage.length > 3 ? (
+          <Box h={100} w={160}>
+            {storagePath ? (
               <Image
-                rounded={"xl"}
                 source={{ uri: storagePath }}
-                alt={name}
+                h="100%"
+                w="100%"
                 resizeMode="contain"
+                zIndex={1}
+                alt={"Cannot load image"}
               />
             ) : (
               <Center rounded={"md"} bg={"baseColor.100"}>
                 <Text color={"baseColor.300"} bold>
-                  {errorMessage}
+                  {errorMessage || "No Signature Found"}
                 </Text>
               </Center>
             )}
-          </AspectRatio>
-          <HStack space={2}>
+          </Box>
+          {/* <HStack space={2}>
             <Text color={"baseColor.300"}>Signed at:</Text>
             <Text color={"baseColor.500"} bold>
               {moment(path[2]).format("YYYY-MM-DD HH:mm:ss")}
             </Text>
-          </HStack>
+          </HStack> */}
         </VStack>
       )}
     </>
