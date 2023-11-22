@@ -61,7 +61,6 @@ const MyDateTimePicker = ({ control, detail }) => {
             <TimePicker
               open={open}
               setOpen={setOpen}
-              // title={_.startCase(detail.session)}
               onChange={(range) => {
                 onChange(
                   `${dateConverter(range.startDate)},${dateConverter(
@@ -102,6 +101,9 @@ const MyDateTimePicker = ({ control, detail }) => {
                       setOpen(true);
                     }}
                     disabled={detail.disabled}
+                    p={1}
+                    borderRadius={4}
+                    _pressed={{ backgroundColor: "primary.100" }}
                   >
                     <Icon
                       size={"md"}

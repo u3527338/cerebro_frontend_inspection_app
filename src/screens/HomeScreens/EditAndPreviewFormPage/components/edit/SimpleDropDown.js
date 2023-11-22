@@ -1,19 +1,19 @@
-import _ from "lodash";
-import { memo } from "react";
+import { Entypo } from "@expo/vector-icons";
+import {
+  Actionsheet,
+  Box,
+  HStack,
+  Icon,
+  Pressable,
+  Text,
+  useDisclose,
+} from "native-base";
+import React, { memo } from "react";
 import { Controller } from "react-hook-form";
-import { Dimensions } from "react-native";
-import { Dropdown } from "react-native-element-dropdown";
 import baseColor from "../../../../../themes/colors/baseColor";
-import primary from "../../../../../themes/colors/primary";
-import secondary from "../../../../../themes/colors/secondary";
-import montserrat from "../../../../../themes/fonts/montserrat";
 
 const SimpleDropDown = ({ control, detail }) => {
-  const data = detail.item.map((i) => ({
-    key: i.key,
-    label: i.title,
-    value: i.title,
-  }));
+  const { isOpen, onOpen, onClose } = useDisclose();
 
   return (
     <Controller
@@ -21,57 +21,55 @@ const SimpleDropDown = ({ control, detail }) => {
       control={control}
       render={({ field: { onChange, value } }) => {
         return (
-          <Dropdown
-            disable={!!detail.disabled}
-            data={data}
-            labelField="label"
-            valueField="value"
-            placeholder={_.startCase(detail.session) || "Select an option"}
-            value={value || detail.preset}
-            onChange={(item) => onChange(item.value)}
-            containerStyle={{
-              backgroundColor: secondary[200],
-              borderRadius: 4,
-              padding: 8,
-              paddingBottom: 0,
-              minHeight: Dimensions.get("window").height * 0.5,
-              maxHeight: Dimensions.get("window").height * 0.85,
-              width: Dimensions.get("window").width,
-              position: "absolute",
-              bottom: 0,
-            }}
-            itemTextStyle={{
-              color: baseColor[400],
-              fontSize: 12,
-              fontWeight: "bold",
-              fontFamily: montserrat[700].normal,
-            }}
-            selectedStyle={{
-              backgroundColor: primary[500],
-              borderRadius: 12,
-            }}
-            activeColor={primary[300]}
-            style={{
-              borderRadius: 4,
-              borderWidth: 1,
-              borderColor: baseColor[400],
-              backgroundColor: detail.disabled ? baseColor[100] : "transparent",
-              opacity: detail.disabled ? 0.5 : 1,
-              paddingHorizontal: 12,
-            }}
-            placeholderStyle={{
-              color: baseColor[400],
-              fontSize: 14,
-              fontFamily: montserrat[400].normal,
-            }}
-            iconColor={baseColor[400]}
-            selectedTextStyle={{
-              color: baseColor[400],
-              fontSize: 14,
-              fontFamily: montserrat[400].normal,
-            }}
-            mode="modal"
-          />
+          <>
+            <Box
+              p={2}
+              px={3}
+              borderRadius={5}
+              borderWidth={1}
+              borderColor="baseColor.400"
+              style={{
+                backgroundColor: detail.disabled
+                  ? baseColor[100]
+                  : "transparent",
+                opacity: detail.disabled ? 0.5 : 1,
+              }}
+            >
+              <HStack justifyContent="space-between" alignItems={"center"}>
+                <Text color={"baseColor.400"}>{value || detail.session}</Text>
+                {!detail.disabled && (
+                  <Pressable
+                    onPress={onOpen}
+                    disabled={detail.disabled}
+                    borderRadius="full"
+                    _pressed={{ backgroundColor: "secondary.100" }}
+                  >
+                    <Icon
+                      size={5}
+                      as={Entypo}
+                      name={"chevron-small-down"}
+                      color={baseColor[400]}
+                    />
+                  </Pressable>
+                )}
+              </HStack>
+            </Box>
+            <Actionsheet isOpen={isOpen} onClose={onClose}>
+              <Actionsheet.Content>
+                {detail.item.map((item) => (
+                  <Actionsheet.Item
+                    key={item.key}
+                    onPress={() => {
+                      onChange(item.title);
+                      onClose();
+                    }}
+                  >
+                    {item.title}
+                  </Actionsheet.Item>
+                ))}
+              </Actionsheet.Content>
+            </Actionsheet>
+          </>
         );
       }}
     />
