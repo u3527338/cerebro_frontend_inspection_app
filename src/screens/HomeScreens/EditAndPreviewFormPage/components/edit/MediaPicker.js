@@ -47,6 +47,7 @@ const PdfPreview = ({ uri }) => {
     />
   );
 };
+
 const ImageSource = ({
   uri,
   size = { height: "100%", width: "100%" },
@@ -64,7 +65,7 @@ const ImageSource = ({
         rounded="md"
         h="100%"
         w="100%"
-        resizeMode="contain"
+        resizeMode="cover"
         zIndex={1}
         alt={"Cannot load image"}
       />
@@ -126,11 +127,11 @@ const File = ({
           disabled={loading || disabled}
           handleDeleteFile={() => {
             setLoading(true);
-            handleDeleteFile(file.id);
+            handleDeleteFile(file);
           }}
         />
       )}
-      {!file.path.includes(".pdf") ? (
+      {file.path.includes(".jpeg") ? (
         <ImageSource
           uri={file.path}
           size={{
@@ -226,111 +227,6 @@ const MediaPicker = ({ control, detail, editable = true, imageOnly }) => {
   const [modal, setModal] = useState(false);
   const [previewFile, setPreviewFile] = useState(null);
 
-  const processUploadFiles = (payload, fileObj, newFileArr, type) => {
-    return uploadFile(payload).then((response) => {
-      newFileArr.push({
-        id: response.data.file,
-        path: response.data.path,
-      });
-      const gcs_upload_path = response.data.signed_url;
-      return fetch(gcs_upload_path, {
-        method: "PUT",
-        body: fileObj,
-        headers: {
-          "Content-Type": MIME_TYPE[type],
-        },
-      });
-    });
-  };
-
-  const handleUploadFiles = (files, type, onChange) => {
-    let newFileArr = [];
-    setLoading(true);
-    const promises = files.map((file) => {
-      let payload = {
-        file_name: file.uri.split("/").pop(),
-        file_type: MIME_TYPE[type],
-        size: file.size,
-      };
-      let fileObj = {
-        uri: file.uri,
-        name: file.uri.split("/").pop(),
-        type: MIME_TYPE[type],
-        size: file.size,
-      };
-
-      return type === FileType.IMAGE
-        ? manipulateAsync(file.uri, [
-            {
-              resize: { width: 960, height: (960 * file.height) / file.width },
-            },
-          ]).then(async (result) => {
-            return FileSystem.getInfoAsync(result.uri).then((info) => {
-              payload = { ...payload, size: info.size };
-              fileObj = { ...fileObj, uri: info.uri, size: info.size };
-              return processUploadFiles(
-                payload,
-                fileObj,
-                newFileArr,
-                FileType.IMAGE
-              );
-            });
-          })
-        : processUploadFiles(payload, fileObj, newFileArr, FileType.PDF);
-    });
-    Promise.all(promises)
-      .then(() => {
-        onChange([...filePath, ...newFileArr].map((file) => file.id).join(","));
-        setLoading(false);
-      })
-      .catch((error) => {
-        console.error(error);
-      });
-  };
-
-  const handleLaunchImageGallery = async (onChange) => {
-    onClose();
-    const result = await ImagePicker.launchImageLibraryAsync({
-      mediaTypes: ImagePicker.MediaTypeOptions.Images,
-      allowsMultipleSelection: true,
-      quality: 1,
-    });
-
-    if (!result.canceled) {
-      const files = result.assets;
-      handleUploadFiles(files, FileType.IMAGE, onChange);
-    }
-  };
-
-  const handleLaunchDocumentLibrary = async (onChange) => {
-    onClose();
-    const result = await DocumentPicker.getDocumentAsync({
-      copyToCacheDirectory: false,
-      // multiple: true,
-    });
-
-    if (result.type === "success") {
-      const files = [result];
-      handleUploadFiles(files, FileType.PDF, onChange);
-    }
-  };
-
-  const handleLaunchCamera = async (onChange) => {
-    const result = await ImagePicker.launchCameraAsync({
-      mediaTypes: ImagePicker.MediaTypeOptions.Images,
-      quality: 1,
-    });
-
-    if (!result.canceled) {
-      const files = result.assets;
-      handleUploadFiles(files, FileType.IMAGE, onChange);
-    }
-  };
-
-  // const handlePdfPreview = () => {
-  //   WebBrowser.openBrowserAsync(filePath[previewFile].path);
-  // };
-
   useEffect(() => {
     (async () => {
       if (Platform.OS !== "web") {
@@ -345,44 +241,170 @@ const MediaPicker = ({ control, detail, editable = true, imageOnly }) => {
       name={detail.key}
       control={control}
       render={({ field: { onChange, onBlur, value } }) => {
-        useEffect(() => {
-          if (!value) {
-            setFilePath([]);
-            return;
-          }
-          const fileArr = value.split(",");
-          let promises = [];
-          fileArr.map((file) => promises.push(getFileFromId(file)));
-          Promise.all(promises).then((results) => {
-            setFilePath(
-              results.map((r) => ({
-                id: r.data.id,
-                path: r.data.path,
-              }))
-            );
+        // useEffect(() => {
+        //   if (!value) {
+        //     setFilePath([]);
+        //     return;
+        //   }
+        //   const fileArr = value.split(",");
+        //   let promises = [];
+        //   fileArr.map((file) => promises.push(getFileFromId(file)));
+        //   Promise.all(promises).then((results) => {
+        //     setFilePath(
+        //       results.map((r) => ({
+        //         id: r.data.id,
+        //         path: r.data.path,
+        //       }))
+        //     );
+        //   });
+        // }, [value]);
+
+        const processUploadFiles = (payload, fileObj, newFileArr, type) => {
+          return uploadFile(payload).then((response) => {
+            newFileArr.push({
+              id: response.data.file,
+              path: response.data.path,
+            });
+            const gcs_upload_path = response.data.signed_url;
+            return fetch(gcs_upload_path, {
+              method: "PUT",
+              body: fileObj,
+              headers: {
+                "Content-Type": MIME_TYPE[type],
+              },
+            });
           });
-        }, [value]);
+        };
+
+        const handlePreviewFiles = (files) => {
+          setFilePath([
+            ...filePath,
+            ...files.map((file, index) => ({
+              id: filePath.length + index,
+              path: file.uri,
+            })),
+          ]);
+        };
+
+        const handleSubmit = (files, type) => {
+          let newFileArr = [];
+          setLoading(true);
+          const promises = files.map((file, index) => {
+            let payload = {
+              file_name: file.uri.split("/").pop(),
+              file_type: MIME_TYPE[type],
+              size: file.size,
+            };
+            let fileObj = {
+              uri: file.uri,
+              name: file.uri.split("/").pop(),
+              type: MIME_TYPE[type],
+              size: file.size,
+            };
+
+            return type === FileType.IMAGE
+              ? manipulateAsync(file.uri, [
+                  {
+                    resize: {
+                      width: 960,
+                      height: (960 * file.height) / file.width,
+                    },
+                  },
+                ]).then(async (result) => {
+                  newFileArr.push({
+                    id: index,
+                    path: result.uri,
+                  });
+                  return FileSystem.getInfoAsync(result.uri).then((info) => {
+                    payload = { ...payload, size: info.size };
+                    fileObj = { ...fileObj, uri: info.uri, size: info.size };
+                    return processUploadFiles(
+                      payload,
+                      fileObj,
+                      newFileArr,
+                      FileType.IMAGE
+                    );
+                  });
+                })
+              : processUploadFiles(payload, fileObj, newFileArr, FileType.PDF);
+          });
+          Promise.all(promises)
+            .then(() => {
+              onChange(
+                [...filePath, ...newFileArr].map((file) => file.id).join(",")
+              );
+              setFilePath([...filePath, ...newFileArr]);
+              setLoading(false);
+            })
+            .catch((error) => {
+              console.error(error);
+            });
+        };
+
+        const handleLaunchImageGallery = async () => {
+          onClose();
+          const result = await ImagePicker.launchImageLibraryAsync({
+            mediaTypes: ImagePicker.MediaTypeOptions.Images,
+            allowsMultipleSelection: true,
+            quality: 1,
+          });
+
+          if (!result.canceled) {
+            const files = result.assets;
+            handlePreviewFiles(files);
+          }
+        };
+
+        const handleLaunchDocumentLibrary = async () => {
+          onClose();
+          const result = await DocumentPicker.getDocumentAsync({
+            copyToCacheDirectory: false,
+            // multiple: true,
+          });
+
+          if (result.type === "success") {
+            const files = [result];
+            handlePreviewFiles(files);
+          }
+        };
+
+        const handleLaunchCamera = async () => {
+          const result = await ImagePicker.launchCameraAsync({
+            mediaTypes: ImagePicker.MediaTypeOptions.Images,
+            quality: 1,
+          });
+
+          if (!result.canceled) {
+            const files = result.assets;
+            handlePreviewFiles(files);
+          }
+        };
 
         const handleChooseMedia = () => {
           if (imageOnly) {
-            handleLaunchImageGallery(onChange);
+            handleLaunchImageGallery();
           } else {
             onOpen();
           }
         };
 
-        const handleDeleteFile = (fileIdToDelete) => {
-          deleteFileById(fileIdToDelete)
-            .then((response) => {
-              onChange(
-                filePath
-                  .filter((files) => files.id !== fileIdToDelete)
-                  .map((file) => file.id)
-                  .join(",")
-              );
-              setPreviewFile(null);
-            })
-            .catch((err) => alert("Delete File Error"));
+        const handleDeleteFile = (fileToDelete) => {
+          FileSystem.deleteAsync(fileToDelete.path).then(() => {
+            setFilePath(filePath.filter((file) => file.id !== fileToDelete.id));
+            setPreviewFile(null);
+          });
+
+          // deleteFileById(fileIdToDelete)
+          //   .then((response) => {
+          //     onChange(
+          //       filePath
+          //         .filter((files) => files.id !== fileIdToDelete)
+          //         .map((file) => file.id)
+          //         .join(",")
+          //     );
+          //     setPreviewFile(null);
+          //   })
+          //   .catch((err) => alert("Delete File Error"));
         };
 
         return (
@@ -396,7 +418,7 @@ const MediaPicker = ({ control, detail, editable = true, imageOnly }) => {
                 />
                 {imageOnly && (
                   <CustomButton
-                    onPress={() => handleLaunchCamera(onChange)}
+                    onPress={() => handleLaunchCamera()}
                     disabled={detail.disabled}
                     label="TAKE PHOTO"
                   />
@@ -418,14 +440,10 @@ const MediaPicker = ({ control, detail, editable = true, imageOnly }) => {
 
             <Actionsheet isOpen={isOpen} onClose={onClose}>
               <Actionsheet.Content>
-                <Actionsheet.Item
-                  onPress={() => handleLaunchImageGallery(onChange)}
-                >
+                <Actionsheet.Item onPress={() => handleLaunchImageGallery()}>
                   Image
                 </Actionsheet.Item>
-                <Actionsheet.Item
-                  onPress={() => handleLaunchDocumentLibrary(onChange)}
-                >
+                <Actionsheet.Item onPress={() => handleLaunchDocumentLibrary()}>
                   Document
                 </Actionsheet.Item>
               </Actionsheet.Content>
@@ -445,7 +463,7 @@ const MediaPicker = ({ control, detail, editable = true, imageOnly }) => {
                 onSnapToItem={setPreviewFile}
                 loop={false}
                 renderItem={({ index }) => {
-                  return filePath[index].path.includes(".pdf") ? (
+                  return !filePath[index].path?.includes(".jpeg") ? (
                     <PdfPreview uri={filePath[index].path} />
                   ) : (
                     <ImageSource uri={filePath[index].path} />

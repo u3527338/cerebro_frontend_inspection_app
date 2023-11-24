@@ -4,6 +4,7 @@ import _ from "lodash";
 import {
   Box,
   Center,
+  Checkbox,
   HStack,
   Image,
   Pressable,
@@ -19,6 +20,8 @@ import LoadingComponent from "../../../../../components/common/LoadingComponent"
 import { AuthContext } from "../../../../../context/authContext";
 import useDefaultAPI from "../../../../../hocks/useDefaultAPI";
 import primary from "../../../../../themes/colors/primary";
+
+const imageType = "png";
 
 const SignatureModal = ({ open, callback, closeSignature, label }) => {
   const ref = useRef();
@@ -54,7 +57,7 @@ const SignatureModal = ({ open, callback, closeSignature, label }) => {
           webStyle={style}
           rotated={true}
           descriptionText={_.startCase(label)}
-          imageType="image/png"
+          imageType={`image/${imageType}`}
         />
       </Box>
     </Modal>
@@ -66,7 +69,8 @@ const UserSignature = ({ control, detail }) => {
   const [open, setOpen] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
-  const [signature, setSignature] = useState(null);
+  const [path, setPath] = useState(null);
+  const [defaultSignature, setDefaultSignature] = useState(false);
   const { uploadFile, getFileFromId, deleteFileById } = useDefaultAPI();
 
   return (
@@ -74,76 +78,76 @@ const UserSignature = ({ control, detail }) => {
       name={detail.key}
       control={control}
       render={({ field: { onChange, value = [] } }) => {
-        const handleSignature = async (signature) => {
+        useEffect(() => {
+          if (value.length === 0) return;
+          //setPath and relevant details
+        }, [value]);
+
+        const handlePreviewSignature = async (signature) => {
           setLoading(true);
           setOpen(false);
-          const path = `${FileSystem.cacheDirectory}${uuid.v4()}.png`;
+          const path = `${FileSystem.cacheDirectory}${uuid.v4()}.${imageType}`;
           FileSystem.writeAsStringAsync(
             path,
-            signature.replace("data:image/png;base64,", ""),
+            signature.replace(`data:image/${imageType};base64,`, ""),
             { encoding: FileSystem.EncodingType.Base64 }
           )
             .then((res) => {
-              FileSystem.getInfoAsync(path, { size: true, md5: true })
-                .then((file) => {
-                  const payload = {
-                    file_name: file.uri.split("/").pop(),
-                    file_type: "image/png",
-                    size: file.size,
-                  };
-                  const fileObj = {
-                    name: file.uri.split("/").pop(),
-                    type: "image/png",
-                    uri: file.uri,
-                    size: file.size,
-                  };
-                  uploadFile(payload, { storage_path: "signature" })
-                    .then((response) => {
-                      setSignature(response.data.path);
-                      onChange([response.data.file, full_name]);
-                      const gcs_upload_path = response.data.signed_url;
-                      fetch(gcs_upload_path, {
-                        method: "PUT",
-                        body: fileObj,
-                        headers: {
-                          "Content-Type": "image/png",
-                        },
-                      })
-                        .catch((err) => setError(err.message))
-                        .finally(() => {
-                          setLoading(false);
-                        });
-                    })
-                    .catch((err) => setError(err.message));
-                })
-                .catch((err) => setError(err.message));
+              setLoading(false);
+              setPath(path);
             })
             .catch((err) => {
               setError(err.message);
             });
         };
 
-        const handleClearSignature = () => {
-          deleteFileById(value[0])
-            .then((response) => {
-              onChange([]);
+        const handleUploadSignature = () => {
+          FileSystem.getInfoAsync(path, { size: true, md5: true })
+            .then((file) => {
+              const payload = {
+                file_name: file.uri.split("/").pop(),
+                file_type: `image/${imageType}`,
+                size: file.size,
+              };
+              const fileObj = {
+                name: file.uri.split("/").pop(),
+                type: `image/${imageType}`,
+                uri: file.uri,
+                size: file.size,
+              };
+              uploadFile(payload, { storage_path: "signature" })
+                .then((response) => {
+                  onChange([
+                    defaultSignature ? "" : response.data.path,
+                    full_name,
+                    new Date(),
+                    response.data.file,
+                  ]);
+                  const gcs_upload_path = response.data.signed_url;
+                  fetch(gcs_upload_path, {
+                    method: "PUT",
+                    body: fileObj,
+                    headers: {
+                      "Content-Type": `image/${imageType}`,
+                    },
+                  }).catch((err) => setError(err.message));
+                })
+                .catch((err) => setError(err.message));
             })
-            .catch((err) => alert("Delete Signature Error"));
+            .catch((err) => setError(err.message));
         };
 
-        useEffect(() => {
-          if (!value[0]) {
-            setSignature(null);
-            return;
-          }
-          getFileFromId(value[0]).then((result) =>
-            setSignature(result.data.path)
-          );
-        }, [value]);
+        const handleClearSignature = () => {
+          FileSystem.deleteAsync(path).then(() => {
+            setPath(null);
+          });
+        };
 
         return (
           <>
-            {loading ? (
+            {defaultSignature ? (
+              <></>
+            ) : loading ? (
               <Center h={60}>
                 <LoadingComponent />
               </Center>
@@ -151,7 +155,7 @@ const UserSignature = ({ control, detail }) => {
               <Text fontSize={12} color="red.400">
                 {error}
               </Text>
-            ) : signature ? (
+            ) : path ? (
               <VStack>
                 <Box
                   h={100}
@@ -161,7 +165,7 @@ const UserSignature = ({ control, detail }) => {
                   borderWidth={1}
                 >
                   <Image
-                    source={{ uri: signature }}
+                    source={{ uri: path }}
                     h="100%"
                     w="100%"
                     resizeMode="contain"
@@ -221,8 +225,29 @@ const UserSignature = ({ control, detail }) => {
               </HStack>
             )}
 
+            <VStack pt={2} space={2}>
+              <Checkbox
+                onChange={(isSelected) => {
+                  setDefaultSignature(isSelected);
+                }}
+                size="sm"
+                bgColor="transparent"
+              >
+                <Text fontSize={12} color="baseColor.400">
+                  Use Default Signature
+                </Text>
+              </Checkbox>
+              {defaultSignature && (
+                <Text color="red.500" bold fontSize={12}>
+                  Remarks: Please make sure you have provided your default
+                  signature. Otherwise, no signature will be signed on the
+                  generated PDF.
+                </Text>
+              )}
+            </VStack>
+
             <SignatureModal
-              callback={handleSignature}
+              callback={handlePreviewSignature}
               open={open}
               closeSignature={() => setOpen(false)}
               label={detail.session}

@@ -36,22 +36,27 @@ const SimpleDropDown = ({ control, detail }) => {
               }}
             >
               <HStack justifyContent="space-between" alignItems={"center"}>
-                <Text color={"baseColor.400"}>{value || detail.session}</Text>
-                {!detail.disabled && (
-                  <Pressable
-                    onPress={onOpen}
-                    disabled={detail.disabled}
-                    borderRadius="full"
-                    _pressed={{ backgroundColor: "secondary.100" }}
-                  >
-                    <Icon
-                      size={5}
-                      as={Entypo}
-                      name={"chevron-small-down"}
-                      color={baseColor[400]}
-                    />
-                  </Pressable>
-                )}
+                <Text
+                  w="90%"
+                  numberOfLines={1}
+                  ellipsizeMode="tail"
+                  color={"baseColor.400"}
+                >
+                  {value || detail.session}
+                </Text>
+                <Pressable
+                  onPress={onOpen}
+                  disabled={detail.disabled}
+                  borderRadius="full"
+                  _pressed={{ backgroundColor: "secondary.100" }}
+                >
+                  <Icon
+                    size={5}
+                    as={Entypo}
+                    name={"chevron-small-down"}
+                    color={baseColor[400]}
+                  />
+                </Pressable>
               </HStack>
             </Box>
             <Actionsheet isOpen={isOpen} onClose={onClose}>
