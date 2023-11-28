@@ -1,5 +1,6 @@
 import { faMagnifyingGlass } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-native-fontawesome";
+import { useQuery } from "@tanstack/react-query";
 import _ from "lodash";
 import { Icon, IconButton } from "native-base";
 import React, { memo, useContext, useEffect, useState } from "react";
@@ -19,39 +20,35 @@ const mapData = (data, key) => {
 };
 
 const GlobalSearchIcon = () => {
-  const { getProjectInfo, getUserList } = useDefaultAPI();
-  const { currentProject, currentCategory } = useContext(StateContext);
+  const { useUserListQuery, useProjectInfoQuery, getProjectInfo, getUserList } =
+    useDefaultAPI();
+  const { currentCategory } = useContext(StateContext);
 
   const [globalFilterModal, setGlobalFilterModal] = useState(false);
-  const [location, setLocation] = useState([]);
-  const [works, setWorks] = useState([]);
-  const [users, setUsers] = useState([]);
-  const [isLoading, setIsLoading] = useState(false);
 
-  useEffect(() => {
-    if (currentProject.project) {
-      Promise.all([getUserList(), getProjectInfo()])
-        .then(([userResponse, projectInfoResponse]) => {
-          const results = userResponse.data.results;
-          const projectInfo = projectInfoResponse.data.project_info.filter(
-            (info) => info.category_id === currentCategory.id
-          );
+  const {
+    data: userData,
+    isLoading: userLoading,
+    error: userError,
+  } = useUserListQuery();
 
-          const users = results.map((r) => ({
-            id: r.user_id,
-            item: r.user_detail?.full_name,
-          }));
-          const location = _.uniqBy(mapData(projectInfo, "location"), "value");
-          const works = _.uniqBy(mapData(projectInfo, "work"), "value");
+  const {
+    data: projectData,
+    isLoading: projectLoading,
+    error: projectError,
+  } = useProjectInfoQuery();
 
-          setUsers(users);
-          setLocation(location);
-          setWorks(works);
-        })
-        .catch((error) => console.log("error", error.message))
-        .finally(() => setIsLoading(false));
-    }
-  }, [currentProject, currentCategory]);
+  if (userLoading || projectLoading) return;
+
+  const users = userData.map((r) => ({
+    id: r.user_id,
+    item: r.user_detail?.full_name,
+  }));
+  const projectInfo = projectData.filter(
+    (info) => info.category_id === currentCategory.id
+  );
+  const location = _.uniqBy(mapData(projectInfo, "location"), "value");
+  const works = _.uniqBy(mapData(projectInfo, "work"), "value");
 
   return (
     <>
@@ -66,7 +63,7 @@ const GlobalSearchIcon = () => {
         }}
       />
       <GlobalFilter
-        open={globalFilterModal && !isLoading}
+        open={globalFilterModal}
         handleCloseModal={() => {
           setGlobalFilterModal(false);
         }}

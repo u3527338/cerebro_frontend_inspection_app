@@ -135,7 +135,7 @@ const FormList = ({ tabName = "" }) => {
   const { currentProject, currentCategory, globalFilter } =
     useContext(StateContext);
   const { token } = useContext(AuthContext);
-  const { getMytaskList, getFormDataList } = useDefaultAPI();
+  const { getMyTaskList, getFormDataList } = useDefaultAPI();
   const navigator = useNavigation();
 
   const [content, setContent] = useState([]);
@@ -201,7 +201,7 @@ const FormList = ({ tabName = "" }) => {
     };
 
     if (tabName === "My Task") {
-      getMytaskList(default_filter)
+      getMyTaskList(default_filter)
         .then((response) => {
           handleResult(response.data);
         })

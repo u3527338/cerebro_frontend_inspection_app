@@ -71,15 +71,12 @@ const CategoryCard = ({ detail, callback }) => {
 const CategorySelectPage = () => {
   const navigation = useNavigation();
 
-  const {
-    currentProject,
-    currentCategory,
-    setCurrentCategory,
-    setCurrentPermission,
-  } = useContext(StateContext);
-  const [categoryList, setCategoryList] = useState([]);
+  const { currentCategory, setCurrentCategory, setCurrentPermission } =
+    useContext(StateContext);
 
-  const { getUserInfo } = useDefaultAPI();
+  const { useUserInfoQuery } = useDefaultAPI();
+
+  const { data: categoryList, isFetching, error } = useUserInfoQuery();
 
   const onPressHandler = (detail) => {
     setCurrentCategory(detail.category);
@@ -90,14 +87,6 @@ const CategorySelectPage = () => {
     );
     navigation.goBack();
   };
-
-  useEffect(() => {
-    if (currentProject.project) {
-      getUserInfo().then((response) => {
-        setCategoryList(response.data);
-      });
-    }
-  }, [currentProject]);
 
   return (
     <Pressable
@@ -125,7 +114,7 @@ const CategorySelectPage = () => {
           </Text>
         </Box>
 
-        {categoryList.length === 0 ? (
+        {isFetching ? (
           <Center>
             <LoadingComponent />
           </Center>

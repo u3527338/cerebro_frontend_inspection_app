@@ -75,7 +75,8 @@ const InputRender = ({ control, template, preview }) => {
       return preview ? (
         <DefaultPreview control={control} detail={template} />
       ) : (
-        <AutoComplete control={control} detail={template} />
+        <DefaultPreview control={control} detail={template} />
+        // <AutoComplete control={control} detail={template} />
       );
 
     case "imagePicker":

@@ -74,36 +74,26 @@ const FoldText = ({ project }) => {
 };
 
 const ProjectDetailList = ({ id }) => {
-  const { getProjectDetails } = useDefaultAPI();
-  const [list, setList] = useState([]);
-  const [loading, setLoading] = useState(false);
-  const [err, setErr] = useState(null);
+  const { useProjectDetailsQuery } = useDefaultAPI();
+  const { data, isFetching, error } = useProjectDetailsQuery({
+    params: { project: id, no_page: 1 },
+  });
 
-  useEffect(() => {
-    setLoading(true);
-    getProjectDetails({ project: id, no_page: 1 })
-      .then((response) => {
-        setList(response.data);
-        setLoading(false);
-      })
-      .catch((err) => setErr(err.message));
-  }, []);
-
-  if (loading)
+  if (isFetching)
     return (
       <Center pt={2}>
         <LoadingComponent spinnerSize="sm" textFontSize="sm" />
       </Center>
     );
 
-  if (!!err)
+  if (!!error)
     return (
       <Center pt={2}>
-        <Text color="baseColor.200">{err}</Text>
+        <Text color="baseColor.200">{error.message}</Text>
       </Center>
     );
 
-  return list.map((item, i) => (
+  return data.map((item, i) => (
     <VStack px={4} pb={2} key={i}>
       <Text color={"baseColor"} textTransform={"capitalize"}>
         {`${item.category.inspection.name} Inspection - ${item.category.team.name} (${item.category.division.name})`}

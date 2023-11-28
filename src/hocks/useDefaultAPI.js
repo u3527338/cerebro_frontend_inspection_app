@@ -1,6 +1,9 @@
-import { AuthContext } from "../context/authContext";
+import { useQuery } from "@tanstack/react-query";
+import axios from "axios";
 import { useContext } from "react";
-import useAxios from "axios-hooks";
+import { baseFetch } from "../api/baseFetch";
+import { AuthContext } from "../context/authContext";
+import { StateContext } from "../context/stateContext";
 import {
   API_change_password,
   API_get_file_from_id,
@@ -18,8 +21,6 @@ import {
   API_userinfo_info,
   API_user_list,
 } from "../global/constants";
-import { StateContext } from "../context/stateContext";
-import axios from "axios";
 
 const useDefaultAPI = () => {
   const { token, default_project } = useContext(AuthContext);
@@ -27,6 +28,7 @@ const useDefaultAPI = () => {
     useContext(StateContext);
 
   const execute_post = ({ url, params = {}, data }) => {
+    console.log("execute_post", url);
     return axios.post(url, data, {
       headers: {
         "Content-Type": "application/json",
@@ -37,6 +39,7 @@ const useDefaultAPI = () => {
   };
 
   const execute_patch = ({ url, params, data }) => {
+    console.log("execute_patch", url);
     axios.patch(url, data, {
       headers: {
         "Content-Type": "application/json",
@@ -46,7 +49,9 @@ const useDefaultAPI = () => {
     });
   };
 
-  const execute_get = ({ url, params }) => {
+  const execute_get = async ({ url, params }) => {
+    console.log("execute_get", url);
+    console.log("execute_get_params", params);
     return axios.get(url, {
       headers: {
         "Content-Type": "application/json",
@@ -57,6 +62,7 @@ const useDefaultAPI = () => {
   };
 
   const execute_delete = ({ url, params }) => {
+    console.log("execute_delete", url);
     return axios.delete(url, {
       headers: {
         "Content-Type": "application/json",
@@ -65,6 +71,7 @@ const useDefaultAPI = () => {
       params: params,
     });
   };
+
   // const [{}, execute_patch] = useAxios(
   //   {
   //     method: "PATCH",
@@ -110,16 +117,18 @@ const useDefaultAPI = () => {
     return execute_get({ url: API_get_template_list + `/${id}` });
   };
 
-  const getFormDataList = async (filter = {}) => {
-    return execute_get({
+  const getFormDataList = async (params) => {
+    console.log("get form data");
+    const response = await execute_get({
       url: API_get_formdata_list,
       params: {
         project: currentProject.project.id,
         category: currentCategory.id,
-        ...filter,
+        ...params,
         ...globalFilter,
       },
     });
+    return response;
   };
 
   const getFormData = async (id = {}) => {
@@ -132,43 +141,49 @@ const useDefaultAPI = () => {
     });
   };
 
-  const getMytaskList = async (filter = {}) => {
-    return execute_get({
+  const getMyTaskList = async (params) => {
+    console.log("get my task");
+    const response = await execute_get({
       url: API_get_mytask_list,
       params: {
         project: currentProject.project.id,
         category: currentCategory.id,
-        ...filter,
+        ...params,
         ...globalFilter,
       },
     });
+    return response;
   };
 
   const getProjectInfo = async () => {
-    return execute_get({
+    const response = await execute_get({
       url: API_project_info(currentProject.project.id),
     });
+    return response.data.project_info;
   };
 
   const getUserInfo = async () => {
-    return execute_get({
+    const response = await execute_get({
       url: API_userinfo_info,
       params: { project: currentProject.project.id },
     });
+    return response.data;
   };
 
   const getUserList = async () => {
-    return execute_get({
+    const response = await execute_get({
       url: API_user_list,
       params: { project: currentProject.project.id, distinct_user: 1 },
     });
+    return response.data.results;
   };
 
   const getProjectDetails = async (params) => {
-    return execute_get({
+    const response = await execute_get({
       url: API_user_list,
       params: params,
     });
+    return response.data;
   };
 
   const listLibrary = async (uri) => {
@@ -237,18 +252,64 @@ const useDefaultAPI = () => {
     });
   };
 
+  const useUserInfoQuery = () =>
+    useQuery({
+      queryKey: ["get user info", currentProject],
+      queryFn: () => getUserInfo(),
+      enabled: !!currentProject.project,
+    });
+
+  const useUserListQuery = () =>
+    useQuery({
+      queryKey: ["get user list", currentProject],
+      queryFn: () => getUserList(),
+    });
+
+  const useProjectInfoQuery = () =>
+    useQuery({
+      queryKey: ["get project info", currentProject],
+      queryFn: () => getProjectInfo(),
+    });
+
+  const useProjectDetailsQuery = ({ params, data, enabled }) =>
+    useQuery({
+      queryKey: ["get project details"],
+      queryFn: () => getProjectDetails(params),
+    });
+
+  const useFormDataListQuery = ({ params, enabled }) =>
+    useQuery({
+      queryKey: [
+        "get form data",
+        currentProject,
+        currentCategory,
+        globalFilter,
+      ],
+      queryFn: () => getFormDataList(params),
+      // enabled: currentProject.project?.id && currentCategory.id && enabled,
+      enabled: enabled,
+    });
+
+  const useMyTaskListQuery = ({ params, enabled }) =>
+    useQuery({
+      queryKey: ["get my task", currentProject, currentCategory, globalFilter],
+      queryFn: () => getMyTaskList(params),
+      // enabled: currentProject.project?.id && currentCategory.id && enabled,
+      enabled: currentCategory.id && enabled,
+    });
+
   return {
     changePassword,
     switchProject,
     getFormTemplateList,
     getFormTemplateById,
     getPreviewFile,
-    getProjectInfo,
-    getUserInfo,
-    getUserList,
-    getProjectDetails,
+    getProjectInfo, //
+    getUserInfo, //
+    getUserList, //
+    getProjectDetails, //
     getFormDataList,
-    getMytaskList,
+    getMyTaskList,
     listLibrary,
     getStatistics,
     loadUser,
@@ -258,6 +319,13 @@ const useDefaultAPI = () => {
     uploadFile,
     uploadSignature,
     deleteFileById,
+
+    useUserInfoQuery,
+    useUserListQuery,
+    useProjectInfoQuery,
+    useProjectDetailsQuery,
+    useFormDataListQuery,
+    useMyTaskListQuery,
   };
 };
 

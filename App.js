@@ -18,6 +18,8 @@ import { fas } from "@fortawesome/free-solid-svg-icons";
 import * as Notifications from "expo-notifications";
 import SystemContextProvider from "./src/context/systemContext";
 import usePushNotification from "./src/hocks/usePushNotification";
+import { QueryClientProvider } from "@tanstack/react-query";
+import { queryClient } from "./src/api/queryClient";
 
 library.add(fab, fas);
 SplashScreen.preventAutoHideAsync()
@@ -28,8 +30,8 @@ SplashScreen.preventAutoHideAsync()
 
 export default function App() {
   const [fontsLoaded] = useFonts(fontMap);
-  const { initPushNotificationConfig, registerForPushNotificationsAsync } =
-    usePushNotification();
+  // const { initPushNotificationConfig, registerForPushNotificationsAsync } =
+  //   usePushNotification();
 
   useEffect(() => {
     if (fontsLoaded) {
@@ -37,53 +39,55 @@ export default function App() {
     }
   }, [fontsLoaded]);
 
-  const [expoPushToken, setExpoPushToken] = useState("");
-  const [notification, setNotification] = useState(false);
-  const notificationListener = useRef();
-  const responseListener = useRef();
+  // const [expoPushToken, setExpoPushToken] = useState("");
+  // const [notification, setNotification] = useState(false);
+  // const notificationListener = useRef();
+  // const responseListener = useRef();
 
-  initPushNotificationConfig();
-  useEffect(() => {
-    registerForPushNotificationsAsync().then((token) =>
-      setExpoPushToken(token)
-    );
-    notificationListener.current =
-      Notifications.addNotificationReceivedListener((notification) => {
-        setNotification(notification);
-      });
-    responseListener.current =
-      Notifications.addNotificationResponseReceivedListener((response) => {
-        // console.log("response", response);
-      });
+  // initPushNotificationConfig();
+  // useEffect(() => {
+  //   registerForPushNotificationsAsync().then((token) =>
+  //     setExpoPushToken(token)
+  //   );
+  //   notificationListener.current =
+  //     Notifications.addNotificationReceivedListener((notification) => {
+  //       setNotification(notification);
+  //     });
+  //   responseListener.current =
+  //     Notifications.addNotificationResponseReceivedListener((response) => {
+  //       // console.log("response", response);
+  //     });
 
-    return () => {
-      Notifications.removeNotificationSubscription(
-        notificationListener.current
-      );
-      Notifications.removeNotificationSubscription(responseListener.current);
-    };
-  }, []);
+  //   return () => {
+  //     Notifications.removeNotificationSubscription(
+  //       notificationListener.current
+  //     );
+  //     Notifications.removeNotificationSubscription(responseListener.current);
+  //   };
+  // }, []);
 
   return (
     <NativeBaseProvider theme={customThemes}>
-      <NavigationContainer>
-        <SystemContextProvider>
-          <AuthContextProvider>
-            <StateContextProvider>
-              <SafeAreaView style={{ backgroundColor: baseColor[500] }} />
-              <SafeAreaView style={{ height: "100%" }}>
-                {fontsLoaded ? (
-                  <LoginRoute />
-                ) : (
-                  <Center flex={1} bg={"baseColor.500"}>
-                    <Text>Loading</Text>
-                  </Center>
-                )}
-              </SafeAreaView>
-            </StateContextProvider>
-          </AuthContextProvider>
-        </SystemContextProvider>
-      </NavigationContainer>
+      <QueryClientProvider client={queryClient}>
+        <NavigationContainer>
+          <SystemContextProvider>
+            <AuthContextProvider>
+              <StateContextProvider>
+                <SafeAreaView style={{ backgroundColor: baseColor[500] }} />
+                <SafeAreaView style={{ height: "100%" }}>
+                  {fontsLoaded ? (
+                    <LoginRoute />
+                  ) : (
+                    <Center flex={1} bg={"baseColor.500"}>
+                      <Text>Loading</Text>
+                    </Center>
+                  )}
+                </SafeAreaView>
+              </StateContextProvider>
+            </AuthContextProvider>
+          </SystemContextProvider>
+        </NavigationContainer>
+      </QueryClientProvider>
     </NativeBaseProvider>
   );
 }

@@ -138,11 +138,6 @@ const GlobalFilter = ({ open, handleCloseModal, queryData }) => {
     },
   ];
 
-  // useEffect(() => {
-  //   reset();
-  //   resetGlobalFilter();
-  // }, [currentProject]);
-
   return (
     <Modal
       isVisible={open}
