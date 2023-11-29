@@ -138,9 +138,6 @@ const DataPickerArea = ({
       <Modal isOpen={showModal} onClose={onCloseHandler}>
         <Modal.Content width="95%" bg={"rgba(0,0,0,0.6)"}>
           <Modal.Body>
-            {/*<DateRangePicker setStartDate={setStartDate}*/}
-            {/*                 setEndDate={setEndDate}*/}
-            {/*/>*/}
             <DateRangePickerSpinner
               startDate={startDate}
               setStartDate={setStartDate}

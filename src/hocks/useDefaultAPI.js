@@ -29,7 +29,7 @@ const useDefaultAPI = () => {
     useContext(StateContext);
 
   const execute_post = ({ url, params = {}, data }) => {
-    console.log("execute_post", url);
+    // console.log("execute_post", url);
     let headers = { "Content-Type": "application/json" };
     if (!!token) headers["Authorization"] = `Token ${token}`;
     return axios.post(url, data, {
@@ -38,8 +38,8 @@ const useDefaultAPI = () => {
     });
   };
 
-  const execute_patch = ({ url, params, data }) => {
-    console.log("execute_patch", url);
+  const execute_patch = async ({ url, params, data }) => {
+    // console.log("execute_patch", url);
     axios.patch(url, data, {
       headers: {
         "Content-Type": "application/json",
@@ -50,7 +50,7 @@ const useDefaultAPI = () => {
   };
 
   const execute_get = async ({ url, params }) => {
-    console.log("execute_get", url);
+    // console.log("execute_get", url);
     return axios.get(url, {
       headers: {
         "Content-Type": "application/json",
@@ -61,7 +61,7 @@ const useDefaultAPI = () => {
   };
 
   const execute_delete = ({ url, params }) => {
-    console.log("execute_delete", url);
+    // console.log("execute_delete", url);
     return axios.delete(url, {
       headers: {
         "Content-Type": "application/json",
@@ -94,7 +94,10 @@ const useDefaultAPI = () => {
   // );
 
   const switchProject = async (project_id) => {
-    return execute_patch({ url: API_switch_project(project_id) });
+    const response = await execute_patch({
+      url: API_switch_project(project_id),
+    });
+    return response;
   };
 
   const loadUser = async () => {
@@ -190,18 +193,19 @@ const useDefaultAPI = () => {
     return response.data;
   };
 
-  const listLibrary = async (uri) => {
-    return execute_get({
+  const getLibraryList = async (uri) => {
+    const response = await execute_get({
       url: API_library_list,
       params: {
         project: currentProject.project.id,
         uri: uri,
       },
     });
+    return response.data;
   };
 
-  const getStatistics = (filter = {}) => {
-    return execute_get({
+  const getStatistics = async (filter = {}) => {
+    const response = await execute_get({
       url: API_statistics,
       params: {
         project: currentProject.project.id,
@@ -209,6 +213,7 @@ const useDefaultAPI = () => {
         ...filter,
       },
     });
+    return response.data;
   };
 
   const getFileFromPath = async (path) => {
@@ -239,11 +244,19 @@ const useDefaultAPI = () => {
   };
 
   const changePassword = async (data) => {
-    return execute_post({ url: API_change_password, data: data });
+    const response = await execute_post({
+      url: API_change_password,
+      data: data,
+    });
+    return response;
   };
 
   const getPreviewFile = async (params) => {
-    return execute_get({ url: API_get_file_from_path, params: params });
+    const response = await execute_get({
+      url: API_get_file_from_path,
+      params: params,
+    });
+    return response.data;
   };
 
   const deleteFileById = async (fileId) => {
@@ -316,12 +329,6 @@ const useDefaultAPI = () => {
       queryFn: () => loadUser(),
     });
 
-  const useLoginMutation = () =>
-    useMutation({
-      mutationKey: ["login"],
-      mutationFn: (data) => login(data),
-    });
-
   const useFormTemplateListQuery = (id) =>
     useQuery({
       queryKey: ["get form template list"],
@@ -334,21 +341,58 @@ const useDefaultAPI = () => {
       queryFn: () => getFormTemplateById(id),
     });
 
+  const useLoginMutation = () =>
+    useMutation({
+      mutationKey: ["login"],
+      mutationFn: (data) => login(data),
+    });
+
+  const useChangePasswordMutation = () =>
+    useMutation({
+      mutationKey: ["change password"],
+      mutationFn: (data) => changePassword(data),
+    });
+
+  const useSwitchProjectMutation = () =>
+    useMutation({
+      mutationKey: ["switch project"],
+      mutationFn: (id) => switchProject(id),
+    });
+
+  const usePreviewFileQuery = (path) =>
+    useQuery({
+      queryKey: ["get preview file", path],
+      queryFn: () => getPreviewFile({ path }),
+      enabled: !!path,
+    });
+
+  const useLibraryListQuery = (uri) =>
+    useQuery({
+      queryKey: ["get library list", uri],
+      queryFn: () => getLibraryList(uri),
+    });
+
+  const useStatisticsQuery = (filter) =>
+    useQuery({
+      queryKey: ["get statistics", filter, currentProject, currentCategory],
+      queryFn: () => getStatistics(filter),
+    });
+
   return {
-    changePassword,
-    switchProject,
+    changePassword, //
+    switchProject, //
     getFormTemplateList, //
     getFormTemplateById, //
-    getPreviewFile,
+    getPreviewFile, //
     getProjectInfo, //
     getUserInfo, //
     getUserList, //
     getProjectDetails, //
     getFormDataList, //TBD
     getMyTaskList, //TBD
-    listLibrary,
+    getLibraryList, //
     getStatistics,
-    loadUser,
+    loadUser, //
     getFormData,
     getFileFromPath,
     getFileFromId,
@@ -366,6 +410,11 @@ const useDefaultAPI = () => {
     useLoginMutation,
     useFormTemplateListQuery,
     useFormTemplateByIdQuery,
+    useChangePasswordMutation,
+    useSwitchProjectMutation,
+    usePreviewFileQuery,
+    useLibraryListQuery,
+    useStatisticsQuery,
   };
 };
 

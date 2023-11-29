@@ -14,24 +14,23 @@ import {
   VStack,
 } from "native-base";
 import LoadingComponent from "../../../components/common/LoadingComponent";
-import { AuthContext } from "../../../context/authContext";
 import { StateContext } from "../../../context/stateContext";
 import GlobalHeader from "../../../global/globalHeader";
 import useDefaultAPI from "../../../hocks/useDefaultAPI";
 import ProjectCard from "./components/ProjectCard";
+import { AuthContext } from "../../../context/authContext";
 
 const ProjectScreen = () => {
   const navigation = useNavigation();
 
-  const { projectList, setCurrentProject, resetProfile } =
+  const { currentProject, projectList, setCurrentProject, resetProfile } =
     useContext(StateContext);
   const { default_project } = useContext(AuthContext);
-
-  const { switchProject } = useDefaultAPI();
+  const { useSwitchProjectMutation } = useDefaultAPI();
+  const { mutate, isPending: isLoading } = useSwitchProjectMutation();
 
   const [filter, setFilter] = useState("");
   const [filteredProjectList, setFilteredProjectList] = useState([]);
-  const [isLoading, setIsLoading] = useState(false);
 
   const [isPending, startTransition] = useTransition();
 
@@ -40,12 +39,12 @@ const ProjectScreen = () => {
   }, [projectList]);
 
   const onPressHandler = (detail) => {
-    setIsLoading(true);
     resetProfile();
-    switchProject(detail.project.id).then(() => {
-      setCurrentProject(detail);
-      setIsLoading(false);
-      navigation.navigate("HomeStack");
+    mutate(detail.project.id, {
+      onSuccess: () => {
+        setCurrentProject(detail);
+        navigation.navigate("HomeStack");
+      },
     });
   };
 
@@ -105,7 +104,8 @@ const ProjectScreen = () => {
                     key={index}
                     callback={onPressHandler}
                     is_default_project={
-                      default_project.project.id === item.project.id
+                      currentProject?.project?.id === item.project.id
+                      // || default_project?.project?.id === item.project.id
                     }
                   />
                 ))}

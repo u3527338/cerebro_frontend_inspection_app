@@ -1,4 +1,6 @@
+import { yupResolver } from "@hookform/resolvers/yup";
 import { useNavigation } from "@react-navigation/native";
+import _ from "lodash";
 import {
   Box,
   Button,
@@ -8,19 +10,16 @@ import {
   Text,
   VStack,
 } from "native-base";
-import { useState } from "react";
 import { Controller, useForm } from "react-hook-form";
 import { Keyboard } from "react-native";
+import * as yup from "yup";
 import GlobalHeader from "../../../global/globalHeader";
 import useDefaultAPI from "../../../hocks/useDefaultAPI";
-import * as yup from "yup";
-import { yupResolver } from "@hookform/resolvers/yup";
-import _, { set } from "lodash";
 
 const ChangePasswordForm = () => {
   const navigation = useNavigation();
-  const [loading, setLoading] = useState(false);
-  const { changePassword } = useDefaultAPI();
+  const { useChangePasswordMutation } = useDefaultAPI();
+  const { mutate, isPending } = useChangePasswordMutation();
 
   const reviewSchema = yup.object({
     password: yup
@@ -51,17 +50,12 @@ const ChangePasswordForm = () => {
   });
 
   const onSubmit = ({ confirm_password, ...data }) => {
-    setLoading(true);
-    changePassword(data)
-      .then((response) => {
+    mutate(data, {
+      onSuccess: () => {
         alert("Password changed");
-        setLoading(false);
         navigation.goBack();
-      })
-      .catch((err) => {
-        console.log(err);
-        setLoading(false);
-      });
+      },
+    });
   };
 
   const inputs = ["password", "new_password", "confirm_password"];
@@ -105,9 +99,9 @@ const ChangePasswordForm = () => {
           colorScheme={"primary"}
           my={4}
           borderRadius={"sm"}
-          isLoading={loading}
+          isLoading={isPending}
           onPress={handleSubmit(onSubmit)}
-          isDisabled={loading}
+          isDisabled={isPending}
         >
           <Text color={"white"} bold fontSize={14}>
             Submit

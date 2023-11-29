@@ -69,9 +69,9 @@ const MyDateTimePicker = ({ control, detail }) => {
                 );
               }}
               validRange={{
-                startDate: new Date(
-                  new Date().getTime() - backday * milliseconds
-                ),
+                startDate: detail.infinite
+                  ? null
+                  : new Date(new Date().getTime() - backday * milliseconds),
               }}
             />
 

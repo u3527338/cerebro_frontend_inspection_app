@@ -1,34 +1,33 @@
-import GlobalHeader from "../../../global/globalHeader";
+import { Feather } from "@expo/vector-icons";
+import moment from "moment";
 import {
   Box,
   Center,
   Divider,
   FlatList,
   Flex,
-  Heading,
   HStack,
   Icon,
   Pressable,
   ScrollView,
-  Spinner,
   Text,
   VStack,
 } from "native-base";
-import Modal from "react-native-modal";
-import MyFooter from "../../../routes/FooterRoute/MyFooter";
 import { useContext, useEffect, useState } from "react";
-import { StateContext } from "../../../context/stateContext";
-import moment from "moment";
-import useDefaultAPI from "../../../hocks/useDefaultAPI";
-import { parserResultArea } from "./components/parserResponseHelper";
+import { useForm, useWatch } from "react-hook-form";
 import { useWindowDimensions } from "react-native";
-import { Feather } from "@expo/vector-icons";
-import TotalSubmitChartArea from "./components/TotalSubmitChartArea";
-import PieChartArea from "./components/PieChartArea";
-import DataPickerArea from "./components/DataPickerArea";
-import StackedBarChartExample from "./components/stackBar";
+import Modal from "react-native-modal";
 import LoadingComponent from "../../../components/common/LoadingComponent";
+import { StateContext } from "../../../context/stateContext";
+import GlobalHeader from "../../../global/globalHeader";
 import GlobalSearchIcon from "../../../global/globalSearchIcon";
+import useDefaultAPI from "../../../hocks/useDefaultAPI";
+import MyFooter from "../../../routes/FooterRoute/MyFooter";
+import DateTimePicker from "../EditAndPreviewFormPage/components/edit/DateTimePicker";
+import { parserResultArea } from "./components/parserResponseHelper";
+import PieChartArea from "./components/PieChartArea";
+import StackedBarChartExample from "./components/stackBar";
+import TotalSubmitChartArea from "./components/TotalSubmitChartArea";
 
 const activeState = ["completed", "pending", "rejected"];
 const LocalModal = ({ isOpen, onClose, children, ...props }) => (
@@ -62,7 +61,13 @@ const LocalModal = ({ isOpen, onClose, children, ...props }) => (
 
 const LocalHeader = ({ title, isPressed }) => (
   <HStack justifyContent={"space-between"} alignItems={"center"}>
-    <Text color={"gray.900"} bold>
+    <Text
+      color={"gray.900"}
+      bold
+      w="90%"
+      // numberOfLines={1}
+      ellipsizeMode="middle"
+    >
       {title}
     </Text>
     <Box
@@ -87,11 +92,25 @@ const Card = ({ number, title, color, width = "50%" }) => (
   </VStack>
 );
 
-const TotalNumberArea = ({ totalNumberArea, weeklyArea, pieChartArea }) => {
+const TotalNumberArea = ({ data }) => {
   const layout = useWindowDimensions();
   const [isOpen, setIsOpen] = useState(false);
   const [highLight, setHighLight] = useState("completed");
   const [highLightItem, setHighLightItem] = useState("");
+
+  let weeklyArea = Array(7).fill(0);
+  data.weekly_submit.map(
+    (item) =>
+      (weeklyArea[7 - moment().diff(moment(item.date), "days")] = item.count)
+  );
+
+  let totalNumberArea = { pending: 0, completed: 0, rejected: 0 };
+  let pieChartArea = {};
+  data.total.map((item) => {
+    if (activeState.includes(item.state))
+      totalNumberArea[item.state] += item.count;
+    pieChartArea = parserResultArea(pieChartArea, item);
+  });
 
   const onCloseHandler = () => setIsOpen(false);
 
@@ -168,8 +187,8 @@ const TotalNumberArea = ({ totalNumberArea, weeklyArea, pieChartArea }) => {
             <VStack space={3} mt={3}>
               <ScrollView horizontal>
                 <HStack space={3}>
-                  {activeState.map((key) => (
-                    <Pressable onPress={() => setHighLight(key)}>
+                  {activeState.map((key, i) => (
+                    <Pressable key={i} onPress={() => setHighLight(key)}>
                       <Box
                         bg={highLight === key ? "gray.200" : "transparent"}
                         px={2}
@@ -268,7 +287,9 @@ const ColorTag = ({ title, color }) => (
 );
 
 const StaticArea = ({
-  resultArea,
+  data,
+  control,
+  setDateRange,
   startDate,
   setStartDate,
   endDate,
@@ -278,8 +299,25 @@ const StaticArea = ({
   const [isOpen, setIsOpen] = useState(false);
   const onCloseHandler = () => setIsOpen(false);
 
+  const date = useWatch({
+    control,
+    name: "date",
+  });
+
+  useEffect(() => {
+    if (date) {
+      setDateRange(date);
+    }
+  }, [date]);
+  console.log(date);
+  let resultArea = {};
+  console.log("data.result", data.result);
+  data.result.map((item) => {
+    resultArea = parserResultArea(resultArea, item);
+  });
+  console.log("resultArea", resultArea);
   return (
-    <VStack p={4} borderRadius={6} space={1} bg={"white"} shadow={3} h={"75%"}>
+    <VStack p={4} borderRadius={6} space={2} bg={"white"} shadow={3} h={"75%"}>
       <Pressable onPress={() => setIsOpen(true)}>
         {({ isPressed }) => (
           <LocalHeader
@@ -288,12 +326,13 @@ const StaticArea = ({
           />
         )}
       </Pressable>
-      <DataPickerArea
-        startDate={startDate}
-        setStartDate={setStartDate}
-        endDate={endDate}
-        setEndDate={setEndDate}
-        onClose={onClose}
+      <DateTimePicker
+        control={control}
+        detail={{
+          disabled: false,
+          key: "date",
+          infinite: true,
+        }}
       />
       {Object.keys(resultArea).length === 0 ? (
         <Center flex={1}>
@@ -327,8 +366,10 @@ const StaticArea = ({
                   />
                 </Box>
                 <Text color={"gray.400"}>
-                  {startDate ? startDate.format("DD/MM/YYYY") : ""} -{" "}
-                  {endDate ? endDate.format("DD/MM/YYYY") : ""}
+                  {date
+                    ?.split(",")
+                    .map((d) => moment(d).format("DD/MM/YYYY"))
+                    .join(" - ")}
                 </Text>
               </HStack>
             </Pressable>
@@ -355,114 +396,46 @@ const StaticArea = ({
 };
 
 const Body = () => {
-  const { getStatistics } = useDefaultAPI();
-  const { currentProject, currentCategory } = useContext(StateContext);
+  const { useStatisticsQuery } = useDefaultAPI();
 
-  const [weeklyArea, setWeeklyArea] = useState([]);
-  const [totalNumberArea, setTotalNumberArea] = useState({
-    pending: 0,
-    completed: 0,
-    rejected: 0,
+  const [dateRange, setDateRange] = useState(
+    `${new Date().toISOString()},${new Date().toISOString()}`
+  );
+
+  const { data, isFetching, error, refetch } = useStatisticsQuery({
+    created_at: dateRange,
   });
-  const [resultArea, setResultArea] = useState({});
-  const [pieChartArea, setPieChartArea] = useState({});
 
-  const [isLoading, setIsLoading] = useState(true);
-
-  const executeRequest = (params = {}) => {
-    setIsLoading(true);
-
-    getStatistics({
-      created_at:
-        moment()
-          .subtract(7, "days")
-          .set({ hour: 0, minute: 0, second: 0 })
-          .format("YYYY-MM-DD") +
-        "," +
-        moment().format("YYYY-MM-DD"),
-      ...params,
-    })
-      .then((response) => {
-        let weeklyAreaBuffer = Array(7).fill(0);
-        response.data.weekly_submit.map(
-          (item) =>
-            (weeklyAreaBuffer[7 - moment().diff(moment(item.date), "days")] =
-              item.count)
-        );
-
-        let totalNumberAreaBuffer = { pending: 0, completed: 0, rejected: 0 };
-        let pieAreaBuffer = {};
-        response.data.total.map((item) => {
-          if (activeState.includes(item.state))
-            totalNumberAreaBuffer[item.state] += item.count;
-          pieAreaBuffer = parserResultArea(pieAreaBuffer, item);
-        });
-
-        let resultAreaBuffer = {};
-        response.data.result.map((item) => {
-          resultAreaBuffer = parserResultArea(resultAreaBuffer, item);
-        });
-
-        setWeeklyArea(weeklyAreaBuffer);
-        setResultArea(resultAreaBuffer);
-        setPieChartArea(pieAreaBuffer);
-        setTotalNumberArea(totalNumberAreaBuffer);
-      })
-      .finally(() => setIsLoading(false));
-  };
-
-  const [startDate, setStartDate] = useState(
-    moment().subtract(7, "days").set({ hour: 0, minute: 0, second: 0 })
-  );
-  const [endDate, setEndDate] = useState(
-    moment().set({ hour: 23, minute: 59, second: 59 })
-  );
-
-  const onClose = () => {
-    executeRequest({
-      created_at:
-        startDate.format("YYYY-MM-DD") + "," + endDate.format("YYYY-MM-DD"),
-    });
-  };
-
-  const resetData = () => {
-    setWeeklyArea([]);
-    setTotalNumberArea({ pending: 0, completed: 0, rejected: 0 });
-    setResultArea({});
-    setPieChartArea({});
-  };
-
-  useEffect(() => {
-    if (currentProject.project?.id && currentCategory.id) {
-      executeRequest({
-        created_at:
-          startDate.format("YYYY-MM-DD") + "," + endDate.format("YYYY-MM-DD"),
-      });
-    } else {
-      resetData();
-    }
-  }, [currentProject, currentCategory]);
+  const { control } = useForm({
+    defaultValues: {
+      date: dateRange,
+    },
+  });
 
   return (
     <>
-      {isLoading ? (
+      {isFetching ? (
         <Center flex={1}>
           <LoadingComponent />
         </Center>
       ) : (
         <VStack flex={1} p={4} space={3}>
           <TotalNumberArea
-            totalNumberArea={totalNumberArea}
-            weeklyArea={weeklyArea}
-            pieChartArea={pieChartArea}
+            data={data}
+            // totalNumberArea={totalNumberArea}
+            // weeklyArea={weeklyArea}
+            // pieChartArea={pieChartArea}
           />
           <StaticArea
-            resultArea={resultArea}
-            startDate={startDate}
-            setStartDate={setStartDate}
-            endDate={endDate}
-            setEndDate={setEndDate}
-            onClose={onClose}
+            data={data}
+            control={control}
+            setDateRange={setDateRange}
+            // resultArea={resultArea}
+            // startDate={startDate}
+            // setStartDate={setStartDate}
+            // endDate={endDate}
+            // setEndDate={setEndDate}
+            // onClose={refetch}
           />
         </VStack>
       )}

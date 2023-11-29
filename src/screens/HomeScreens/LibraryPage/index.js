@@ -40,7 +40,7 @@ const LibraryCard = ({
   const searchHandler = (text) => setSearch(text);
 
   const RowItem = ({ item }) => {
-    const LogoText = ({ style, innerStyle }) => {
+    const LogoText = ({ style }) => {
       return (
         <HStack {...style}>
           <Box mr={2}>
@@ -60,7 +60,7 @@ const LibraryCard = ({
               color={"primary.600"}
             />
           </Box>
-          <Text color={"baseColor.500"} fontSize={14} bold {...innerStyle}>
+          <Text color={"baseColor.500"} fontSize={14} bold>
             {type === "folder" ? item : item.drawingNum}
           </Text>
         </HStack>
@@ -82,7 +82,7 @@ const LibraryCard = ({
             _pressed={{ backgroundColor: "amber.100" }}
           >
             <HStack justifyContent={"space-between"} m={2} w={"auto"}>
-              <LogoText innerStyle={{ maxW: "75%" }} />
+              <LogoText style={{ maxW: "65%" }} />
               <Text color={"gray.500"} fontSize={12}>
                 {moment(item.date).format("YYYY/MM/DD")}
               </Text>
@@ -183,19 +183,7 @@ const LibraryCard = ({
   );
 };
 
-const ButtonArea = () => {
-  // if (!onSelectBnCallback) return <Text>Nothing Here</Text>
-  return (
-    <HStack justifyContent={"space-between"}>
-      <Text>Nothing Here</Text>
-      <Pressable pt={1} px={2}>
-        <Text color={"baseColor.500"}>Select</Text>
-      </Pressable>
-    </HStack>
-  );
-};
-
-const FileViewer = ({ open, handleClose, uri }) => {
+const FileViewer = ({ loading, open, handleClose, uri }) => {
   return (
     <Modal
       isVisible={open}
@@ -206,14 +194,11 @@ const FileViewer = ({ open, handleClose, uri }) => {
       style={{ justifyContent: "flex-end", margin: 0 }}
     >
       <Box p={2} bg={"white"} h={"90%"}>
-        <ButtonArea />
-        {/* <PDFReader
-          webviewStyle={{ flex: 1 }}
-          source={{
-            uri: "https://storage.googleapis.com/cerebrohk-inspection/file/010f0b1066b7484fa146c98907b87d7c/files/011e1c97db114bf780496e4e229e9d5b?X-Goog-Algorithm=GOOG4-RSA-SHA256&X-Goog-Credential=inspection-gcs%40cerebro-dwss-inspection.iam.gserviceaccount.com%2F20231103%2Fauto%2Fstorage%2Fgoog4_request&X-Goog-Date=20231103T015059Z&X-Goog-Expires=1800&X-Goog-SignedHeaders=host&X-Goog-Signature=99262b13c3c30cd516fa0f3e08e119b61a186949ee9df93bdc4f9ba400b269ff7db77148a30b086a62ebba567770faa47153ecdb8a93870f5aed37ab6942034d2fda7c2cc2936e0ba094e046c775e5842ad693d460256e6a96480b3c5cfce53005745b0e82538dd5c4b1ebe5f7f294c5d896d4d868669979576b269cf212bfd698042aea80cdf4ecd6b0435a8a97c62981e647bbf706f6e6cc687066dc557ed7a25bad8eb0712e5e1bba09b2133212197a939500ef8722aa585fb016f7b024bfea519f5c277f862a4ec1ccf22720f7c3ffbe686ad83a9dc23bdad701b2fb2f1f6b325cef38e56098b02d569612b655acf48789b9f20f5a0390077e84658b399b",
-          }}
-        /> */}
-        {!!uri ? (
+        {loading ? (
+          <Center height="100%" pt={2}>
+            <LoadingComponent />
+          </Center>
+        ) : !!uri ? (
           uri?.endsWith(".pdf") ? (
             <PDFReader webviewStyle={{ flex: 1 }} source={{ uri }} />
           ) : (
@@ -242,24 +227,15 @@ const formattedRootDir = (pathArr) => {
 
 const Body = () => {
   const { currentProject } = useContext(StateContext);
-  const { listLibrary, getPreviewFile } = useDefaultAPI();
-  const [currentLayer, setCurrentLayer] = useState({ folder: [], objects: [] });
-  const [loading, setLoading] = useState(false);
   const [rootDir, setRootDir] = useState([]);
+  const [path, setPath] = useState(null);
   const [filePreview, setFilePreview] = useState(false);
-  const [source, setSource] = useState(null);
 
-  const fetchData = (rootDir) => {
-    setLoading(true);
-    listLibrary(rootDir).then((response) => {
-      setCurrentLayer(response.data);
-      setLoading(false);
-    });
-  };
-
-  useEffect(() => {
-    fetchData(formattedRootDir(rootDir));
-  }, [rootDir]);
+  const { usePreviewFileQuery, useLibraryListQuery } = useDefaultAPI();
+  const { data: previewFile, isFetching: fetchingPreviewFile } =
+    usePreviewFileQuery(path);
+  const { data: libraryList, isFetching: fetchingLibraryList } =
+    useLibraryListQuery(formattedRootDir(rootDir));
 
   useEffect(() => {
     if (currentProject?.project?.id) {
@@ -275,11 +251,7 @@ const Body = () => {
   };
 
   const handleFile = (path) => {
-    getPreviewFile({ path })
-      .then((response) => {
-        console.log("response", response.data);
-      })
-      .catch((err) => console.log(err.message));
+    setPath(`library/${currentProject?.project?.project_code}${path}`);
     setFilePreview(true);
   };
 
@@ -290,8 +262,8 @@ const Body = () => {
   return (
     <>
       <LibraryCard
-        data={currentLayer.folder || []}
-        loading={loading}
+        data={libraryList?.folder || []}
+        loading={fetchingLibraryList}
         handleNextPath={handleNextPath}
         handlePreviousPath={handlePreviousPath}
         type="folder"
@@ -300,13 +272,18 @@ const Body = () => {
       />
       <LibraryCard
         title="Files"
-        data={currentLayer.objects || []}
-        loading={loading}
+        data={libraryList?.objects || []}
+        loading={fetchingLibraryList}
         handleFile={handleFile}
         type="files"
         currentProject={currentProject}
       />
-      <FileViewer open={filePreview} handleClose={handleClose} uri={source} />
+      <FileViewer
+        loading={fetchingPreviewFile}
+        open={filePreview}
+        handleClose={handleClose}
+        uri={previewFile?.path}
+      />
     </>
   );
 };
