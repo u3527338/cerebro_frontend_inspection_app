@@ -10,7 +10,8 @@ import FooterRoute from "./FooterRoute";
 
 const UseRouteSetting = () => {
   const { setProfile } = useContext(AuthContext);
-  const { loadUser } = useDefaultAPI();
+  const { useLoadUserQuery } = useDefaultAPI();
+  const { data } = useLoadUserQuery();
 
   return [
     {
@@ -18,7 +19,7 @@ const UseRouteSetting = () => {
       component: ProjectScreen,
       icon: <Ionicons name="ios-clipboard" />,
       onPressCallBack: () => {
-        loadUser().then((response) => setProfile(response.data));
+        setProfile(data);
       },
       onPressHandler: null,
       selectable: true,

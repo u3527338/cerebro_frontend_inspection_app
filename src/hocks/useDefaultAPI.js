@@ -1,4 +1,4 @@
-import { useQuery } from "@tanstack/react-query";
+import { useMutation, useQuery } from "@tanstack/react-query";
 import axios from "axios";
 import { useContext } from "react";
 import { baseFetch } from "../api/baseFetch";
@@ -13,6 +13,7 @@ import {
   API_get_template_list,
   API_library_list,
   API_load_user,
+  API_login,
   API_project_info,
   API_statistics,
   API_switch_project,
@@ -29,11 +30,10 @@ const useDefaultAPI = () => {
 
   const execute_post = ({ url, params = {}, data }) => {
     console.log("execute_post", url);
+    let headers = { "Content-Type": "application/json" };
+    if (!!token) headers["Authorization"] = `Token ${token}`;
     return axios.post(url, data, {
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Token ${token}`,
-      },
+      headers: headers,
       params: params,
     });
   };
@@ -51,7 +51,6 @@ const useDefaultAPI = () => {
 
   const execute_get = async ({ url, params }) => {
     console.log("execute_get", url);
-    console.log("execute_get_params", params);
     return axios.get(url, {
       headers: {
         "Content-Type": "application/json",
@@ -99,11 +98,12 @@ const useDefaultAPI = () => {
   };
 
   const loadUser = async () => {
-    return execute_get({ url: API_load_user });
+    const response = await execute_get({ url: API_load_user });
+    return response.data;
   };
 
   const getFormTemplateList = async () => {
-    return execute_get({
+    const response = await execute_get({
       url: API_get_template_list,
       params: {
         project: currentProject.project.id,
@@ -111,10 +111,14 @@ const useDefaultAPI = () => {
         page_size: 100,
       },
     });
+    return response.data;
   };
 
   const getFormTemplateById = async (id) => {
-    return execute_get({ url: API_get_template_list + `/${id}` });
+    const response = await execute_get({
+      url: API_get_template_list + `/${id}`,
+    });
+    return response.data;
   };
 
   const getFormDataList = async (params) => {
@@ -252,6 +256,14 @@ const useDefaultAPI = () => {
     });
   };
 
+  const login = async (data) => {
+    const response = await execute_post({
+      url: API_login,
+      data: data,
+    });
+    return response;
+  };
+
   const useUserInfoQuery = () =>
     useQuery({
       queryKey: ["get user info", currentProject],
@@ -271,7 +283,7 @@ const useDefaultAPI = () => {
       queryFn: () => getProjectInfo(),
     });
 
-  const useProjectDetailsQuery = ({ params, data, enabled }) =>
+  const useProjectDetailsQuery = ({ params }) =>
     useQuery({
       queryKey: ["get project details"],
       queryFn: () => getProjectDetails(params),
@@ -298,18 +310,42 @@ const useDefaultAPI = () => {
       enabled: currentCategory.id && enabled,
     });
 
+  const useLoadUserQuery = () =>
+    useQuery({
+      queryKey: ["load user"],
+      queryFn: () => loadUser(),
+    });
+
+  const useLoginMutation = () =>
+    useMutation({
+      mutationKey: ["login"],
+      mutationFn: (data) => login(data),
+    });
+
+  const useFormTemplateListQuery = (id) =>
+    useQuery({
+      queryKey: ["get form template list"],
+      queryFn: () => getFormTemplateList(),
+    });
+
+  const useFormTemplateByIdQuery = (id) =>
+    useQuery({
+      queryKey: ["get form template by id", id],
+      queryFn: () => getFormTemplateById(id),
+    });
+
   return {
     changePassword,
     switchProject,
-    getFormTemplateList,
-    getFormTemplateById,
+    getFormTemplateList, //
+    getFormTemplateById, //
     getPreviewFile,
     getProjectInfo, //
     getUserInfo, //
     getUserList, //
     getProjectDetails, //
-    getFormDataList,
-    getMyTaskList,
+    getFormDataList, //TBD
+    getMyTaskList, //TBD
     listLibrary,
     getStatistics,
     loadUser,
@@ -326,6 +362,10 @@ const useDefaultAPI = () => {
     useProjectDetailsQuery,
     useFormDataListQuery,
     useMyTaskListQuery,
+    useLoadUserQuery,
+    useLoginMutation,
+    useFormTemplateListQuery,
+    useFormTemplateByIdQuery,
   };
 };
 

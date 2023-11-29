@@ -4,7 +4,6 @@ import useAxios from "axios-hooks";
 import * as LocalAuthentication from "expo-local-authentication";
 import {
   Box,
-  Button,
   Center,
   HStack,
   Icon,
@@ -15,60 +14,39 @@ import {
 } from "native-base";
 import { Spacer } from "native-base/src/components/primitives/Flex";
 import React, { useContext, useEffect } from "react";
-import { Dimensions, Platform } from "react-native";
+import { Dimensions } from "react-native";
 import LoginLogo from "../../../assets/LoginLogo";
 import LoginForm from "../../components/LoginForm";
 import { AuthContext } from "../../context/authContext";
 import { StateContext } from "../../context/stateContext";
 import { API_login } from "../../global/constants";
+import useDefaultAPI from "../../hocks/useDefaultAPI";
 import baseColor from "../../themes/colors/baseColor";
-import usePushNotification from "../../hocks/usePushNotification";
 
 const windowHeight = Dimensions.get("window").height;
 
-const TempSendMessage = () => {
-  const { sendPushNotification } = usePushNotification();
-  const sendMessage = () => {
-    const expoPushToken =
-      Platform.OS === "android"
-        ? "ExponentPushToken[vMEHi6Jy23Bwi8tU5UXjTD]"
-        : "ExponentPushToken[v1Q2frCEsrXmmJe3dGodzX]";
-    const message = `Message from ${Platform.OS}`;
-    sendPushNotification({
-      to: expoPushToken,
-      sound: "default",
-      title: "Dummy Title",
-      body: message,
-      data: { someData: "goes here" },
-    });
-  };
-  return <Button onPress={sendMessage}>Send Message</Button>;
-};
 export default function LoginScreen() {
   const navigation = useNavigation();
 
   const { setProfile, toAuthStore, fromAuthStore } = useContext(AuthContext);
   const { setProjectList } = useContext(StateContext);
+  const { useLoginMutation } = useDefaultAPI();
 
-  const [{ data, loading, error }, execute] = useAxios(
-    {
-      method: "POST",
-      url: API_login,
-      headers: { "Content-Type": "application/json" },
-    },
-    { manual: true }
-  );
+  const { mutate, isPending: loading, error } = useLoginMutation();
 
   const prepareLogin = (data) => {
-    execute({
-      data: {
+    mutate(
+      {
         username: data.username,
         password: data.password,
       },
-    }).then((response) => {
-      toAuthStore(data.username, data.password);
-      handleLoginResponse(response.data);
-    });
+      {
+        onSuccess: (response) => {
+          toAuthStore(data.username, data.password);
+          handleLoginResponse(response.data);
+        },
+      }
+    );
   };
 
   const onSubmit = (data) => prepareLogin(data);
@@ -81,7 +59,11 @@ export default function LoginScreen() {
     LocalAuthentication.authenticateAsync().then((res) => {
       if (res.success) {
         fromAuthStore()
-          .then((info) => execute({ data: info }))
+          .then((info) => {
+            mutate(info, {
+              onSuccess: (response) => handleLoginResponse(response.data),
+            });
+          })
           .then((response) => handleLoginResponse(response.data));
       } else {
         navigation.navigate("RequestError", {
@@ -130,7 +112,6 @@ export default function LoginScreen() {
               onFingerPrint={fingerPrintHandler}
               containerStyle={{ space: 4 }}
             />
-            <TempSendMessage />
             <Spacer h={1} />
             <Pressable onPress={qrCodeHandler}>
               <HStack alignItems={"center"} justifyContent={"center"} space={3}>

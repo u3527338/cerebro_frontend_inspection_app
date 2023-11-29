@@ -20,43 +20,28 @@ import useDefaultAPI from "../../../hocks/useDefaultAPI";
 import { ComponentRender } from "../EditAndPreviewFormPage/components/ComponentRender";
 
 const CustomButton = ({ title, callback }) => (
-  <Button
-    // w={"100%"}
-    py={1}
-    shadow={6}
-    bg={"gray.500"}
-    // borderWidth={1}
-    borderRadius={4}
-    // borderColor={"gray.700"}
-    onPress={callback}
-  >
+  <Button py={1} shadow={6} bg={"gray.500"} borderRadius={4} onPress={callback}>
     <Text color={"gray.300"} bold>
       {title}
     </Text>
   </Button>
 );
 
-const Body = ({ sessions, hasNextStep, currentStep, loading }) => {
-  if (loading)
-    return (
-      <Center height={"85%"}>
-        <LoadingComponent />
-      </Center>
-    );
-
+const Body = ({ data, currentStep }) => {
+  const hasNextStep = data.flow.flow.length > (data.flow_data?.length || 0);
   const { currentPermission } = useContext(StateContext);
   const { control, handleSubmit, reset } = useForm({
     defaultValues: _.fromPairs(
-      sessions?.template?.map((item) => [item.key, item.preset])
+      data?.template?.map((item) => [item.key, item.preset])
     ),
   });
   const onSubmit = (data) => {
     console.log(data);
-    alert(JSON.stringify(sessions.template));
+    alert(JSON.stringify(data.template));
   };
 
   let editRole = [];
-  const currentFlow = sessions.flow.flow[currentStep];
+  const currentFlow = data.flow.flow[currentStep];
   if (currentFlow) {
     editRole =
       typeof currentFlow.role === "string"
@@ -122,7 +107,7 @@ const Body = ({ sessions, hasNextStep, currentStep, loading }) => {
           py={4}
           mb={10}
         >
-          {sessions.template.map((t, i) => {
+          {data.template.map((t, i) => {
             // const preview =
             //   !intersectionWith(currentPermission, t.editable, isEqual)
             //     .length ||
@@ -153,35 +138,19 @@ const Body = ({ sessions, hasNextStep, currentStep, loading }) => {
 const AddFormPage = () => {
   const routes = useRoute();
   const params = routes.params;
-  const { getFormTemplateById } = useDefaultAPI();
-  const [loading, setLoading] = useState(true);
-  const [title, setTitle] = useState("Loading...");
-  const [template, setTemplate] = useState(null);
-  const [hasNextStep, setHasNextStep] = useState(false);
-
-  useEffect(() => {
-    getFormTemplateById(params.id)
-      .then((response) => {
-        setTitle(response.data.description);
-        setTemplate(response.data);
-        setHasNextStep(
-          response.data.flow.flow.length >
-            (response.data.flow_data?.length || 0)
-        );
-        setLoading(false);
-      })
-      .catch((err) => console.log(err.message));
-  }, []);
+  const { useFormTemplateByIdQuery } = useDefaultAPI();
+  const { data, isFetching } = useFormTemplateByIdQuery(params.id);
 
   return (
     <VStack safeAreaBottom={true} flex={1}>
-      <GlobalHeader headerText={title} />
-      <Body
-        sessions={template}
-        hasNextStep={hasNextStep}
-        currentStep={template?.flow_data?.length || 0}
-        loading={loading}
-      />
+      <GlobalHeader headerText={isFetching ? "Loading..." : data.description} />
+      {isFetching ? (
+        <Center height={"85%"}>
+          <LoadingComponent />
+        </Center>
+      ) : (
+        <Body data={data} currentStep={data?.flow_data?.length || 0} />
+      )}
     </VStack>
   );
 };
