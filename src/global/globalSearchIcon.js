@@ -20,8 +20,7 @@ const mapData = (data, key) => {
 };
 
 const GlobalSearchIcon = () => {
-  const { useUserListQuery, useProjectInfoQuery, getProjectInfo, getUserList } =
-    useDefaultAPI();
+  const { useUserListQuery, useProjectInfoQuery } = useDefaultAPI();
   const { currentCategory } = useContext(StateContext);
 
   const [globalFilterModal, setGlobalFilterModal] = useState(false);

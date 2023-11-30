@@ -1,4 +1,5 @@
 import { Feather } from "@expo/vector-icons";
+import _ from "lodash";
 import moment from "moment";
 import {
   Box,
@@ -13,12 +14,11 @@ import {
   Text,
   VStack,
 } from "native-base";
-import { useContext, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { useForm, useWatch } from "react-hook-form";
 import { useWindowDimensions } from "react-native";
 import Modal from "react-native-modal";
 import LoadingComponent from "../../../components/common/LoadingComponent";
-import { StateContext } from "../../../context/stateContext";
 import GlobalHeader from "../../../global/globalHeader";
 import GlobalSearchIcon from "../../../global/globalSearchIcon";
 import useDefaultAPI from "../../../hocks/useDefaultAPI";
@@ -131,11 +131,7 @@ const TotalNumberArea = ({ data }) => {
 
       <Flex flexWrap={"wrap"} flexDirection={"row"}>
         <Card
-          number={
-            totalNumberArea.pending +
-            totalNumberArea.completed +
-            totalNumberArea.rejected
-          }
+          number={_.sumBy(activeState.map((state) => totalNumberArea[state]))}
           title={"Submitted"}
           color={"gray.900"}
         />
@@ -286,16 +282,7 @@ const ColorTag = ({ title, color }) => (
   </HStack>
 );
 
-const StaticArea = ({
-  data,
-  control,
-  setDateRange,
-  startDate,
-  setStartDate,
-  endDate,
-  setEndDate,
-  onClose,
-}) => {
+const StaticArea = ({ data, control, setDateRange }) => {
   const [isOpen, setIsOpen] = useState(false);
   const onCloseHandler = () => setIsOpen(false);
 
@@ -402,7 +389,7 @@ const Body = () => {
     `${new Date().toISOString()},${new Date().toISOString()}`
   );
 
-  const { data, isFetching, error, refetch } = useStatisticsQuery({
+  const { data, isFetching, error } = useStatisticsQuery({
     created_at: dateRange,
   });
 
@@ -418,24 +405,19 @@ const Body = () => {
         <Center flex={1}>
           <LoadingComponent />
         </Center>
+      ) : error ? (
+        <Center flex={1}>
+          <Text color="baseColor.200" fontSize="md">
+            {error.message || "Error Fetching Statistics"}
+          </Text>
+        </Center>
       ) : (
         <VStack flex={1} p={4} space={3}>
-          <TotalNumberArea
-            data={data}
-            // totalNumberArea={totalNumberArea}
-            // weeklyArea={weeklyArea}
-            // pieChartArea={pieChartArea}
-          />
+          <TotalNumberArea data={data} />
           <StaticArea
             data={data}
             control={control}
             setDateRange={setDateRange}
-            // resultArea={resultArea}
-            // startDate={startDate}
-            // setStartDate={setStartDate}
-            // endDate={endDate}
-            // setEndDate={setEndDate}
-            // onClose={refetch}
           />
         </VStack>
       )}
@@ -444,8 +426,6 @@ const Body = () => {
 };
 
 const StatisticsPage = () => {
-  const { currentCategory } = useContext(StateContext);
-
   return (
     <>
       <GlobalHeader RightIcon={<GlobalSearchIcon />} />
