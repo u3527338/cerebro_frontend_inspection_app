@@ -1,35 +1,9 @@
 import { Box, Center, HStack, Image, Spinner, Text, VStack } from "native-base";
-import { useEffect, useState } from "react";
 import { Controller } from "react-hook-form";
 import useDefaultAPI from "../../../../../hocks/useDefaultAPI";
 
 const ImageRender = ({ path }) => {
-  const [loading, setIsLoading] = useState(false);
-  const [storagePath, setStoragePath] = useState("");
-  const [errorMessage, setErrorMessage] = useState("");
-  const { getFileFromPath, getFileFromId } = useDefaultAPI();
-
-  const get_media = (media) =>
-    media.includes("/") ? getFileFromPath(media) : getFileFromId(media);
-  const mediaHandler = () => {
-    if (path[0].length > 3) {
-      setIsLoading(true);
-      get_media(path[0])
-        .then((response) => {
-          setStoragePath(response.data.path);
-        })
-        .catch(() => setErrorMessage("No Data Found"))
-        .finally(() => setIsLoading(false));
-    } else {
-      setErrorMessage("Using Default Signature");
-    }
-  };
-
-  useEffect(() => {
-    if (path && !!path.length) mediaHandler();
-  }, [path]);
-
-  if (path === undefined) {
+  if (!path) {
     return (
       <Text color={"baseColor.300"} bold>
         No File
@@ -45,9 +19,13 @@ const ImageRender = ({ path }) => {
     );
   }
 
+  const { getFileFromPath, getFileFromId, useFileFromPathQuery } =
+    useDefaultAPI();
+  const { data, isFetching, error } = useFileFromPathQuery(path[0]);
+
   return (
     <>
-      {loading ? (
+      {isFetching ? (
         <Center w={120} h={120}>
           <Spinner size={"lg"} color={"baseColor.200"} />
         </Center>
@@ -60,9 +38,9 @@ const ImageRender = ({ path }) => {
             </Text>
           </HStack>
           <Box h={100} w={160}>
-            {storagePath ? (
+            {data ? (
               <Image
-                source={{ uri: storagePath }}
+                source={{ uri: data.path }}
                 h="100%"
                 w="100%"
                 resizeMode="contain"
@@ -72,17 +50,13 @@ const ImageRender = ({ path }) => {
             ) : (
               <Center rounded={"md"} bg={"baseColor.100"}>
                 <Text color={"baseColor.300"} bold>
-                  {errorMessage || "No Signature Found"}
+                  {path[0].length <= 3
+                    ? "Using Default Signature"
+                    : error.message || "No Signature Found"}
                 </Text>
               </Center>
             )}
           </Box>
-          {/* <HStack space={2}>
-            <Text color={"baseColor.300"}>Signed at:</Text>
-            <Text color={"baseColor.500"} bold>
-              {moment(path[2]).format("YYYY-MM-DD HH:mm:ss")}
-            </Text>
-          </HStack> */}
         </VStack>
       )}
     </>

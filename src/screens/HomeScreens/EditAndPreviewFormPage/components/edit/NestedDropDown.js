@@ -48,10 +48,10 @@ const NestedDropDown = ({ control, detail }) => {
               borderWidth={1}
               borderColor="baseColor.400"
               style={{
-                backgroundColor: detail.disabled
+                backgroundColor: !!detail.disabled
                   ? baseColor[100]
                   : "transparent",
-                opacity: detail.disabled ? 0.5 : 1,
+                opacity: !!detail.disabled ? 0.5 : 1,
               }}
             >
               <HStack justifyContent="space-between" alignItems={"center"}>
@@ -65,7 +65,7 @@ const NestedDropDown = ({ control, detail }) => {
                 </Text>
                 <Pressable
                   onPress={onOpen}
-                  disabled={detail.disabled}
+                  disabled={!!detail.disabled}
                   borderRadius="full"
                   _pressed={{ backgroundColor: "secondary.100" }}
                 >

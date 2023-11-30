@@ -39,7 +39,7 @@ const RadioButtonGroup = ({ control, detail }) => {
                   bg="transparent"
                   key={index}
                   size="sm"
-                  isDisabled={detail.disabled}
+                  isDisabled={!!detail.disabled}
                 >
                   <Text
                     textAlign="justify"

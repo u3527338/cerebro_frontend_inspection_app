@@ -10,7 +10,7 @@ const TextInput = ({ control, detail }) => {
       render={({ field: { onChange, onBlur, value } }) => (
         <Box>
           <Input
-            isDisabled={detail.disabled}
+            isDisabled={!!detail.disabled}
             _disabled={{
               backgroundColor: "baseColor.100",
               opacity: 0.5,

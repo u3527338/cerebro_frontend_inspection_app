@@ -1,7 +1,7 @@
-import { useContext, useEffect, useState } from "react";
+import { intersectionWith, isEqual } from "lodash";
+import { VStack } from "native-base";
+import { useContext } from "react";
 import { StateContext } from "../../../../context/stateContext";
-import { Box, Divider, Text, VStack } from "native-base";
-import { isEqual, intersectionWith } from "lodash";
 import { ComponentRender } from "./ComponentRender";
 
 const FormWrapper = ({ templateDetail, control, hasNextStep, currentFlow }) => {
@@ -16,29 +16,21 @@ const FormWrapper = ({ templateDetail, control, hasNextStep, currentFlow }) => {
 
   return (
     <>
-      {templateDetail.template.template.map((item, index) => (
-        <>
-          <VStack px={2} pt={2} bg={item.bgColor} key={index}>
-            {!!intersectionWith(currentPermission, item.editable, isEqual)
-              .length &&
-            hasNextStep &&
-            !!intersectionWith(editRole, item.editable, isEqual).length ? (
-              <ComponentRender
-                template={item}
-                control={control}
-                preview={false}
-              />
-            ) : (
-              <ComponentRender
-                template={item}
-                control={control}
-                preview={true}
-              />
-            )}
-            <VStack></VStack>
+      {templateDetail.template.template.map((item, index) => {
+        const preview =
+          !intersectionWith(currentPermission, item.editable, isEqual).length ||
+          !hasNextStep ||
+          !intersectionWith(editRole, item.editable, isEqual).length;
+        return (
+          <VStack bg={item.bgColor} key={index}>
+            <ComponentRender
+              template={item}
+              control={control}
+              preview={preview}
+            />
           </VStack>
-        </>
-      ))}
+        );
+      })}
     </>
   );
 };

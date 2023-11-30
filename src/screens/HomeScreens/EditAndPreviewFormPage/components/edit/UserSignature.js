@@ -180,7 +180,7 @@ const UserSignature = ({ control, detail }) => {
                     }}
                     bgColor="primary.400"
                     borderRadius={4}
-                    disabled={detail.disabled}
+                    disabled={!!detail.disabled}
                     _disabled={{ opacity: 0.7 }}
                   >
                     <Text color="white" p={2}>
@@ -191,7 +191,7 @@ const UserSignature = ({ control, detail }) => {
                     onPress={handleClearSignature}
                     bgColor="primary.400"
                     borderRadius={4}
-                    disabled={detail.disabled}
+                    disabled={!!detail.disabled}
                     _disabled={{ opacity: 0.7 }}
                   >
                     <Text color="white" p={2}>
@@ -215,7 +215,7 @@ const UserSignature = ({ control, detail }) => {
                   borderRadius={8}
                   _pressed={{ backgroundColor: primary[100] }}
                   _disabled={{ opacity: 0.3 }}
-                  disabled={detail.disabled}
+                  disabled={!!detail.disabled}
                   onPress={() => {
                     setOpen(true);
                   }}
@@ -225,26 +225,28 @@ const UserSignature = ({ control, detail }) => {
               </HStack>
             )}
 
-            <VStack pt={2} space={2}>
-              <Checkbox
-                onChange={(isSelected) => {
-                  setDefaultSignature(isSelected);
-                }}
-                size="sm"
-                bgColor="transparent"
-              >
-                <Text fontSize={12} color="baseColor.400">
-                  Use Default Signature
-                </Text>
-              </Checkbox>
-              {defaultSignature && (
-                <Text color="red.500" bold fontSize={12}>
-                  Remarks: Please make sure you have provided your default
-                  signature. Otherwise, no signature will be signed on the
-                  generated PDF.
-                </Text>
-              )}
-            </VStack>
+            {!detail.disabled && (
+              <VStack pt={2} space={2}>
+                <Checkbox
+                  onChange={(isSelected) => {
+                    setDefaultSignature(isSelected);
+                  }}
+                  size="sm"
+                  bgColor="transparent"
+                >
+                  <Text fontSize={12} color="baseColor.400">
+                    Use Default Signature
+                  </Text>
+                </Checkbox>
+                {defaultSignature && (
+                  <Text color="red.500" bold fontSize={12}>
+                    Remarks: Please make sure you have provided your default
+                    signature. Otherwise, no signature will be signed on the
+                    generated PDF.
+                  </Text>
+                )}
+              </VStack>
+            )}
 
             <SignatureModal
               callback={handlePreviewSignature}

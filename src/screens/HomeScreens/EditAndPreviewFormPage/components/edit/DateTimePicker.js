@@ -82,10 +82,10 @@ const MyDateTimePicker = ({ control, detail }) => {
               borderWidth={1}
               borderColor="baseColor.400"
               style={{
-                backgroundColor: detail.disabled
+                backgroundColor: !!detail.disabled
                   ? baseColor[100]
                   : "transparent",
-                opacity: detail.disabled ? 0.5 : 1,
+                opacity: !!detail.disabled ? 0.5 : 1,
               }}
             >
               <HStack justifyContent="space-between" alignItems={"center"}>
@@ -100,7 +100,7 @@ const MyDateTimePicker = ({ control, detail }) => {
                     onPress={() => {
                       setOpen(true);
                     }}
-                    disabled={detail.disabled}
+                    disabled={!!detail.disabled}
                     p={1}
                     borderRadius={4}
                     _pressed={{ backgroundColor: "primary.100" }}

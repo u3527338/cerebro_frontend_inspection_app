@@ -413,13 +413,13 @@ const MediaPicker = ({ control, detail, editable = true, imageOnly }) => {
               <HStack pb={2} justifyContent={"space-around"}>
                 <CustomButton
                   onPress={handleChooseMedia}
-                  disabled={detail.disabled}
+                  disabled={!!detail.disabled}
                   label="CHOOSE"
                 />
                 {imageOnly && (
                   <CustomButton
                     onPress={() => handleLaunchCamera()}
-                    disabled={detail.disabled}
+                    disabled={!!detail.disabled}
                     label="TAKE PHOTO"
                   />
                 )}
@@ -435,7 +435,7 @@ const MediaPicker = ({ control, detail, editable = true, imageOnly }) => {
               }}
               handleDeleteFile={handleDeleteFile}
               editable={editable}
-              disabled={detail.disabled}
+              disabled={!!detail.disabled}
             />
 
             <Actionsheet isOpen={isOpen} onClose={onClose}>

@@ -1,34 +1,29 @@
-import GlobalHeader from "../../../global/globalHeader";
 import { useRoute } from "@react-navigation/native";
-import { useEffect, useState } from "react";
-import useDefaultAPI from "../../../hocks/useDefaultAPI";
+import { Center, Text, VStack } from "native-base";
 import LoadingComponent from "../../../components/common/LoadingComponent";
+import GlobalHeader from "../../../global/globalHeader";
+import useDefaultAPI from "../../../hocks/useDefaultAPI";
 import EditFormArea from "./components/EditFormArea";
-import { Center, VStack } from "native-base";
 
 const Body = () => {
   const route = useRoute();
-  const { getFormData } = useDefaultAPI();
-
-  const [formDetail, setFormDetail] = useState(null);
-  const [isLoading, setIsLoading] = useState(true);
-  const [isError, setIsError] = useState(false);
-
-  useEffect(() => {
-    getFormData(route.params.formId)
-      .then((response) => setFormDetail(response.data))
-      .catch((error) => setIsError(error))
-      .finally(() => setIsLoading(false));
-  }, []);
+  const { useFormDataQuery } = useDefaultAPI();
+  const { data, isFetching, error } = useFormDataQuery(route.params?.formId);
 
   return (
     <>
-      {isLoading ? (
+      {isFetching ? (
         <Center flex={1}>
           <LoadingComponent />
         </Center>
+      ) : error ? (
+        <Center flex={1}>
+          <Text color="baseColor.200" fontSize="md">
+            {error.message || "Error Fetching Form Data"}
+          </Text>
+        </Center>
       ) : (
-        <EditFormArea formDetail={formDetail} />
+        <EditFormArea formDetail={data} />
       )}
     </>
   );

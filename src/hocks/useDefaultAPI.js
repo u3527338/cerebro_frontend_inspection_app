@@ -138,14 +138,15 @@ const useDefaultAPI = () => {
     return response;
   };
 
-  const getFormData = async (id = {}) => {
-    return execute_get({
+  const getFormData = async (id) => {
+    const response = await execute_get({
       url: API_get_formdata_list + `/${id}`,
       params: {
         project: currentProject.project.id,
         category: currentCategory.id,
       },
     });
+    return response.data;
   };
 
   const getMyTaskList = async (params) => {
@@ -217,7 +218,11 @@ const useDefaultAPI = () => {
   };
 
   const getFileFromPath = async (path) => {
-    return execute_get({ url: API_get_file_from_path, params: { path } });
+    const response = await execute_get({
+      url: API_get_file_from_path,
+      params: { path },
+    });
+    return response.data;
   };
 
   const getFileFromId = async (from_id) => {
@@ -302,10 +307,16 @@ const useDefaultAPI = () => {
       queryFn: () => getProjectDetails(params),
     });
 
+  const useFormDataQuery = (id) =>
+    useQuery({
+      queryKey: ["get form data", id],
+      queryFn: () => getFormData(id),
+    });
+
   const useFormDataListQuery = ({ params, enabled }) =>
     useQuery({
       queryKey: [
-        "get form data",
+        "get form data list",
         currentProject,
         currentCategory,
         globalFilter,
@@ -378,6 +389,13 @@ const useDefaultAPI = () => {
       queryFn: () => getStatistics(filter),
     });
 
+  const useFileFromPathQuery = (path) =>
+    useQuery({
+      queryKey: ["get file from path", path],
+      queryFn: () => getFileFromPath(path),
+      enabled: path?.length > 3 && path.includes("/"),
+    });
+
   return {
     changePassword, //
     switchProject, //
@@ -391,10 +409,10 @@ const useDefaultAPI = () => {
     getFormDataList, //TBD
     getMyTaskList, //TBD
     getLibraryList, //
-    getStatistics,
+    getStatistics, //
     loadUser, //
-    getFormData,
-    getFileFromPath,
+    getFormData, //
+    getFileFromPath, //
     getFileFromId,
     uploadFile,
     uploadSignature,
@@ -404,6 +422,7 @@ const useDefaultAPI = () => {
     useUserListQuery,
     useProjectInfoQuery,
     useProjectDetailsQuery,
+    useFormDataQuery,
     useFormDataListQuery,
     useMyTaskListQuery,
     useLoadUserQuery,
@@ -415,6 +434,7 @@ const useDefaultAPI = () => {
     usePreviewFileQuery,
     useLibraryListQuery,
     useStatisticsQuery,
+    useFileFromPathQuery,
   };
 };
 
