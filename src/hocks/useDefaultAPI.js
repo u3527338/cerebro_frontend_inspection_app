@@ -230,7 +230,7 @@ const useDefaultAPI = () => {
   };
 
   const uploadFile = async (data, params) => {
-    return execute_post({
+    const response = await execute_post({
       url: API_upload_file,
       data: data,
       params: {
@@ -238,14 +238,7 @@ const useDefaultAPI = () => {
         project: currentProject.project.id,
       },
     });
-  };
-
-  const uploadSignature = async (data) => {
-    return execute_post({
-      url: API_upload_signature,
-      data: data,
-      // params: {},
-    });
+    return response.data;
   };
 
   const changePassword = async (data) => {
@@ -265,13 +258,14 @@ const useDefaultAPI = () => {
   };
 
   const deleteFileById = async (fileId) => {
-    return execute_delete({
+    const response = await execute_delete({
       url: API_upload_file,
       params: {
         project: currentProject.project.id,
         file: fileId,
       },
     });
+    return response;
   };
 
   const login = async (data) => {
@@ -303,7 +297,7 @@ const useDefaultAPI = () => {
 
   const useProjectDetailsQuery = ({ params }) =>
     useQuery({
-      queryKey: ["get project details"],
+      queryKey: ["get project details", params],
       queryFn: () => getProjectDetails(params),
     });
 
@@ -342,7 +336,7 @@ const useDefaultAPI = () => {
 
   const useFormTemplateListQuery = (id) =>
     useQuery({
-      queryKey: ["get form template list"],
+      queryKey: ["get form template list", id],
       queryFn: () => getFormTemplateList(),
     });
 
@@ -389,11 +383,46 @@ const useDefaultAPI = () => {
       queryFn: () => getStatistics(filter),
     });
 
-  const useFileFromPathQuery = (path) =>
+  const useFileQuery = (pathOrId) =>
     useQuery({
-      queryKey: ["get file from path", path],
-      queryFn: () => getFileFromPath(path),
-      enabled: path?.length > 3 && path.includes("/"),
+      queryKey: ["get file", pathOrId],
+      queryFn: () =>
+        pathOrId.includes("/")
+          ? getFileFromPath(pathOrId)
+          : getFileFromId(pathOrId),
+      enabled: pathOrId?.length > 3,
+    });
+
+  const useUploadFileMutation = () =>
+    useMutation({
+      mutationKey: ["upload file"],
+      mutationFn: ({ data, params }) => uploadFile(data, params),
+    });
+
+  const useDeleteFileMutation = (onSuccess = () => {}) =>
+    useMutation({
+      mutationKey: ["delete file"],
+      mutationFn: (id) => deleteFileById(id),
+      onSuccess: onSuccess,
+    });
+
+  ////////////////////////////////////////////////////////////////////////////////////////////
+
+  const uploadGcsPath = async ({ url, body, type }) => {
+    const response = await fetch(url, {
+      method: "PUT",
+      body: body,
+      headers: {
+        "Content-Type": type || body.type,
+      },
+    });
+    return response;
+  };
+
+  const useUploadGCSPathMutation = () =>
+    useMutation({
+      mutationKey: ["upload gcs path"],
+      mutationFn: (queryObj) => uploadGcsPath(queryObj),
     });
 
   return {
@@ -413,10 +442,9 @@ const useDefaultAPI = () => {
     loadUser, //
     getFormData, //
     getFileFromPath, //
-    getFileFromId,
-    uploadFile,
-    uploadSignature,
-    deleteFileById,
+    getFileFromId, //
+    uploadFile, //
+    deleteFileById, //
 
     useUserInfoQuery,
     useUserListQuery,
@@ -434,7 +462,11 @@ const useDefaultAPI = () => {
     usePreviewFileQuery,
     useLibraryListQuery,
     useStatisticsQuery,
-    useFileFromPathQuery,
+    useFileQuery,
+    useUploadFileMutation,
+    useDeleteFileMutation,
+
+    useUploadGCSPathMutation,
   };
 };
 

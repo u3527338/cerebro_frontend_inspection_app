@@ -18,6 +18,9 @@ import { StateContext } from "../../../context/stateContext";
 import GlobalHeader from "../../../global/globalHeader";
 import useDefaultAPI from "../../../hocks/useDefaultAPI";
 import { ComponentRender } from "../EditAndPreviewFormPage/components/ComponentRender";
+import uploadFile from "../EditAndPreviewFormPage/components/edit/MediaPicker/submitFunction";
+import Spinner from "react-native-loading-spinner-overlay";
+import montserrat from "../../../themes/fonts/montserrat";
 
 const CustomButton = ({ title, callback }) => (
   <Button py={1} shadow={6} bg={"gray.500"} borderRadius={4} onPress={callback}>
@@ -28,6 +31,18 @@ const CustomButton = ({ title, callback }) => (
 );
 
 const Body = ({ data, currentStep }) => {
+  const { useUploadFileMutation, useUploadGCSPathMutation } = useDefaultAPI();
+  const {
+    mutate: uploadFileMutate,
+    isPending: uploadPending,
+    error: uploadError,
+  } = useUploadFileMutation();
+  const {
+    mutate: uploadGcsPathMutate,
+    isPending: gcsPending,
+    error: gcsError,
+  } = useUploadGCSPathMutation();
+
   const hasNextStep = data.flow.flow.length > (data.flow_data?.length || 0);
   const { currentPermission } = useContext(StateContext);
   const { control, handleSubmit, reset } = useForm({
@@ -36,8 +51,8 @@ const Body = ({ data, currentStep }) => {
     ),
   });
   const onSubmit = (data) => {
-    console.log(data);
-    alert(JSON.stringify(data.template));
+    console.log(data.ImageAttachments);
+    uploadFile(data.ImageAttachments, uploadFileMutate, uploadGcsPathMutate);
   };
 
   let editRole = [];
@@ -53,6 +68,7 @@ const Body = ({ data, currentStep }) => {
   const [preview, setPreview] = useState(false);
   return (
     <VStack space={2} justifyContent={"space-between"} h={"85%"}>
+      <Spinner visible={uploadPending || gcsPending} />
       <ScrollView
         py={4}
         px={2}

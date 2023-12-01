@@ -296,13 +296,12 @@ const StaticArea = ({ data, control, setDateRange }) => {
       setDateRange(date);
     }
   }, [date]);
-  console.log(date);
+
   let resultArea = {};
-  console.log("data.result", data.result);
   data.result.map((item) => {
     resultArea = parserResultArea(resultArea, item);
   });
-  console.log("resultArea", resultArea);
+
   return (
     <VStack p={4} borderRadius={6} space={2} bg={"white"} shadow={3} h={"75%"}>
       <Pressable onPress={() => setIsOpen(true)}>

@@ -71,7 +71,28 @@ const UserSignature = ({ control, detail }) => {
   const [error, setError] = useState(null);
   const [path, setPath] = useState(null);
   const [defaultSignature, setDefaultSignature] = useState(false);
-  const { uploadFile, getFileFromId, deleteFileById } = useDefaultAPI();
+  const {
+    useUploadFileMutation,
+    useUploadGCSPathMutation,
+    useDeleteFileMutation,
+  } = useDefaultAPI();
+  const {
+    mutate: uploadFileMutate,
+    isPending: uploadPending,
+    error: uploadError,
+  } = useUploadFileMutation();
+  const {
+    mutate: uploadGcsPathMutate,
+    isPending: gcsPending,
+    error: gcsError,
+  } = useUploadGCSPathMutation();
+  const {
+    mutate: deleteFileMutate,
+    isPending: deletePending,
+    error: deleteError,
+  } = useDeleteFileMutation();
+
+  // const [id, setId] = useState("");
 
   return (
     <Controller
@@ -95,14 +116,15 @@ const UserSignature = ({ control, detail }) => {
             .then((res) => {
               setLoading(false);
               setPath(path);
+              handleUploadSignature(path);
             })
             .catch((err) => {
               setError(err.message);
             });
         };
 
-        const handleUploadSignature = () => {
-          FileSystem.getInfoAsync(path, { size: true, md5: true })
+        const handleUploadSignature = (signaturePath = path) => {
+          FileSystem.getInfoAsync(signaturePath, { size: true, md5: true })
             .then((file) => {
               const payload = {
                 file_name: file.uri.split("/").pop(),
@@ -115,24 +137,27 @@ const UserSignature = ({ control, detail }) => {
                 uri: file.uri,
                 size: file.size,
               };
-              uploadFile(payload, { storage_path: "signature" })
-                .then((response) => {
-                  onChange([
-                    defaultSignature ? "" : response.data.path,
-                    full_name,
-                    new Date(),
-                    response.data.file,
-                  ]);
-                  const gcs_upload_path = response.data.signed_url;
-                  fetch(gcs_upload_path, {
-                    method: "PUT",
-                    body: fileObj,
-                    headers: {
-                      "Content-Type": `image/${imageType}`,
-                    },
-                  }).catch((err) => setError(err.message));
-                })
-                .catch((err) => setError(err.message));
+              uploadFileMutate(
+                {
+                  data: payload,
+                  params: { storage_path: "signature" },
+                },
+                {
+                  onSuccess: (data) => {
+                    // onChange([
+                    //   defaultSignature ? "" : data.path,
+                    //   full_name,
+                    //   new Date(),
+                    //   data.file,
+                    // ]);
+                    // setId(data.file);
+                    uploadGcsPathMutate({
+                      url: data.signed_url,
+                      body: fileObj,
+                    });
+                  },
+                }
+              );
             })
             .catch((err) => setError(err.message));
         };
@@ -141,6 +166,9 @@ const UserSignature = ({ control, detail }) => {
           FileSystem.deleteAsync(path).then(() => {
             setPath(null);
           });
+          // deleteFileMutate(id, {
+          //   onSuccess: () => console.log("delete succeed"),
+          // });
         };
 
         return (
@@ -156,7 +184,7 @@ const UserSignature = ({ control, detail }) => {
                 {error}
               </Text>
             ) : path ? (
-              <VStack>
+              <VStack space={2}>
                 <Box
                   h={100}
                   w={160}
@@ -173,20 +201,7 @@ const UserSignature = ({ control, detail }) => {
                     alt={"Cannot load image"}
                   />
                 </Box>
-                <HStack space={2} pt={2}>
-                  <Pressable
-                    onPress={() => {
-                      console.log("save as default signature");
-                    }}
-                    bgColor="primary.400"
-                    borderRadius={4}
-                    disabled={!!detail.disabled}
-                    _disabled={{ opacity: 0.7 }}
-                  >
-                    <Text color="white" p={2}>
-                      SAVE
-                    </Text>
-                  </Pressable>
+                <HStack>
                   <Pressable
                     onPress={handleClearSignature}
                     bgColor="primary.400"

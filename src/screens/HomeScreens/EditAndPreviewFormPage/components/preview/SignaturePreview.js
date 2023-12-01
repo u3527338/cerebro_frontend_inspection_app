@@ -19,9 +19,8 @@ const ImageRender = ({ path }) => {
     );
   }
 
-  const { getFileFromPath, getFileFromId, useFileFromPathQuery } =
-    useDefaultAPI();
-  const { data, isFetching, error } = useFileFromPathQuery(path[0]);
+  const { useFileQuery } = useDefaultAPI();
+  const { data, isFetching, error } = useFileQuery(path[0]);
 
   return (
     <>

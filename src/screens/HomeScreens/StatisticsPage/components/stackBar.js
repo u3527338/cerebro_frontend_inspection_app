@@ -6,8 +6,6 @@ import { scaleBand } from "d3-scale";
 import { HStack, Text, VStack } from "native-base";
 
 export default function StackedBarChartExample({ data }) {
-  console.log("data", data);
-
   const layout = useWindowDimensions();
 
   const keys = ["completed", "rejected", "pending", "overdue"];
