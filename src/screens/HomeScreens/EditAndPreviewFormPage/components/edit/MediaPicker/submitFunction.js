@@ -14,27 +14,6 @@ const MIME_TYPE = {
 const isImage = (uri) => uri.includes(".jpeg");
 
 const uploadFile = (files, uploadFileMutate, uploadGcsPathMutate) => {
-  // const {
-  //   useUploadFileMutation,
-  //   useUploadGCSPathMutation,
-  //   // useDeleteFileMutation,
-  // } = useDefaultAPI();
-  // const {
-  //   mutate: uploadFileMutate,
-  //   isPending: uploadPending,
-  //   error: uploadError,
-  // } = useUploadFileMutation();
-  // const {
-  //   mutate: uploadGcsPathMutate,
-  //   isPending: gcsPending,
-  //   error: gcsError,
-  // } = useUploadGCSPathMutation();
-  // // const {
-  // //   mutate: deleteFileMutate,
-  // //   isPending: deletePending,
-  // //   error: deleteError,
-  // // } = useDeleteFileMutation((response) => console.log("delete success"));
-
   files.map(async (file) => {
     const type = isImage(file.uri) ? FileType.IMAGE : FileType.PDF;
     let payload = {
@@ -72,8 +51,6 @@ const uploadFile = (files, uploadFileMutate, uploadGcsPathMutate) => {
       { data: payload },
       {
         onSuccess: (data) => {
-          console.log("path", data.path);
-          // updateId(data.file); // unnecessary for one-time submit
           uploadGcsPathMutate({
             url: data.signed_url,
             body: fileObj,

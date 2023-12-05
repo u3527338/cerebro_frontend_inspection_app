@@ -18,7 +18,6 @@ import {
   API_statistics,
   API_switch_project,
   API_upload_file,
-  API_upload_signature,
   API_userinfo_info,
   API_user_list,
 } from "../global/constants";

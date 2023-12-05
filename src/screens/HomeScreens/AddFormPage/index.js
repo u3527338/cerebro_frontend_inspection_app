@@ -21,6 +21,7 @@ import { ComponentRender } from "../EditAndPreviewFormPage/components/ComponentR
 import uploadFile from "../EditAndPreviewFormPage/components/edit/MediaPicker/submitFunction";
 import Spinner from "react-native-loading-spinner-overlay";
 import montserrat from "../../../themes/fonts/montserrat";
+import uploadSignature from "../EditAndPreviewFormPage/components/edit/UserSignature/submitFunction";
 
 const CustomButton = ({ title, callback }) => (
   <Button py={1} shadow={6} bg={"gray.500"} borderRadius={4} onPress={callback}>
@@ -51,8 +52,8 @@ const Body = ({ data, currentStep }) => {
     ),
   });
   const onSubmit = (data) => {
-    console.log(data.ImageAttachments);
     uploadFile(data.ImageAttachments, uploadFileMutate, uploadGcsPathMutate);
+    uploadSignature(data.sign1, uploadFileMutate, uploadGcsPathMutate);
   };
 
   let editRole = [];
