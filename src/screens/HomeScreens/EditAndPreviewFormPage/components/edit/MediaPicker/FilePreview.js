@@ -1,8 +1,7 @@
 import { memo } from "react";
 import { Image } from "native-base";
 import { WebView } from "react-native-webview";
-
-const isImage = (uri) => uri.includes(".jpeg");
+import { isImage } from "../../../../../../global/function";
 
 const FilePreview = ({ uri, size = { height: "100%", width: "100%" } }) => {
   return isImage(uri) ? (

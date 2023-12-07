@@ -21,6 +21,9 @@ import {
   API_userinfo_info,
   API_user_list,
 } from "../global/constants";
+import * as FileSystem from "expo-file-system";
+import { manipulateAsync } from "expo-image-manipulator";
+import { isImage } from "../global/function";
 
 const useDefaultAPI = () => {
   const { token, default_project } = useContext(AuthContext);
@@ -229,15 +232,78 @@ const useDefaultAPI = () => {
   };
 
   const uploadFile = async (data, params) => {
-    const response = await execute_post({
-      url: API_upload_file,
-      data: data,
-      params: {
-        ...params,
-        project: currentProject.project.id,
-      },
+    const FileType = {
+      IMAGE: "image",
+      PDF: "pdf",
+      SIGNATURE: "signature",
+    };
+
+    const MIME_TYPE = {
+      signature: "image/png",
+      image: "image/jpeg",
+      pdf: "application/pdf",
+    };
+
+    const files = data;
+    const promises = files.map(async (file) => {
+      const type = file.uri.includes("signature")
+        ? FileType.SIGNATURE
+        : isImage(file.uri)
+        ? FileType.IMAGE
+        : FileType.PDF;
+
+      let payload = {
+        file_name: file.uri.split("/").pop(),
+        file_type: MIME_TYPE[type],
+        size: file.size,
+      };
+      let fileObj = {
+        uri: file.uri,
+        name: file.uri.split("/").pop(),
+        type: MIME_TYPE[type],
+        size: file.size,
+      };
+
+      if (isImage(file.uri) && !file.uri.includes("signature")) {
+        try {
+          const result = await manipulateAsync(file.uri, [
+            {
+              resize: {
+                width: 960,
+                height: (960 * file.height) / file.width,
+              },
+            },
+          ]);
+
+          const info = await FileSystem.getInfoAsync(result.uri);
+          payload = { ...payload, size: info.size };
+          fileObj = { ...fileObj, uri: info.uri, size: info.size };
+        } catch (error) {
+          console.error(error);
+        }
+      }
+
+      const response = await execute_post({
+        url: API_upload_file,
+        data: payload,
+        params: {
+          ...params,
+          project: currentProject.project.id,
+        },
+      });
+
+      await uploadGcsPath({
+        url: response.data.signed_url,
+        body: fileObj,
+        type: MIME_TYPE[type],
+      });
+
+      return response.data.path;
     });
-    return response.data;
+
+    const responses = await Promise.all(promises);
+
+    return responses;
   };
 
   const changePassword = async (data) => {
@@ -392,10 +458,11 @@ const useDefaultAPI = () => {
       enabled: pathOrId?.length > 3,
     });
 
-  const useUploadFileMutation = () =>
+  const useUploadFileMutation = (onSuccess) =>
     useMutation({
       mutationKey: ["upload file"],
       mutationFn: ({ data, params }) => uploadFile(data, params),
+      onSuccess: onSuccess,
     });
 
   const useDeleteFileMutation = (onSuccess = () => {}) =>
@@ -408,6 +475,7 @@ const useDefaultAPI = () => {
   ////////////////////////////////////////////////////////////////////////////////////////////
 
   const uploadGcsPath = async ({ url, body, type }) => {
+    console.log("upload gcs path");
     const response = await fetch(url, {
       method: "PUT",
       body: body,

@@ -6,10 +6,9 @@ import uuid from "react-native-uuid";
 import LoadingComponent from "../../../../../../components/common/LoadingComponent";
 import AddSignature from "./AddSignature";
 import DefaultSignatureOption from "./DefaultSignatureOption";
+import { imageType } from "./function";
 import LocalSignaturePreview from "./LocalSignaturePreview";
 import SignatureModal from "./SignatureModal";
-
-const imageType = "png";
 
 const UserSignature = ({ control, detail }) => {
   const [open, setOpen] = useState(false);
@@ -31,7 +30,9 @@ const UserSignature = ({ control, detail }) => {
         const handlePreviewSignature = async (signature) => {
           setLoading(true);
           setOpen(false);
-          const path = `${FileSystem.cacheDirectory}${uuid.v4()}.${imageType}`;
+          const path = `${
+            FileSystem.cacheDirectory
+          }${uuid.v4()}signature.${imageType}`;
           FileSystem.writeAsStringAsync(
             path,
             signature.replace(`data:image/${imageType};base64,`, ""),
@@ -40,7 +41,7 @@ const UserSignature = ({ control, detail }) => {
             .then((res) => {
               setLoading(false);
               setPath(path);
-              onChange(path);
+              onChange({ type: "signature", data: path });
             })
             .catch((err) => {
               setError(err.message);

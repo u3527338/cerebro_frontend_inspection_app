@@ -1,9 +1,8 @@
 import { Pressable } from "native-base";
 import { memo } from "react";
+import { isImage } from "../../../../../../global/function";
 import { DeleteBadge, PdfLogo } from "./Custom";
 import FilePreview from "./FilePreview";
-
-const isImage = (uri) => uri.includes(".jpeg");
 
 const File = ({ file, handlePreviewFile, handleDeleteLocalFile, status }) => {
   return (

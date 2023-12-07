@@ -88,8 +88,9 @@ const MediaPicker = ({ control, detail, editable = true, imageOnly }) => {
       control={control}
       render={({ field: { onChange, onBlur, value } }) => {
         useEffect(() => {
-          onChange(files);
+          onChange({ type: "media", data: files });
         }, [files]);
+
         return (
           <>
             {editable && (

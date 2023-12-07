@@ -3,8 +3,7 @@ import { Box } from "native-base";
 import { memo, useRef } from "react";
 import Modal from "react-native-modal";
 import SignatureScreen from "react-native-signature-canvas";
-
-const imageType = "png";
+import { imageType } from "./function";
 
 const SignatureModal = ({ open, callback, closeSignature, label }) => {
   const ref = useRef();
