@@ -3,9 +3,14 @@ import { Box } from "native-base";
 import { memo, useRef } from "react";
 import Modal from "react-native-modal";
 import SignatureScreen from "react-native-signature-canvas";
-import { imageType } from "./function";
 
-const SignatureModal = ({ open, callback, closeSignature, label }) => {
+const SignatureModal = ({
+  open,
+  callback,
+  closeSignature,
+  label,
+  imageType,
+}) => {
   const ref = useRef();
 
   const style = `.m-signature-pad--footer
