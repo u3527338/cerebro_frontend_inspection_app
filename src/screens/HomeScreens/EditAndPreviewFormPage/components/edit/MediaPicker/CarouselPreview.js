@@ -4,7 +4,7 @@ import Modal from "react-native-modal";
 import Carousel from "react-native-reanimated-carousel";
 import FilePreview from "./FilePreview";
 
-const ModalPreview = ({
+const CarouselPreview = ({
   isVisible,
   onBackdropPress,
   files,
@@ -30,4 +30,4 @@ const ModalPreview = ({
   );
 };
 
-export default memo(ModalPreview);
+export default memo(CarouselPreview);

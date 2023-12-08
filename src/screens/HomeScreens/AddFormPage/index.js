@@ -9,16 +9,15 @@ import {
   Text,
   VStack,
 } from "native-base";
-import React, { useContext, useEffect, useState } from "react";
+import React, { useContext, useState } from "react";
 import { useForm } from "react-hook-form";
 import LoadingComponent from "../../../components/common/LoadingComponent";
 import { StateContext } from "../../../context/stateContext";
 import GlobalHeader from "../../../global/globalHeader";
 import useDefaultAPI from "../../../hocks/useDefaultAPI";
 import { ComponentRender } from "../EditAndPreviewFormPage/components/ComponentRender";
-import uploadFile from "../EditAndPreviewFormPage/components/edit/MediaPicker/function";
 import Spinner from "react-native-loading-spinner-overlay";
-import uploadSignature from "../EditAndPreviewFormPage/components/edit/UserSignature/function";
+import { filesToBeUploaded } from "../../../global/function";
 
 const CustomButton = ({ title, callback }) => (
   <Button py={1} shadow={6} bg={"gray.500"} borderRadius={4} onPress={callback}>
@@ -29,22 +28,13 @@ const CustomButton = ({ title, callback }) => (
 );
 
 const Body = ({ data, currentStep }) => {
-  // console.log("data", data);
-  const [filePathArr, setFilePathArr] = useState([]);
-  const { useUploadFileMutation, useUploadGCSPathMutation } = useDefaultAPI();
+  const { useUploadMultipleFileListsMutation } = useDefaultAPI();
+
   const {
-    mutate: uploadFileMutate,
-    isPending: uploadPending,
-    error: uploadError,
-  } = useUploadFileMutation((pathArr) => {
-    console.log("pathArr", pathArr);
-    // setFilePathArr((prevState) => [...prevState, ...pathArr]);
-  });
-  // const {
-  //   mutate: uploadGcsPathMutate,
-  //   isPending: gcsPending,
-  //   error: gcsError,
-  // } = useUploadGCSPathMutation();
+    mutate: uploadMultipleFileListMutate,
+    isPending: uploadFilesPending,
+    error: uploadFilesError,
+  } = useUploadMultipleFileListsMutation();
 
   const hasNextStep = data.flow.flow.length > (data.flow_data?.length || 0);
   const { currentPermission } = useContext(StateContext);
@@ -53,18 +43,16 @@ const Body = ({ data, currentStep }) => {
       data?.template?.map((item) => [item.key, item.preset])
     ),
   });
-  const onSubmit = async (data) => {
-    Object.keys(data)
-      .filter((input) => !!data[input]?.type)
-      .map(async (input) => {
-        if (!!data[input]?.type) {
-          if (data[input]?.type == "media") {
-            uploadFile(data[input].data, uploadFileMutate);
-          } else if (data[input]?.type == "signature") {
-            uploadSignature(data[input].data, uploadFileMutate);
-          }
-        }
-      });
+
+  const onSubmit = (data) => {
+    const filesArr = filesToBeUploaded(data);
+    uploadMultipleFileListMutate(filesArr, {
+      onSuccess: (uploadedData) => {
+        const formData = _.merge(data, ...uploadedData);
+        console.log("formData", JSON.stringify(formData));
+        // submit form by restructuring other data
+      },
+    });
   };
 
   let editRole = [];
@@ -80,7 +68,7 @@ const Body = ({ data, currentStep }) => {
   const [preview, setPreview] = useState(false);
   return (
     <VStack space={2} justifyContent={"space-between"} h={"85%"}>
-      <Spinner visible={uploadPending} />
+      <Spinner visible={uploadFilesPending} />
       <ScrollView
         py={4}
         px={2}

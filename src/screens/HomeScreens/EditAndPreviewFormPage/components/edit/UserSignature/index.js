@@ -6,9 +6,10 @@ import uuid from "react-native-uuid";
 import LoadingComponent from "../../../../../../components/common/LoadingComponent";
 import AddSignature from "./AddSignature";
 import DefaultSignatureOption from "./DefaultSignatureOption";
-import { imageType } from "./function";
 import LocalSignaturePreview from "./LocalSignaturePreview";
 import SignatureModal from "./SignatureModal";
+
+const imageType = "png";
 
 const UserSignature = ({ control, detail }) => {
   const [open, setOpen] = useState(false);
@@ -41,7 +42,7 @@ const UserSignature = ({ control, detail }) => {
             .then((res) => {
               setLoading(false);
               setPath(path);
-              onChange({ type: "signature", data: path });
+              onChange({ uploadRequired: true, data: path });
             })
             .catch((err) => {
               setError(err.message);
@@ -91,6 +92,7 @@ const UserSignature = ({ control, detail }) => {
               open={open}
               closeSignature={() => setOpen(false)}
               label={detail.session}
+              imageType={imageType}
             />
           </>
         );

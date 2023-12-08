@@ -1,18 +1,24 @@
 import { memo } from "react";
-import { Image } from "native-base";
+import { Box, Image } from "native-base";
 import { WebView } from "react-native-webview";
 import { isImage } from "../../../../../../global/function";
 
 const FilePreview = ({ uri, size = { height: "100%", width: "100%" } }) => {
   return isImage(uri) ? (
-    <Image
-      source={{ uri }}
-      rounded="md"
-      borderRadius="md"
+    <Box
       h={size.height}
       w={size.width}
-      alt={"Cannot load image"}
-    />
+      bgColor="primary.100"
+      rounded="md"
+      borderRadius="md"
+    >
+      <Image
+        source={{ uri }}
+        flex={1}
+        resizeMode="contain"
+        alt={"Cannot load image"}
+      />
+    </Box>
   ) : (
     <WebView originWhitelist={["*"]} source={{ uri }} style={size} />
   );

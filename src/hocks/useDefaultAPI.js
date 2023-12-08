@@ -1,7 +1,8 @@
 import { useMutation, useQuery } from "@tanstack/react-query";
 import axios from "axios";
+import * as FileSystem from "expo-file-system";
+import { manipulateAsync } from "expo-image-manipulator";
 import { useContext } from "react";
-import { baseFetch } from "../api/baseFetch";
 import { AuthContext } from "../context/authContext";
 import { StateContext } from "../context/stateContext";
 import {
@@ -21,9 +22,7 @@ import {
   API_userinfo_info,
   API_user_list,
 } from "../global/constants";
-import * as FileSystem from "expo-file-system";
-import { manipulateAsync } from "expo-image-manipulator";
-import { isImage } from "../global/function";
+import { isImage, isSignature } from "../global/function";
 
 const useDefaultAPI = () => {
   const { token, default_project } = useContext(AuthContext);
@@ -72,28 +71,6 @@ const useDefaultAPI = () => {
       params: params,
     });
   };
-
-  // const [{}, execute_patch] = useAxios(
-  //   {
-  //     method: "PATCH",
-  //     headers: {
-  //       "Content-Type": "application/json",
-  //       Authorization: `Token ${token}`,
-  //     },
-  //   },
-  //   { manual: true }
-  // );
-
-  // const [{}, execute_get] = useAxios(
-  //   {
-  //     method: "GET",
-  //     headers: {
-  //       "Content-Type": "application/json",
-  //       Authorization: `Token ${token}`,
-  //     },
-  //   },
-  //   { manual: true }
-  // );
 
   const switchProject = async (project_id) => {
     const response = await execute_patch({
@@ -231,7 +208,26 @@ const useDefaultAPI = () => {
     return execute_get({ url: API_get_file_from_id(from_id) });
   };
 
-  const uploadFile = async (data, params) => {
+  const uploadMultipleFileLists = async (data) => {
+    const promises = data.map(async ({ key, file }) => {
+      let fileList = file;
+      const params = isSignature(file) ? { storage_path: "signature" } : null;
+
+      if (isSignature(file)) {
+        const file = await FileSystem.getInfoAsync(fileList, {
+          size: true,
+          md5: true,
+        });
+        fileList = [file];
+      }
+
+      return uploadFile(fileList, params, key);
+    });
+
+    return Promise.all(promises);
+  };
+
+  const uploadFile = async (data, params, key) => {
     const FileType = {
       IMAGE: "image",
       PDF: "pdf",
@@ -244,9 +240,8 @@ const useDefaultAPI = () => {
       pdf: "application/pdf",
     };
 
-    const files = data;
-    const promises = files.map(async (file) => {
-      const type = file.uri.includes("signature")
+    const promises = data.map(async (file) => {
+      const type = isSignature(file.uri)
         ? FileType.SIGNATURE
         : isImage(file.uri)
         ? FileType.IMAGE
@@ -264,7 +259,7 @@ const useDefaultAPI = () => {
         size: file.size,
       };
 
-      if (isImage(file.uri) && !file.uri.includes("signature")) {
+      if (isImage(file.uri) && !isSignature(file.uri)) {
         try {
           const result = await manipulateAsync(file.uri, [
             {
@@ -301,9 +296,10 @@ const useDefaultAPI = () => {
       return response.data.path;
     });
 
-    const responses = await Promise.all(promises);
-
-    return responses;
+    let response = {};
+    const response_data = await Promise.all(promises);
+    response[key] = response_data;
+    return key ? response : response_data;
   };
 
   const changePassword = async (data) => {
@@ -458,24 +454,27 @@ const useDefaultAPI = () => {
       enabled: pathOrId?.length > 3,
     });
 
-  const useUploadFileMutation = (onSuccess) =>
+  const useUploadFileMutation = () =>
     useMutation({
       mutationKey: ["upload file"],
       mutationFn: ({ data, params }) => uploadFile(data, params),
-      onSuccess: onSuccess,
     });
 
-  const useDeleteFileMutation = (onSuccess = () => {}) =>
+  const useUploadMultipleFileListsMutation = () =>
+    useMutation({
+      mutationKey: ["upload multiple file lists"],
+      mutationFn: (data) => uploadMultipleFileLists(data),
+    });
+
+  const useDeleteFileMutation = () =>
     useMutation({
       mutationKey: ["delete file"],
       mutationFn: (id) => deleteFileById(id),
-      onSuccess: onSuccess,
     });
 
   ////////////////////////////////////////////////////////////////////////////////////////////
 
   const uploadGcsPath = async ({ url, body, type }) => {
-    console.log("upload gcs path");
     const response = await fetch(url, {
       method: "PUT",
       body: body,
@@ -493,26 +492,8 @@ const useDefaultAPI = () => {
     });
 
   return {
-    changePassword, //
-    switchProject, //
-    getFormTemplateList, //
-    getFormTemplateById, //
-    getPreviewFile, //
-    getProjectInfo, //
-    getUserInfo, //
-    getUserList, //
-    getProjectDetails, //
     getFormDataList, //TBD
     getMyTaskList, //TBD
-    getLibraryList, //
-    getStatistics, //
-    loadUser, //
-    getFormData, //
-    getFileFromPath, //
-    getFileFromId, //
-    uploadFile, //
-    deleteFileById, //
-
     useUserInfoQuery,
     useUserListQuery,
     useProjectInfoQuery,
@@ -531,6 +512,7 @@ const useDefaultAPI = () => {
     useStatisticsQuery,
     useFileQuery,
     useUploadFileMutation,
+    useUploadMultipleFileListsMutation,
     useDeleteFileMutation,
 
     useUploadGCSPathMutation,

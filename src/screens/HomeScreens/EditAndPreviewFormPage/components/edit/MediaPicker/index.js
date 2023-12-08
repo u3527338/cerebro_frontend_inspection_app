@@ -4,10 +4,10 @@ import * as ImagePicker from "expo-image-picker";
 import { HStack, useDisclose } from "native-base";
 import { memo, useEffect, useState } from "react";
 import { Controller } from "react-hook-form";
+import CarouselPreview from "./CarouselPreview";
 import { CustomButton } from "./Custom";
 import FileGallery from "./FileGallery";
 import MediaOptions from "./MediaOptions";
-import ModalPreview from "./ModalPreview";
 
 const MediaPicker = ({ control, detail, editable = true, imageOnly }) => {
   const [statusC, requestCPermission] = ImagePicker.useCameraPermissions();
@@ -88,7 +88,7 @@ const MediaPicker = ({ control, detail, editable = true, imageOnly }) => {
       control={control}
       render={({ field: { onChange, onBlur, value } }) => {
         useEffect(() => {
-          onChange({ type: "media", data: files });
+          onChange({ uploadRequired: true, data: files });
         }, [files]);
 
         return (
@@ -134,7 +134,7 @@ const MediaPicker = ({ control, detail, editable = true, imageOnly }) => {
               handleLaunchDocumentLibrary={handleLaunchDocumentLibrary}
             />
 
-            <ModalPreview
+            <CarouselPreview
               isVisible={modal}
               onBackdropPress={() => {
                 setModal(false);
