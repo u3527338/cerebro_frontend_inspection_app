@@ -49,8 +49,7 @@ const MediaPicker = ({ control, detail, editable = true, imageOnly }) => {
     });
 
     if (result.type === "success") {
-      const newFiles = [result];
-      setFiles([...files, ...newFiles]);
+      setFiles([...files, result]);
     }
   };
 
