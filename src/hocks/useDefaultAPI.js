@@ -103,6 +103,17 @@ const useDefaultAPI = () => {
     return response.data;
   };
 
+  const getFormData = async (id) => {
+    const response = await execute_get({
+      url: API_get_formdata_list + `/${id}`,
+      params: {
+        project: currentProject.project.id,
+        category: currentCategory.id,
+      },
+    });
+    return response.data;
+  };
+
   const getFormDataList = async (params) => {
     console.log("get form data");
     const response = await execute_get({
@@ -117,17 +128,6 @@ const useDefaultAPI = () => {
     return response;
   };
 
-  const getFormData = async (id) => {
-    const response = await execute_get({
-      url: API_get_formdata_list + `/${id}`,
-      params: {
-        project: currentProject.project.id,
-        category: currentCategory.id,
-      },
-    });
-    return response.data;
-  };
-
   const getMyTaskList = async (params) => {
     console.log("get my task");
     const response = await execute_get({
@@ -139,6 +139,23 @@ const useDefaultAPI = () => {
         ...globalFilter,
       },
     });
+    return response;
+  };
+
+  const getTaskByStatus = async (status, params) => {
+    const response = await execute_get({
+      url: status === "My Task" ? API_get_mytask_list : API_get_formdata_list,
+      params: {
+        project: currentProject.project.id,
+        category: currentCategory.id,
+        ...params,
+        ...globalFilter,
+      },
+    });
+    console.log(
+      `get task by status ${status} with page ${params.page}`,
+      response.data.results[0].data.RefNo
+    );
     return response;
   };
 
@@ -383,10 +400,16 @@ const useDefaultAPI = () => {
 
   const useMyTaskListQuery = ({ params, enabled }) =>
     useQuery({
-      queryKey: ["get my task", currentProject, currentCategory, globalFilter],
+      queryKey: ["get my task"],
       queryFn: () => getMyTaskList(params),
-      // enabled: currentProject.project?.id && currentCategory.id && enabled,
       enabled: currentCategory.id && enabled,
+    });
+
+  const useTaskListByStatusQuery = ({ status, params, enabled }) =>
+    useQuery({
+      queryKey: ["get task list", status, params],
+      queryFn: () => getTaskByStatus(status, params),
+      enabled: !!currentCategory.id && !!currentProject.project.id && enabled,
     });
 
   const useLoadUserQuery = () =>
@@ -499,8 +522,9 @@ const useDefaultAPI = () => {
     useProjectInfoQuery,
     useProjectDetailsQuery,
     useFormDataQuery,
-    useFormDataListQuery,
-    useMyTaskListQuery,
+    useFormDataListQuery, //TBD
+    useMyTaskListQuery, //TBD
+    useTaskListByStatusQuery,
     useLoadUserQuery,
     useLoginMutation,
     useFormTemplateListQuery,

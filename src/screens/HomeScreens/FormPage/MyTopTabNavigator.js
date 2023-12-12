@@ -1,48 +1,9 @@
 import { createMaterialTopTabNavigator } from "@react-navigation/material-top-tabs";
-import FormList from "./components/FormList";
-import {
-  Center,
-  HStack,
-  Pressable,
-  ScrollView,
-  Text,
-  VStack,
-} from "native-base";
+import { Center, HStack, Pressable, Text, VStack } from "native-base";
 import { Animated } from "react-native";
+import FormList from "./components/FormList";
 
 const Tab = createMaterialTopTabNavigator();
-
-const MyTaskScreen = () => {
-  return (
-    <Center flex={1}>
-      <FormList tabName={"My Task"} />
-    </Center>
-  );
-};
-
-const PendingScreen = () => {
-  return (
-    <Center flex={1}>
-      <FormList tabName={"Pending"} />
-    </Center>
-  );
-};
-
-const CompletedScreen = () => {
-  return (
-    <Center flex={1}>
-      <FormList tabName={"Completed"} />
-    </Center>
-  );
-};
-
-const RejectedScreen = () => {
-  return (
-    <Center flex={1}>
-      <FormList tabName={"Rejected"} />
-    </Center>
-  );
-};
 
 function MyTabBar({ state, descriptors, navigation, position }) {
   return (
@@ -115,18 +76,36 @@ function MyTabBar({ state, descriptors, navigation, position }) {
 }
 
 const MyTabs = () => {
+  const tabs = ["My Task", "Pending", "Completed", "Rejected"];
+
+  const MyScreen = (props) => {
+    return (
+      <Center flex={1}>
+        <FormList
+          tabs={tabs}
+          tabName={props.route.params.tab}
+          currentRouteIndex={props.navigation.getState().index}
+        />
+      </Center>
+    );
+  };
+
   return (
     <Tab.Navigator
-      initialRouteName="My Task"
+      initialRouteName={tabs[0]}
       tabBar={(props) => <MyTabBar {...props} />}
       screenOptions={{
         lazy: true,
       }}
     >
-      <Tab.Screen name="My Task" component={MyTaskScreen} />
-      <Tab.Screen name="Pending" component={PendingScreen} />
-      <Tab.Screen name="Completed" component={CompletedScreen} />
-      <Tab.Screen name="Rejected" component={RejectedScreen} />
+      {tabs.map((tab, index) => (
+        <Tab.Screen
+          key={index}
+          name={tab}
+          component={MyScreen}
+          initialParams={{ tab }}
+        />
+      ))}
     </Tab.Navigator>
   );
 };
