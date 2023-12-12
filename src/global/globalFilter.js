@@ -52,26 +52,28 @@ const FilterForm = ({ control, sessions, handleResetFilter, handleSubmit }) => {
   );
 };
 const GlobalFilter = ({ open, handleCloseModal, queryData }) => {
-  const { setGlobalFilter, resetGlobalFilter, currentProject } =
+  const defaultFilter = {
+    global_filter: "",
+    withCondition: false,
+    location: [],
+    location_detail: "",
+    work: [],
+    work_detail: "",
+    applicant__full_name: [],
+    created_at: null,
+  };
+  const { setGlobalFilter, resetGlobalFilter, globalFilter } =
     useContext(StateContext);
-
   const { control, handleSubmit, reset } = useForm({
     defaultValues: {
-      global_filter: "",
-      withCondition: false,
-      location: [],
-      location_detail: "",
-      work: [],
-      work_detail: "",
-      applicant__full_name: [],
-      created_at: null,
+      ...defaultFilter,
+      ...globalFilter,
     },
   });
 
   const handleResetFilter = () => {
-    // handleCloseModal();
     resetGlobalFilter();
-    reset();
+    reset(defaultFilter);
   };
 
   const onSubmit = (data) => {

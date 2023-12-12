@@ -1,6 +1,7 @@
 import { Box, Text } from "native-base";
+import { memo } from "react";
 
-const labels = {
+export const labels = {
   Resubmitted: "#44CEF7",
   Returned: "#FDC034",
   "With Conditions": "#F84F1E",
@@ -20,7 +21,7 @@ const CardLabel = ({
     ? "With Conditions"
     : null;
 
-  if (!status) return null;
+  if (!status) return <></>;
 
   return (
     <Box
@@ -38,4 +39,4 @@ const CardLabel = ({
   );
 };
 
-export default CardLabel;
+export default memo(CardLabel);
