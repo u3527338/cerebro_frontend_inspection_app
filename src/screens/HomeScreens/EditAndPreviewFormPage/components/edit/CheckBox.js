@@ -2,7 +2,7 @@ import { Checkbox, HStack, Text } from "native-base";
 import { memo } from "react";
 import { Controller } from "react-hook-form";
 
-const MyCheckBox = ({ detail, control, preview }) => {
+const MyCheckBox = ({ detail, control }) => {
   return (
     <Controller
       name={detail.key}

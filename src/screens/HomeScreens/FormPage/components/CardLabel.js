@@ -25,10 +25,9 @@ const CardLabel = ({
   return (
     <Box
       bg={labels[status]}
-      pr={4}
-      pl={4}
-      borderLeftRadius={5}
+      px={4}
       py={1}
+      borderLeftRadius={5}
       shadow={2}
       my={1}
       ml={1}
