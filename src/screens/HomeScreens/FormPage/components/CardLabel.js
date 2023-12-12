@@ -6,7 +6,7 @@ const labels = {
   "With Conditions": "#F84F1E",
 };
 
-export const CardLabel = ({
+const CardLabel = ({
   resubmitted = false,
   returned = false,
   withConditions = false,
@@ -38,3 +38,5 @@ export const CardLabel = ({
     </Box>
   );
 };
+
+export default CardLabel;

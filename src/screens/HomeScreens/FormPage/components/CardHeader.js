@@ -1,7 +1,7 @@
 import moment from "moment";
 import { Box, HStack, Text, VStack } from "native-base";
 import { memo } from "react";
-import { CardLabel } from "./Labels";
+import { CardLabel } from "./CardLabel";
 
 const TextBox = ({ content = "", title = "" }) => {
   return (
