@@ -59,7 +59,11 @@ const FormList = ({ tabs, tabName = "", currentRouteIndex }) => {
   const keyExtractor = (item, index) => `${item.state}_${item.id}_${index}`;
   const ListEmptyComponent = () => (
     <Text textAlign={"center"} color={"gray.500"}>
-      {isFetching ? "Now Loading" : "No Data Found"}
+      {isFetching
+        ? "Now Loading"
+        : error
+        ? "Error Fetching Data"
+        : "No Data Found"}
     </Text>
   );
 

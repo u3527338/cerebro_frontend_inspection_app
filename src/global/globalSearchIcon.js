@@ -1,9 +1,8 @@
 import { faMagnifyingGlass } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-native-fontawesome";
-import { useQuery } from "@tanstack/react-query";
 import _ from "lodash";
 import { Icon, IconButton } from "native-base";
-import React, { memo, useContext, useEffect, useState } from "react";
+import React, { memo, useContext, useState } from "react";
 import { StateContext } from "../context/stateContext";
 import useDefaultAPI from "../hocks/useDefaultAPI";
 import GlobalFilter from "./globalFilter";

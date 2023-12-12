@@ -1,7 +1,7 @@
 import moment from "moment";
 import { Box, HStack, Text, VStack } from "native-base";
 import { memo } from "react";
-import { ReSubmitLabel, ReturnLabel, WithConditionLabel } from "./Labels";
+import { CardLabel } from "./Labels";
 
 const TextBox = ({ content = "", title = "" }) => {
   return (
@@ -33,9 +33,11 @@ const CardHeader = ({ detail }) => (
         <TextBox content={detail.ref_num} title={"Ref Number"} />
       </Box>
 
-      {detail.resubmitted ? <ReSubmitLabel /> : null}
-      {detail.returnTo ? <ReturnLabel /> : null}
-      {detail.withCondition ? <WithConditionLabel /> : null}
+      <CardLabel
+        resubmitted={detail.resubmitted}
+        returned={detail.returnTo}
+        withConditions={detail.withCondition}
+      />
     </HStack>
 
     <VStack mx={3} p={2} rounded={"md"} space={1} shadow={1} bg={"white"}>
