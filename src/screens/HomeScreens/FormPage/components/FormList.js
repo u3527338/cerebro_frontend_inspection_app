@@ -77,7 +77,6 @@ const FormList = ({ tabs, tabName = "", currentRouteIndex }) => {
           onEndReached={handleNextPage}
           onEndReachedThreshold={1}
           ListEmptyComponent={ListEmptyComponent}
-          par
         />
       </Box>
     </>
