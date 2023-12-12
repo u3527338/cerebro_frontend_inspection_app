@@ -104,9 +104,6 @@ const MyImagePreviewArea = ({ asset, onRemoveHandler, append }) => {
             size: info.size,
           };
 
-          console.log(payload);
-          console.log(imageObj);
-
           executeRequestUpload({
             data: payload,
             url:

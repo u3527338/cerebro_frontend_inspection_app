@@ -115,7 +115,6 @@ const useDefaultAPI = () => {
   };
 
   const getFormDataList = async (params) => {
-    console.log("get form data");
     const response = await execute_get({
       url: API_get_formdata_list,
       params: {
@@ -129,7 +128,6 @@ const useDefaultAPI = () => {
   };
 
   const getMyTaskList = async (params) => {
-    console.log("get my task");
     const response = await execute_get({
       url: API_get_mytask_list,
       params: {
@@ -152,10 +150,6 @@ const useDefaultAPI = () => {
         ...globalFilter,
       },
     });
-    console.log(
-      `get task by status ${status} with page ${params.page}`,
-      response.data.results[0].data.RefNo
-    );
     return response;
   };
 
@@ -385,26 +379,6 @@ const useDefaultAPI = () => {
       queryFn: () => getFormData(id),
     });
 
-  const useFormDataListQuery = ({ params, enabled }) =>
-    useQuery({
-      queryKey: [
-        "get form data list",
-        currentProject,
-        currentCategory,
-        globalFilter,
-      ],
-      queryFn: () => getFormDataList(params),
-      // enabled: currentProject.project?.id && currentCategory.id && enabled,
-      enabled: enabled,
-    });
-
-  const useMyTaskListQuery = ({ params, enabled }) =>
-    useQuery({
-      queryKey: ["get my task"],
-      queryFn: () => getMyTaskList(params),
-      enabled: currentCategory.id && enabled,
-    });
-
   const useTaskListByStatusQuery = ({ status, params, enabled }) =>
     useQuery({
       queryKey: ["get task list", status, params],
@@ -515,15 +489,11 @@ const useDefaultAPI = () => {
     });
 
   return {
-    getFormDataList, //TBD
-    getMyTaskList, //TBD
     useUserInfoQuery,
     useUserListQuery,
     useProjectInfoQuery,
     useProjectDetailsQuery,
     useFormDataQuery,
-    useFormDataListQuery, //TBD
-    useMyTaskListQuery, //TBD
     useTaskListByStatusQuery,
     useLoadUserQuery,
     useLoginMutation,
