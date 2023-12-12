@@ -67,6 +67,3 @@ export const API_upload_signature = apiServer + "/api/uploadSignature";
 export const API_accounts = apiServer + "/accounts/register";
 export const API_change_password =
   apiServer + `/api/auth/profile/change-password`;
-
-// Push Notification
-export const API_push_notification = "https://exp.host/--/api/v2/push/send";

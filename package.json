@@ -38,7 +38,6 @@
     "expo-image-manipulator": "^11.5.0",
     "expo-image-picker": "~14.1.1",
     "expo-local-authentication": "~13.3.0",
-    "expo-notifications": "~0.18.1",
     "expo-splash-screen": "~0.18.2",
     "expo-status-bar": "~1.4.4",
     "expo-web-browser": "^12.5.0",
