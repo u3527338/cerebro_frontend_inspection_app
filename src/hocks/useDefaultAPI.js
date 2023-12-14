@@ -25,7 +25,7 @@ import {
 import { isImage, isSignature } from "../global/function";
 
 const useDefaultAPI = () => {
-  const { token, default_project } = useContext(AuthContext);
+  const { token, default_project, full_name } = useContext(AuthContext);
   const { currentProject, currentCategory, globalFilter } =
     useContext(StateContext);
 
@@ -236,6 +236,18 @@ const useDefaultAPI = () => {
     });
 
     return Promise.all(promises);
+  };
+
+  const uploadNewForm = async (data) => {
+    const response = await execute_post({
+      url: API_upload_file,
+      data: data,
+      params: {
+        applicant__full_name: full_name,
+        project: currentProject.project.id,
+      },
+    });
+    return response;
   };
 
   const uploadFile = async (data, params, key) => {
@@ -463,6 +475,12 @@ const useDefaultAPI = () => {
       mutationFn: (data) => uploadMultipleFileLists(data),
     });
 
+  const useNewFormMutation = () =>
+    useMutation({
+      mutationKey: ["create new form"],
+      mutationFn: (data) => uploadNewForm(data),
+    });
+
   const useDeleteFileMutation = () =>
     useMutation({
       mutationKey: ["delete file"],
@@ -507,6 +525,7 @@ const useDefaultAPI = () => {
     useFileQuery,
     useUploadFileMutation,
     useUploadMultipleFileListsMutation,
+    useNewFormMutation,
     useDeleteFileMutation,
 
     useUploadGCSPathMutation,

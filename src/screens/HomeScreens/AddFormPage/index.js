@@ -1,7 +1,6 @@
-import { useRoute } from "@react-navigation/native";
+import { useNavigation, useRoute } from "@react-navigation/native";
 import _, { intersectionWith, isEqual } from "lodash";
 import {
-  Button,
   Center,
   HStack,
   Pressable,
@@ -19,40 +18,79 @@ import { ComponentRender } from "../EditAndPreviewFormPage/components/ComponentR
 import Spinner from "react-native-loading-spinner-overlay";
 import { filesToBeUploaded } from "../../../global/function";
 
-const CustomButton = ({ title, callback }) => (
-  <Button py={1} shadow={6} bg={"gray.500"} borderRadius={4} onPress={callback}>
-    <Text color={"gray.300"} bold>
-      {title}
-    </Text>
-  </Button>
+const CustomButton = ({ title, callback, disabled }) => (
+  <Pressable
+    py={1}
+    shadow={6}
+    bg={"gray.500"}
+    borderRadius={4}
+    onPress={callback}
+    disabled={disabled}
+    _disabled={{ opacity: 0.5 }}
+  >
+    <Center>
+      <Text color={"gray.300"} bold>
+        {title}
+      </Text>
+    </Center>
+  </Pressable>
 );
 
 const Body = ({ data, currentStep }) => {
-  const { useUploadMultipleFileListsMutation } = useDefaultAPI();
+  const navigation = useNavigation();
+  const { useUploadMultipleFileListsMutation, useNewFormMutation } =
+    useDefaultAPI();
+  const { currentProject, currentCategory, currentPermission } =
+    useContext(StateContext);
 
   const {
     mutate: uploadMultipleFileListMutate,
     isPending: uploadFilesPending,
-    error: uploadFilesError,
   } = useUploadMultipleFileListsMutation();
 
+  const { mutate: createNewFormMutate, isPending: newFormCreationPending } =
+    useNewFormMutation();
+
   const hasNextStep = data.flow.flow.length > (data.flow_data?.length || 0);
-  const { currentPermission } = useContext(StateContext);
-  const { control, handleSubmit, reset } = useForm({
+  const { control, handleSubmit } = useForm({
     defaultValues: _.fromPairs(
       data?.template?.map((item) => [item.key, item.preset])
     ),
   });
 
-  const onSubmit = (data) => {
-    const filesArr = filesToBeUploaded(data);
-    uploadMultipleFileListMutate(filesArr, {
-      onSuccess: (uploadedData) => {
-        const formData = _.merge(data, ...uploadedData);
-        console.log("formData", JSON.stringify(formData));
-        // submit form by restructuring other data
-      },
-    });
+  const info = {
+    project: currentProject.project.id,
+    template: 1,
+    flow: data.flow.id,
+    category: currentCategory.id,
+  };
+
+  const onSubmit = (finalizedData) => {
+    //execute
+    alert(JSON.stringify(finalizedData));
+    // createNewFormMutate(finalizedData, {
+    //   onSuccess: (response) => {
+    //     navigation.goBack();
+    //   },
+    //   onError: (error) => {
+    //     alert(error.message);
+    //   },
+    // });
+  };
+
+  const preSubmit = (form_data) => {
+    const filesArr = filesToBeUploaded(form_data);
+    if (filesArr.length === 0) onSubmit({ ...info, data: form_data });
+    else
+      uploadMultipleFileListMutate(filesArr, {
+        onSuccess: (uploadedData) => {
+          const formData = _.merge(form_data, ...uploadedData);
+          onSubmit({ ...info, data: formData });
+        },
+        onError: (error) => {
+          alert(error.message);
+        },
+      });
   };
 
   let editRole = [];
@@ -64,18 +102,18 @@ const Body = ({ data, currentStep }) => {
         : currentFlow.role;
   }
 
-  const [disabled, setDisabled] = useState(false);
-  const [preview, setPreview] = useState(false);
+  // const [disabled, setDisabled] = useState(false);
+  // const [preview, setPreview] = useState(false);
   return (
     <VStack space={2} justifyContent={"space-between"} h={"85%"}>
-      <Spinner visible={uploadFilesPending} />
+      <Spinner visible={uploadFilesPending || newFormCreationPending} />
       <ScrollView
         py={4}
         px={2}
         showsVerticalScrollIndicator={false}
         nestedScrollEnabled
       >
-        <HStack justifyContent={"space-around"} p={2}>
+        {/* <HStack justifyContent={"space-around"} p={2}>
           <Pressable
             onPress={() => {
               setDisabled(false);
@@ -114,7 +152,7 @@ const Body = ({ data, currentStep }) => {
         <HStack justifyContent={"space-around"} p={1}>
           <Text bold color="black">{`Disabled: ${disabled}`}</Text>
           <Text bold color="black">{`Preview: ${preview}`}</Text>
-        </HStack>
+        </HStack> */}
         <VStack
           bg={"white"}
           borderRadius={6}
@@ -124,14 +162,15 @@ const Body = ({ data, currentStep }) => {
           mb={10}
         >
           {data.template.map((t, i) => {
-            // const preview =
-            //   !intersectionWith(currentPermission, t.editable, isEqual)
-            //     .length ||
-            //   !hasNextStep ||
-            //   !intersectionWith(editRole, t.editable, isEqual).length;
+            const preview =
+              !intersectionWith(currentPermission, t.editable, isEqual)
+                .length ||
+              !hasNextStep ||
+              !intersectionWith(editRole, t.editable, isEqual).length;
             return (
               <ComponentRender
-                template={{ ...t, disabled: disabled }}
+                // template={{ ...t, disabled: disabled }}
+                template={t}
                 control={control}
                 preview={preview}
                 key={i}
@@ -143,8 +182,9 @@ const Body = ({ data, currentStep }) => {
 
       <VStack space={2} px={4} py={1}>
         <CustomButton
-          callback={handleSubmit(onSubmit)}
+          callback={handleSubmit(preSubmit)}
           title="Create & Submit"
+          disabled={uploadFilesPending || newFormCreationPending}
         />
       </VStack>
     </VStack>
