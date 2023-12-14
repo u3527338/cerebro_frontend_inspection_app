@@ -91,7 +91,7 @@ export default function LoginScreen() {
 
   return (
     <>
-      <StatusBar backgroundColor={baseColor[500]} barStyle="light-content" />
+      <StatusBar bg="baseColor.500" barStyle="light-content" />
       <VStack height={"100%"} width={"100%"} justifyContent={"space-between"}>
         <VStack
           backgroundColor={"baseColor.500"}

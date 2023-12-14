@@ -17,7 +17,7 @@ export default function GlobalHeader({
     <>
       {safeArea ? (
         <>
-          <StatusBar bg={"baseColor.500"} barStyle="light-content" />
+          <StatusBar bg="baseColor.500" barStyle="light-content" />
           <Box safeAreaTop backgroundColor="baseColor.500" />
         </>
       ) : null}

@@ -61,7 +61,7 @@ const FormList = ({ tabs, tabName = "", currentRouteIndex }) => {
     <Text textAlign={"center"} color={"gray.500"}>
       {isFetching
         ? "Now Loading"
-        : error
+        : !!error
         ? "Error Fetching Data"
         : "No Data Found"}
     </Text>
