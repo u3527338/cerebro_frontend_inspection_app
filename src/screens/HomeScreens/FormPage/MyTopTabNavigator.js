@@ -1,5 +1,6 @@
 import { createMaterialTopTabNavigator } from "@react-navigation/material-top-tabs";
 import { Center, HStack, Pressable, Text, VStack } from "native-base";
+import { useState } from "react";
 import { Animated } from "react-native";
 import FormList from "./components/FormList";
 
@@ -77,15 +78,11 @@ function MyTabBar({ state, descriptors, navigation, position }) {
 
 const MyTabs = () => {
   const tabs = ["My Task", "Pending", "Completed", "Rejected"];
-
-  const MyScreen = (props) => {
+  const [currentTabName, setCurrentTabName] = useState(tabs[0]);
+  const MyScreen = ({ route }) => {
     return (
       <Center flex={1}>
-        <FormList
-          tabs={tabs}
-          tabName={props.route.params.tab}
-          currentRouteIndex={props.navigation.getState().index}
-        />
+        <FormList tabName={route.params.tab} currentTabName={currentTabName} />
       </Center>
     );
   };
@@ -104,6 +101,11 @@ const MyTabs = () => {
           name={tab}
           component={MyScreen}
           initialParams={{ tab }}
+          listeners={({ route }) => ({
+            focus: () => {
+              setCurrentTabName(route.name);
+            },
+          })}
         />
       ))}
     </Tab.Navigator>

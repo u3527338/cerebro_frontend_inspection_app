@@ -18,7 +18,7 @@ const getData = (response_data) => {
   }));
 };
 
-const FormList = ({ tabs, tabName = "", currentRouteIndex }) => {
+const FormList = ({ tabName = "", currentTabName }) => {
   const navigator = useNavigation();
   const { useTaskListByStatusQuery } = useDefaultAPI();
   const [page, setPage] = useState(0);
@@ -41,12 +41,12 @@ const FormList = ({ tabs, tabName = "", currentRouteIndex }) => {
   const { data, isFetching, error } = useTaskListByStatusQuery({
     status: tabName,
     params: default_filter,
-    enabled: tabs[currentRouteIndex] === tabName,
+    enabled: currentTabName === tabName,
   });
 
   useEffect(() => {
     setListData(getData(data?.data));
-  }, [currentRouteIndex]);
+  }, [currentTabName]);
 
   useEffect(() => {
     if (page === 1) {
