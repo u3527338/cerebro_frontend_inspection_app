@@ -81,16 +81,28 @@ const InputRender = ({ control, template, preview }) => {
 
     case "imagePicker":
       return preview ? (
-        <MediaPreview control={control} detail={template} imageOnly={true} />
+        <MediaPreview
+          control={control}
+          detail={template}
+          browseLibrary={false}
+        />
       ) : (
-        <MediaPicker control={control} detail={template} imageOnly={true} />
+        <MediaPicker
+          control={control}
+          detail={template}
+          browseLibrary={false}
+        />
       );
 
     case "libraryPicker":
       return preview ? (
-        <MediaPreview control={control} detail={template} imageOnly={false} />
+        <MediaPreview
+          control={control}
+          detail={template}
+          browseLibrary={true}
+        />
       ) : (
-        <MediaPicker control={control} detail={template} imageOnly={false} />
+        <MediaPicker control={control} detail={template} browseLibrary={true} />
       );
 
     case "signature":
@@ -110,7 +122,12 @@ const InputRender = ({ control, template, preview }) => {
 };
 
 export const ComponentRender = ({ control, template, preview }) => {
-  const customSession = ["checkbox", "autocomplete"];
+  const customSession = [
+    "checkbox",
+    "autocomplete",
+    "imagePicker",
+    "libraryPicker",
+  ];
   return (
     <Box bgColor={template.bgColor} px={4} pt={2}>
       {!customSession.includes(template.type) && !!template.session && (

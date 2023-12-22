@@ -4,19 +4,23 @@ import { WebView } from "react-native-webview";
 import { isImage } from "../../../../../../global/function";
 import { Platform } from "react-native";
 
-const FilePreview = ({ uri, size = { height: "100%", width: "100%" } }) => {
+const FilePreview = ({
+  uri,
+  resizeMode = "cover",
+  size = { height: "100%", width: "100%" },
+}) => {
   return isImage(uri) ? (
     <Box
       h={size.height}
       w={size.width}
-      bgColor="primary.100"
-      rounded="md"
-      borderRadius="md"
+      bgColor="baseColor.600"
+      borderColor="baseColor.400"
+      borderWidth={1}
     >
       <Image
         source={{ uri }}
         flex={1}
-        resizeMode="contain"
+        resizeMode={resizeMode}
         alt={"Cannot load image"}
       />
     </Box>

@@ -22,7 +22,7 @@ const SimpleDropDown = ({ control, detail }) => {
       render={({ field: { onChange, value } }) => {
         return (
           <>
-            <Box
+            <Pressable
               p={2}
               px={3}
               borderRadius={5}
@@ -34,6 +34,8 @@ const SimpleDropDown = ({ control, detail }) => {
                   : "transparent",
                 opacity: !!detail.disabled ? 0.5 : 1,
               }}
+              onPress={onOpen}
+              disabled={!!detail.disabled}
             >
               <HStack justifyContent="space-between" alignItems={"center"}>
                 <Text
@@ -44,21 +46,14 @@ const SimpleDropDown = ({ control, detail }) => {
                 >
                   {value || detail.session}
                 </Text>
-                <Pressable
-                  onPress={onOpen}
-                  disabled={!!detail.disabled}
-                  borderRadius="full"
-                  _pressed={{ backgroundColor: "secondary.100" }}
-                >
-                  <Icon
-                    size={5}
-                    as={Entypo}
-                    name={"chevron-small-down"}
-                    color={baseColor[400]}
-                  />
-                </Pressable>
+                <Icon
+                  size={5}
+                  as={Entypo}
+                  name={"chevron-small-down"}
+                  color={baseColor[400]}
+                />
               </HStack>
-            </Box>
+            </Pressable>
             <Actionsheet isOpen={isOpen} onClose={onClose}>
               <Actionsheet.Content>
                 {detail.item.map((item) => (

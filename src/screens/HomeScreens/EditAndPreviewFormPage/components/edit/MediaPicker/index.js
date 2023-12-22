@@ -1,15 +1,19 @@
 import * as DocumentPicker from "expo-document-picker";
 import * as FileSystem from "expo-file-system";
 import * as ImagePicker from "expo-image-picker";
-import { HStack, useDisclose } from "native-base";
+import _ from "lodash";
+import { HStack, Text, useDisclose } from "native-base";
 import { memo, useEffect, useState } from "react";
 import { Controller } from "react-hook-form";
+import useDefaultAPI from "../../../../../../hocks/useDefaultAPI";
 import CarouselPreview from "./CarouselPreview";
 import { CustomButton } from "./Custom";
 import FileGallery from "./FileGallery";
+import LibraryBrowserModal from "./LibraryBrowserModal";
 import MediaOptions from "./MediaOptions";
 
-const MediaPicker = ({ control, detail, editable = true, imageOnly }) => {
+const MediaPicker = ({ control, detail, editable = true, browseLibrary }) => {
+  const [libraryBrowser, setLibraryBrowser] = useState(false);
   const [statusC, requestCPermission] = ImagePicker.useCameraPermissions();
   const [statusM, requestMPermission] =
     ImagePicker.useMediaLibraryPermissions();
@@ -17,6 +21,8 @@ const MediaPicker = ({ control, detail, editable = true, imageOnly }) => {
   const [files, setFiles] = useState([]);
   const [modal, setModal] = useState(false);
   const [previewFile, setPreviewFile] = useState(null);
+
+  const { usePreviewFileQuery } = useDefaultAPI();
 
   useEffect(() => {
     (async () => {
@@ -66,8 +72,8 @@ const MediaPicker = ({ control, detail, editable = true, imageOnly }) => {
   };
 
   const handleChooseMedia = () => {
-    if (imageOnly) {
-      handleLaunchImageGallery();
+    if (browseLibrary) {
+      setLibraryBrowser(true);
     } else {
       onOpen();
     }
@@ -75,10 +81,15 @@ const MediaPicker = ({ control, detail, editable = true, imageOnly }) => {
 
   const handleDeleteLocalFile = (fileToDelete) => {
     //  need to handle pdf local delete
-    FileSystem.deleteAsync(fileToDelete.uri).then(() => {
+    if (fileToDelete.id) {
       setFiles(files.filter((file) => file.uri !== fileToDelete.uri));
       setPreviewFile(null);
-    });
+    } else {
+      FileSystem.deleteAsync(fileToDelete.uri).then(() => {
+        setFiles(files.filter((file) => file.uri !== fileToDelete.uri));
+        setPreviewFile(null);
+      });
+    }
   };
 
   return (
@@ -86,12 +97,31 @@ const MediaPicker = ({ control, detail, editable = true, imageOnly }) => {
       name={detail.key}
       control={control}
       render={({ field: { onChange, onBlur, value } }) => {
+        const [libraryPath, setLibraryPath] = useState(null);
+        const { data, isFetching } = usePreviewFileQuery(libraryPath);
+
         useEffect(() => {
-          onChange({ uploadRequired: true, data: files });
+          onChange(
+            browseLibrary
+              ? files.map((file) => file.id)
+              : { uploadRequired: true, data: files }
+          );
         }, [files]);
+
+        useEffect(() => {
+          if (data && !isFetching) {
+            setFiles((prevState) => [
+              ...prevState,
+              { id: data.id, uri: data.path },
+            ]);
+          }
+        }, [data]);
 
         return (
           <>
+            <Text color={"baseColor.300"} fontSize={"xs"} m={-2} pb={4}>
+              {`${_.startCase(detail.session)} ( ${files.length} selected )`}
+            </Text>
             {editable && (
               <HStack pb={2} justifyContent={"space-around"}>
                 <CustomButton
@@ -99,9 +129,9 @@ const MediaPicker = ({ control, detail, editable = true, imageOnly }) => {
                   disabled={!!detail.disabled}
                   label="CHOOSE"
                 />
-                {imageOnly && (
+                {!browseLibrary && (
                   <CustomButton
-                    onPress={() => handleLaunchCamera()}
+                    onPress={handleLaunchCamera}
                     disabled={!!detail.disabled}
                     label="TAKE PHOTO"
                   />
@@ -124,6 +154,7 @@ const MediaPicker = ({ control, detail, editable = true, imageOnly }) => {
                 );
               }}
               status={{ editable: editable, disabled: !!detail.disabled }}
+              loading={isFetching}
             />
 
             <MediaOptions
@@ -141,6 +172,18 @@ const MediaPicker = ({ control, detail, editable = true, imageOnly }) => {
               files={files}
               previewFile={previewFile}
               setPreviewFile={setPreviewFile}
+            />
+
+            <LibraryBrowserModal
+              isOpen={libraryBrowser}
+              defaultRoute={detail.directory
+                ?.split("/")
+                ?.slice(1)
+                ?.filter((e) => e !== "")}
+              onClose={() => {
+                setLibraryBrowser(false);
+              }}
+              handlePickImage={(uri) => setLibraryPath(uri)}
             />
           </>
         );

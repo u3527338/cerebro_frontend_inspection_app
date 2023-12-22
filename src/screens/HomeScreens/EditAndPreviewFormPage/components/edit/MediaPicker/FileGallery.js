@@ -1,5 +1,6 @@
-import { HStack, ScrollView, Text } from "native-base";
+import { Center, HStack, ScrollView, Text } from "native-base";
 import { memo } from "react";
+import LoadingComponent from "../../../../../../components/common/LoadingComponent";
 import File from "./File";
 
 const FileGallery = ({
@@ -8,7 +9,15 @@ const FileGallery = ({
   handleDeleteLocalFile,
   updateId,
   status,
+  loading,
 }) => {
+  if (loading)
+    return (
+      <Center py={4}>
+        <LoadingComponent />
+      </Center>
+    );
+
   if (files.length === 0)
     return (
       <Text bold color="secondary.400">

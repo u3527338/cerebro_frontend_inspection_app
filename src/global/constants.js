@@ -45,7 +45,7 @@ export const API_get_file_from_id = (from_id) =>
 //
 // // Get Form Detail
 // export const formTemplateAPI = apiServer + "/api/formtemplate"
-// export const formDataAPI = apiServer + "/api/formdata"
+export const API_formdata = apiServer + "/api/formdata";
 //
 // // Get Required Info
 // export const projectListAPI = apiServer + "/api/project"

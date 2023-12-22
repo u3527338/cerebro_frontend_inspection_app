@@ -1,10 +1,11 @@
 import { useNavigation } from "@react-navigation/native";
 import { FlashList } from "@shopify/flash-list";
 import { Box, Text } from "native-base";
-import { memo, useEffect, useState } from "react";
+import { memo, useEffect, useRef, useState } from "react";
 import { RefreshControl } from "react-native";
 import useDefaultAPI from "../../../../hocks/useDefaultAPI";
 import Card from "./Card";
+import { DeviceEventEmitter } from "react-native";
 
 const getData = (response_data) => {
   if (!response_data) return [];
@@ -23,6 +24,7 @@ const FormList = ({ tabName = "", currentTabName }) => {
   const { useTaskListByStatusQuery } = useDefaultAPI();
   const [page, setPage] = useState(0);
   const [listData, setListData] = useState([]);
+  const flashListRef = useRef();
 
   const initPage = () => {
     setPage(1);
@@ -43,6 +45,22 @@ const FormList = ({ tabName = "", currentTabName }) => {
     params: default_filter,
     enabled: currentTabName === tabName,
   });
+
+  const handleScrollToTop = (event) => {
+    if (flashListRef) {
+      flashListRef.current.scrollToOffset({
+        animated: true,
+        offset: 0,
+      });
+    }
+  };
+
+  useEffect(() => {
+    DeviceEventEmitter.addListener("scrollToTop", handleScrollToTop);
+    return () => {
+      DeviceEventEmitter.removeAllListeners();
+    };
+  }, []);
 
   useEffect(() => {
     setListData(getData(data?.data));
@@ -71,6 +89,7 @@ const FormList = ({ tabName = "", currentTabName }) => {
     <>
       <Box w="100%" h="100%">
         <FlashList
+          ref={flashListRef}
           data={listData}
           keyExtractor={keyExtractor}
           renderItem={({ item }) => <Card item={item} navigator={navigator} />}

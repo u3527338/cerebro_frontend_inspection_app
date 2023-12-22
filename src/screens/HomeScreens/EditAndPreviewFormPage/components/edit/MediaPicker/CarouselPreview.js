@@ -20,7 +20,9 @@ const CarouselPreview = ({
         defaultIndex={previewFile}
         onSnapToItem={setPreviewFile}
         loop={false}
-        renderItem={({ index }) => <FilePreview uri={files[index].uri} />}
+        renderItem={({ index }) => (
+          <FilePreview uri={files[index].uri} resizeMode="contain" />
+        )}
         style={{
           borderRadius: 8,
           backgroundColor: "black",

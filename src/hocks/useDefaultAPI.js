@@ -7,6 +7,7 @@ import { AuthContext } from "../context/authContext";
 import { StateContext } from "../context/stateContext";
 import {
   API_change_password,
+  API_formdata,
   API_get_file_from_id,
   API_get_file_from_path,
   API_get_formdata_list,
@@ -25,7 +26,7 @@ import {
 import { isImage, isSignature } from "../global/function";
 
 const useDefaultAPI = () => {
-  const { token, default_project, full_name } = useContext(AuthContext);
+  const { token, full_name } = useContext(AuthContext);
   const { currentProject, currentCategory, globalFilter } =
     useContext(StateContext);
 
@@ -112,32 +113,6 @@ const useDefaultAPI = () => {
       },
     });
     return response.data;
-  };
-
-  const getFormDataList = async (params) => {
-    const response = await execute_get({
-      url: API_get_formdata_list,
-      params: {
-        project: currentProject.project.id,
-        category: currentCategory.id,
-        ...params,
-        ...globalFilter,
-      },
-    });
-    return response;
-  };
-
-  const getMyTaskList = async (params) => {
-    const response = await execute_get({
-      url: API_get_mytask_list,
-      params: {
-        project: currentProject.project.id,
-        category: currentCategory.id,
-        ...params,
-        ...globalFilter,
-      },
-    });
-    return response;
   };
 
   const getTaskByStatus = async (status, params) => {
@@ -240,7 +215,7 @@ const useDefaultAPI = () => {
 
   const uploadNewForm = async (data) => {
     const response = await execute_post({
-      url: API_upload_file,
+      url: API_formdata,
       data: data,
       params: {
         applicant__full_name: full_name,
@@ -316,7 +291,7 @@ const useDefaultAPI = () => {
         type: MIME_TYPE[type],
       });
 
-      return response.data.path;
+      return response.data.file;
     });
 
     let response = {};

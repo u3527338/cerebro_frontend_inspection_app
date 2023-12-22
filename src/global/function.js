@@ -1,7 +1,10 @@
+import _ from "lodash";
+
 export const isImage = (uri) => {
   const imageExtensions = [".jpg", ".jpeg", ".png", ".gif", ".bmp"];
-  const extension = uri.substring(uri.lastIndexOf(".")).toLowerCase();
-  return imageExtensions.includes(extension);
+  // const extension = uri.substring(uri.lastIndexOf(".")).toLowerCase();
+  // return imageExtensions.includes(extension);
+  return _.some(imageExtensions, (extension) => _.includes(uri, extension));
 };
 
 export const isSignature = (uri) => {

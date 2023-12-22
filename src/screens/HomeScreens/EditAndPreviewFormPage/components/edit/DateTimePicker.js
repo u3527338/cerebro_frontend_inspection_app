@@ -75,7 +75,7 @@ const MyDateTimePicker = ({ control, detail }) => {
               }}
             />
 
-            <Box
+            <Pressable
               p={2}
               px={3}
               borderRadius={5}
@@ -87,6 +87,10 @@ const MyDateTimePicker = ({ control, detail }) => {
                   : "transparent",
                 opacity: !!detail.disabled ? 0.5 : 1,
               }}
+              onPress={() => {
+                setOpen(true);
+              }}
+              disabled={!!detail.disabled}
             >
               <HStack justifyContent="space-between" alignItems={"center"}>
                 <Text color={"baseColor.400"}>
@@ -96,24 +100,14 @@ const MyDateTimePicker = ({ control, detail }) => {
                   )} - ${dateConverter(value?.split(",")[1], "ll")}`}
                 </Text>
                 {!detail.disabled && (
-                  <Pressable
-                    onPress={() => {
-                      setOpen(true);
-                    }}
-                    disabled={!!detail.disabled}
-                    p={1}
-                    borderRadius={4}
-                    _pressed={{ backgroundColor: "primary.100" }}
-                  >
-                    <Icon
-                      size={"md"}
-                      as={<MaterialCommunityIcons name="calendar-edit" />}
-                      color="secondary.400"
-                    />
-                  </Pressable>
+                  <Icon
+                    size={"md"}
+                    as={<MaterialCommunityIcons name="calendar-edit" />}
+                    color="secondary.400"
+                  />
                 )}
               </HStack>
-            </Box>
+            </Pressable>
           </>
         );
       }}

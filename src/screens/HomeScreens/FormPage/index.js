@@ -7,7 +7,7 @@ import GlobalSearchIcon from "../../../global/globalSearchIcon";
 import MyFooter from "../../../routes/FooterRoute/MyFooter";
 import MyTabs from "./MyTopTabNavigator";
 
-const Body = ({ onCreateFormHandler }) => {
+const Body = () => {
   return <MyTabs />;
 };
 

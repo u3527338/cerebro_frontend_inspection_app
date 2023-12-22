@@ -6,7 +6,7 @@ const MyText = ({ control, detail }) => {
     <>
       {detail.item ? (
         <VStack>
-          <Text color="baseColor.400" bold fontSize={"sm"}>
+          <Text color="baseColor.400" bold fontSize={"sm"} textAlign="justify">
             {detail.item}
           </Text>
         </VStack>
