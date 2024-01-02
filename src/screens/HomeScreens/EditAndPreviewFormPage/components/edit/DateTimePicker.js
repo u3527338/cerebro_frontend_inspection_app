@@ -4,12 +4,8 @@ import { Box, HStack, Icon, Pressable, Text } from "native-base";
 import React, { memo, useCallback, useEffect, useState } from "react";
 import { Controller } from "react-hook-form";
 import { DatePickerModal } from "react-native-paper-dates";
+import { dateConverter } from "../../../../../global/function";
 import baseColor from "../../../../../themes/colors/baseColor";
-
-const dateConverter = (date, formatter = null) =>
-  formatter
-    ? moment(date).format(formatter)
-    : moment(date).toDate().toISOString();
 
 const TimePicker = ({ open, setOpen, title, onChange, validRange }) => {
   const [range, setRange] = useState({

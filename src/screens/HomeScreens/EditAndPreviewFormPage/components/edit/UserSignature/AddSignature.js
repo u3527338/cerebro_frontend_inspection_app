@@ -5,7 +5,7 @@ import primary from "../../../../../../themes/colors/primary";
 
 const AddSignature = ({ disabled, onPress }) => {
   return (
-    <HStack justifyContent="space-between" alignItems="center">
+    <HStack p={2} justifyContent="space-between" alignItems="center">
       <Text numberOfLines={1} ellipsizeMode="tail" bold color="baseColor.400">
         Signature
       </Text>

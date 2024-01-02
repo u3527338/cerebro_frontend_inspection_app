@@ -3,7 +3,7 @@ import { memo } from "react";
 
 const LocalSignaturePreview = ({ uri, onPress, disabled }) => {
   return (
-    <VStack space={2}>
+    <VStack space={2} p={2}>
       <Box
         h={100}
         w={160}

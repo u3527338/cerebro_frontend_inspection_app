@@ -1,4 +1,5 @@
 import _ from "lodash";
+import moment from "moment";
 
 export const isImage = (uri) => {
   const imageExtensions = [".jpg", ".jpeg", ".png", ".gif", ".bmp"];
@@ -30,3 +31,8 @@ export const setDefaultValues = (template) =>
       ?.filter((item) => !["text", "textfold"].includes(item.type))
       ?.map((item) => [item.key, item.preset || ""])
   );
+
+export const dateConverter = (date, formatter = null) =>
+  formatter
+    ? moment(date).format(formatter)
+    : moment(date).toDate().toISOString();

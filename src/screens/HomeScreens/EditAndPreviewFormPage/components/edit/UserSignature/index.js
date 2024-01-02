@@ -59,7 +59,7 @@ const UserSignature = ({ control, detail }) => {
         if (detail.disabled) return null;
 
         return (
-          <Box p={2}>
+          <>
             <Text color={"baseColor.300"} fontSize={"xs"}>
               {_.startCase(detail.session)}
             </Text>
@@ -70,7 +70,7 @@ const UserSignature = ({ control, detail }) => {
                 <LoadingComponent />
               </Center>
             ) : error ? (
-              <Text fontSize={12} color="red.400">
+              <Text p={2} fontSize={12} color="red.400">
                 {error}
               </Text>
             ) : path ? (
@@ -100,7 +100,7 @@ const UserSignature = ({ control, detail }) => {
               label={detail.session}
               imageType={imageType}
             />
-          </Box>
+          </>
         );
       }}
     />

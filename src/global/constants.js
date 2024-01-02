@@ -26,7 +26,7 @@ export const API_user_list = apiServer + `/api/inspection/v1/group`;
 export const API_userinfo_info = apiServer + `/api/inspection/v1/userinfo`;
 export const API_get_template_list =
   apiServer + `/api/inspection/v1/formtemplate`;
-export const API_get_formdata_list = apiServer + `/api/inspection/v1/formdata`;
+export const API_formdata = apiServer + `/api/inspection/v1/formdata`;
 export const API_get_mytask_list =
   apiServer + `/api/inspection/v1/formdata/my-task`;
 export const API_library_list = apiServer + `/api/inspection/v1/listlibrary`;
@@ -45,7 +45,6 @@ export const API_get_file_from_id = (from_id) =>
 //
 // // Get Form Detail
 // export const formTemplateAPI = apiServer + "/api/formtemplate"
-export const API_formdata = apiServer + "/api/formdata";
 //
 // // Get Required Info
 // export const projectListAPI = apiServer + "/api/project"

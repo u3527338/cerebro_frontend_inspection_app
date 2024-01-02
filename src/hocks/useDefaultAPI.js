@@ -10,7 +10,6 @@ import {
   API_formdata,
   API_get_file_from_id,
   API_get_file_from_path,
-  API_get_formdata_list,
   API_get_mytask_list,
   API_get_template_list,
   API_library_list,
@@ -106,7 +105,7 @@ const useDefaultAPI = () => {
 
   const getFormData = async (id) => {
     const response = await execute_get({
-      url: API_get_formdata_list + `/${id}`,
+      url: API_formdata + `/${id}`,
       params: {
         project: currentProject.project.id,
         category: currentCategory.id,
@@ -117,7 +116,7 @@ const useDefaultAPI = () => {
 
   const getTaskByStatus = async (status, params) => {
     const response = await execute_get({
-      url: status === "My Task" ? API_get_mytask_list : API_get_formdata_list,
+      url: status === "My Task" ? API_get_mytask_list : API_formdata,
       params: {
         project: currentProject.project.id,
         category: currentCategory.id,
@@ -214,6 +213,7 @@ const useDefaultAPI = () => {
   };
 
   const uploadNewForm = async (data) => {
+    console.log("uploading new form");
     const response = await execute_post({
       url: API_formdata,
       data: data,
