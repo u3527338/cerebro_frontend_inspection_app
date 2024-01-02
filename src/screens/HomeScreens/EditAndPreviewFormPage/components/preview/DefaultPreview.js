@@ -8,7 +8,7 @@ const DefaultPreview = ({ control, detail }) => {
       name={detail.key}
       control={control}
       render={({ field: { onChange, onBlur, value } }) => (
-        <Text color={"baseColor.400"}>
+        <Text color={"baseColor.400"} p={2}>
           {value || `Blank (type: ${detail.type}, component: DefaultPreview)`}
         </Text>
       )}

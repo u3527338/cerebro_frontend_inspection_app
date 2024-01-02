@@ -1,5 +1,5 @@
 import moment from "moment";
-import { HStack, Text, VStack } from "native-base";
+import { Box, HStack, Text, VStack } from "native-base";
 import { memo } from "react";
 import { Controller } from "react-hook-form";
 
@@ -40,7 +40,7 @@ const DateTimePreview = ({ detail, control }) => {
         }));
 
         return (
-          <>
+          <Box p={2}>
             {!!dates ? (
               dates?.map((date, i) => (
                 <FormattedPreview key={i} date={date.date} label={date.label} />
@@ -50,7 +50,7 @@ const DateTimePreview = ({ detail, control }) => {
                 No date
               </Text>
             )}
-          </>
+          </Box>
         );
       }}
     />

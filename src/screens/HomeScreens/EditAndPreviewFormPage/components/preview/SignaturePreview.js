@@ -1,3 +1,4 @@
+import _ from "lodash";
 import { Box, Center, HStack, Image, Spinner, Text, VStack } from "native-base";
 import { Controller } from "react-hook-form";
 import useDefaultAPI from "../../../../../hocks/useDefaultAPI";
@@ -68,7 +69,14 @@ const SignaturePreview = ({ detail, control }) => {
       name={detail.key}
       control={control}
       render={({ field: { onChange, onBlur, value } }) => (
-        <ImageRender path={value} />
+        <>
+          <Text color={"baseColor.300"} fontSize={"xs"}>
+            {_.startCase(detail.session)}
+          </Text>
+          <Box p={2}>
+            <ImageRender path={value} />
+          </Box>
+        </>
       )}
     />
   );

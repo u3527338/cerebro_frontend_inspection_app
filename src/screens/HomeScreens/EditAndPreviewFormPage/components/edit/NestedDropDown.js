@@ -44,7 +44,7 @@ const NestedDropDown = ({ control, detail }) => {
         };
 
         return (
-          <>
+          <Box p={2}>
             <Pressable
               p={2}
               px={3}
@@ -91,7 +91,7 @@ const NestedDropDown = ({ control, detail }) => {
                 ))}
               </Actionsheet.Content>
             </Actionsheet>
-          </>
+          </Box>
         );
       }}
     />

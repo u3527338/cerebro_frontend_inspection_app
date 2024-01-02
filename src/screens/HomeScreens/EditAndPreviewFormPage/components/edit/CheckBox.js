@@ -8,7 +8,7 @@ const MyCheckBox = ({ detail, control }) => {
       name={detail.key}
       control={control}
       render={({ field: { onChange, onBlur, value } }) => (
-        <HStack justifyContent={"space-between"}>
+        <HStack justifyContent={"space-between"} p={2}>
           <Text>{detail.session}</Text>
           <Checkbox
             onChange={onChange}

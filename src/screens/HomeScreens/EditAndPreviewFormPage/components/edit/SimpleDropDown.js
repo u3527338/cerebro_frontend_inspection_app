@@ -1,6 +1,7 @@
 import { Entypo } from "@expo/vector-icons";
 import {
   Actionsheet,
+  Box,
   HStack,
   Icon,
   Pressable,
@@ -24,7 +25,7 @@ const SimpleDropDown = ({ control, detail }) => {
         }, []);
 
         return (
-          <>
+          <Box p={2}>
             <Pressable
               p={2}
               px={3}
@@ -72,7 +73,7 @@ const SimpleDropDown = ({ control, detail }) => {
                 ))}
               </Actionsheet.Content>
             </Actionsheet>
-          </>
+          </Box>
         );
       }}
     />

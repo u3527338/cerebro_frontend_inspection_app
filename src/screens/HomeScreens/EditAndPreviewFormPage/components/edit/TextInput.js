@@ -13,7 +13,7 @@ const TextInput = ({ control, detail }) => {
         }, []);
 
         return (
-          <Box>
+          <Box p={2}>
             <Input
               isDisabled={!!detail.disabled}
               _disabled={{

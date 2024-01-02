@@ -1,5 +1,6 @@
 import * as FileSystem from "expo-file-system";
-import { Center, Text } from "native-base";
+import _ from "lodash";
+import { Box, Center, Text } from "native-base";
 import { memo, useEffect, useState } from "react";
 import { Controller } from "react-hook-form";
 import uuid from "react-native-uuid";
@@ -55,8 +56,13 @@ const UserSignature = ({ control, detail }) => {
           });
         };
 
+        if (detail.disabled) return null;
+
         return (
-          <>
+          <Box p={2}>
+            <Text color={"baseColor.300"} fontSize={"xs"}>
+              {_.startCase(detail.session)}
+            </Text>
             {defaultSignature ? (
               <></>
             ) : loading ? (
@@ -94,7 +100,7 @@ const UserSignature = ({ control, detail }) => {
               label={detail.session}
               imageType={imageType}
             />
-          </>
+          </Box>
         );
       }}
     />

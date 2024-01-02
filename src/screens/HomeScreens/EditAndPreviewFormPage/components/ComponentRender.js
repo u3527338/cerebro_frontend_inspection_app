@@ -127,6 +127,7 @@ export const ComponentRender = ({ control, template, preview }) => {
     "autocomplete",
     "imagePicker",
     "libraryPicker",
+    "signature",
   ];
   return (
     <Box bgColor={template.bgColor} px={4} pt={2}>
@@ -135,9 +136,7 @@ export const ComponentRender = ({ control, template, preview }) => {
           {_.startCase(template.session)}
         </Text>
       )}
-      <Box p={2}>
-        <InputRender control={control} template={template} preview={preview} />
-      </Box>
+      <InputRender control={control} template={template} preview={preview} />
       {template.caption ? (
         <Text color={"gray.400"} sub px={2} pb={4}>
           {template.caption}

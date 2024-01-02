@@ -65,7 +65,7 @@ const MyDateTimePicker = ({ control, detail }) => {
         }, []);
 
         return (
-          <>
+          <Box p={2}>
             <TimePicker
               open={open}
               setOpen={setOpen}
@@ -116,7 +116,7 @@ const MyDateTimePicker = ({ control, detail }) => {
                 )}
               </HStack>
             </Pressable>
-          </>
+          </Box>
         );
       }}
     />

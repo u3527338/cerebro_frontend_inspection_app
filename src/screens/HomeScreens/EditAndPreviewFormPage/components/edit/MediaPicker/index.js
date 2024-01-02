@@ -2,7 +2,7 @@ import * as DocumentPicker from "expo-document-picker";
 import * as FileSystem from "expo-file-system";
 import * as ImagePicker from "expo-image-picker";
 import _ from "lodash";
-import { HStack, Text, useDisclose } from "native-base";
+import { Box, HStack, Text, useDisclose } from "native-base";
 import { memo, useEffect, useState } from "react";
 import { Controller } from "react-hook-form";
 import useDefaultAPI from "../../../../../../hocks/useDefaultAPI";
@@ -118,7 +118,7 @@ const MediaPicker = ({ control, detail, editable = true, browseLibrary }) => {
         }, [data]);
 
         return (
-          <>
+          <Box p={2}>
             <Text color={"baseColor.300"} fontSize={"xs"} m={-2} pb={4}>
               {`${_.startCase(detail.session)} ( ${files.length} selected )`}
             </Text>
@@ -185,7 +185,7 @@ const MediaPicker = ({ control, detail, editable = true, browseLibrary }) => {
               }}
               handlePickImage={(uri) => setLibraryPath(uri)}
             />
-          </>
+          </Box>
         );
       }}
     />

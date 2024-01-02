@@ -5,7 +5,7 @@ const MyText = ({ control, detail }) => {
   return (
     <>
       {detail.item ? (
-        <VStack>
+        <VStack p={2}>
           <Text color="baseColor.400" bold fontSize={"sm"} textAlign="justify">
             {detail.item}
           </Text>
