@@ -8,7 +8,7 @@ import {
   Text,
   useDisclose,
 } from "native-base";
-import React, { memo, useState } from "react";
+import React, { memo, useEffect, useState } from "react";
 import { Controller } from "react-hook-form";
 import baseColor from "../../../../../themes/colors/baseColor";
 
@@ -29,6 +29,10 @@ const NestedDropDown = ({ control, detail }) => {
       name={detail.key}
       control={control}
       render={({ field: { onChange, value } }) => {
+        useEffect(() => {
+          if (!value) onChange(detail.preset || "");
+        }, []);
+
         const handleOnChange = (selection) => {
           if (!selection.children) {
             onChange(selection.value);

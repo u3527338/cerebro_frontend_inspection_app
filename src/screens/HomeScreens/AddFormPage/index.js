@@ -16,7 +16,7 @@ import GlobalHeader from "../../../global/globalHeader";
 import useDefaultAPI from "../../../hocks/useDefaultAPI";
 import { ComponentRender } from "../EditAndPreviewFormPage/components/ComponentRender";
 import Spinner from "react-native-loading-spinner-overlay";
-import { filesToBeUploaded } from "../../../global/function";
+import { filesToBeUploaded, setDefaultValues } from "../../../global/function";
 
 const CustomButton = ({ title, callback, disabled, ...props }) => (
   <Pressable
@@ -54,9 +54,7 @@ const Body = ({ data, currentStep, templateId }) => {
 
   const hasNextStep = data.flow.flow.length > (data.flow_data?.length || 0);
   const { control, handleSubmit } = useForm({
-    defaultValues: _.fromPairs(
-      data?.template?.map((item) => [item.key, item.preset])
-    ),
+    defaultValues: setDefaultValues(data?.template),
   });
 
   const info = {
@@ -68,6 +66,7 @@ const Body = ({ data, currentStep, templateId }) => {
 
   const onSubmit = (finalizedData) => {
     //execute
+    console.log(finalizedData);
     alert(JSON.stringify(finalizedData));
     // createNewFormMutate(finalizedData, {
     //   onSuccess: (response) => {
@@ -103,8 +102,8 @@ const Body = ({ data, currentStep, templateId }) => {
         : currentFlow.role;
   }
 
-  const [disabled, setDisabled] = useState(false);
-  const [preview, setPreview] = useState(false);
+  // const [disabled, setDisabled] = useState(false);
+  // const [preview, setPreview] = useState(false);
   return (
     <VStack space={2} justifyContent={"space-between"} h={"85%"}>
       <Spinner visible={uploadFilesPending || newFormCreationPending} />
@@ -114,7 +113,7 @@ const Body = ({ data, currentStep, templateId }) => {
         showsVerticalScrollIndicator={false}
         nestedScrollEnabled
       >
-        <HStack justifyContent={"space-around"} p={2}>
+        {/* <HStack justifyContent={"space-around"} p={2}>
           <Pressable
             onPress={() => {
               setDisabled(false);
@@ -153,7 +152,7 @@ const Body = ({ data, currentStep, templateId }) => {
         <HStack justifyContent={"space-around"} p={1}>
           <Text bold color="black">{`Disabled: ${disabled}`}</Text>
           <Text bold color="black">{`Preview: ${preview}`}</Text>
-        </HStack>
+        </HStack> */}
         <VStack
           bg={"white"}
           borderRadius={6}
@@ -163,15 +162,15 @@ const Body = ({ data, currentStep, templateId }) => {
           mb={10}
         >
           {data.template.map((t, i) => {
-            // const preview =
-            //   !intersectionWith(currentPermission, t.editable, isEqual)
-            //     .length ||
-            //   !hasNextStep ||
-            //   !intersectionWith(editRole, t.editable, isEqual).length;
+            const preview =
+              !intersectionWith(currentPermission, t.editable, isEqual)
+                .length ||
+              !hasNextStep ||
+              !intersectionWith(editRole, t.editable, isEqual).length;
             return (
               <ComponentRender
-                template={{ ...t, disabled: disabled }}
-                // template={t}
+                // template={{ ...t, disabled: disabled }}
+                template={t}
                 control={control}
                 preview={preview}
                 key={i}
@@ -186,10 +185,6 @@ const Body = ({ data, currentStep, templateId }) => {
           callback={handleSubmit(preSubmit)}
           title="Create & Submit"
           disabled={uploadFilesPending || newFormCreationPending}
-          onLongPress={() => {
-            alert(JSON.stringify(data));
-            console.log(data);
-          }}
         />
       </VStack>
     </VStack>

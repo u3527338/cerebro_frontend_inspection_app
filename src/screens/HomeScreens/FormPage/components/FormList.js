@@ -86,23 +86,21 @@ const FormList = ({ tabName = "", currentTabName }) => {
   );
 
   return (
-    <>
-      <Box w="100%" h="100%">
-        <FlashList
-          ref={flashListRef}
-          data={listData}
-          keyExtractor={keyExtractor}
-          renderItem={({ item }) => <Card item={item} navigator={navigator} />}
-          refreshControl={
-            <RefreshControl refreshing={isFetching} onRefresh={initPage} />
-          }
-          estimatedItemSize={436}
-          onEndReached={handleNextPage}
-          onEndReachedThreshold={1}
-          ListEmptyComponent={ListEmptyComponent}
-        />
-      </Box>
-    </>
+    <Box w="100%" h="100%">
+      <FlashList
+        ref={flashListRef}
+        data={listData}
+        keyExtractor={keyExtractor}
+        renderItem={({ item }) => <Card item={item} navigator={navigator} />}
+        refreshControl={
+          <RefreshControl refreshing={isFetching} onRefresh={initPage} />
+        }
+        estimatedItemSize={436}
+        onEndReached={handleNextPage}
+        onEndReachedThreshold={1}
+        ListEmptyComponent={ListEmptyComponent}
+      />
+    </Box>
   );
 };
 

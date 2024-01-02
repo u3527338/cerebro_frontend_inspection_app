@@ -23,3 +23,10 @@ export const filesToBeUploaded = (data) => {
     });
   return filesArr;
 };
+
+export const setDefaultValues = (template) =>
+  _.fromPairs(
+    template
+      ?.filter((item) => !["text", "textfold"].includes(item.type))
+      ?.map((item) => [item.key, item.preset || ""])
+  );

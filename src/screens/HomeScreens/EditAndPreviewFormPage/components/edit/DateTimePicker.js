@@ -1,7 +1,7 @@
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import moment from "moment";
 import { Box, HStack, Icon, Pressable, Text } from "native-base";
-import React, { memo, useCallback, useState } from "react";
+import React, { memo, useCallback, useEffect, useState } from "react";
 import { Controller } from "react-hook-form";
 import { DatePickerModal } from "react-native-paper-dates";
 import baseColor from "../../../../../themes/colors/baseColor";
@@ -56,6 +56,14 @@ const MyDateTimePicker = ({ control, detail }) => {
       control={control}
       render={({ field: { onChange, value } }) => {
         const [open, setOpen] = useState(false);
+        useEffect(() => {
+          if (!value)
+            onChange(
+              detail.preset ||
+                `${dateConverter(new Date())},${dateConverter(new Date())}`
+            );
+        }, []);
+
         return (
           <>
             <TimePicker

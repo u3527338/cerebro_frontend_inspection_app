@@ -1,14 +1,13 @@
 import { Entypo } from "@expo/vector-icons";
 import {
   Actionsheet,
-  Box,
   HStack,
   Icon,
   Pressable,
   Text,
   useDisclose,
 } from "native-base";
-import React, { memo } from "react";
+import React, { memo, useEffect } from "react";
 import { Controller } from "react-hook-form";
 import baseColor from "../../../../../themes/colors/baseColor";
 
@@ -20,6 +19,10 @@ const SimpleDropDown = ({ control, detail }) => {
       name={detail.key}
       control={control}
       render={({ field: { onChange, value } }) => {
+        useEffect(() => {
+          if (!value) onChange(detail.preset || "");
+        }, []);
+
         return (
           <>
             <Pressable

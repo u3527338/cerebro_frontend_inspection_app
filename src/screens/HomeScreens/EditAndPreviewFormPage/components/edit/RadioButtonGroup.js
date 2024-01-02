@@ -7,16 +7,10 @@ const RadioButtonGroup = ({ control, detail }) => {
     <Controller
       name={detail.key}
       control={control}
-      render={({
-        field: {
-          onChange,
-          onBlur,
-          value = detail.preset || detail.item[0].title,
-        },
-      }) => {
-        // useEffect(() => {
-        //   if (!value) onChange(detail.preset || detail.item[0].title);
-        // }, []);
+      render={({ field: { onChange, onBlur, value } }) => {
+        useEffect(() => {
+          if (!value) onChange(detail.preset || detail.item[0].title);
+        }, []);
 
         return (
           <Radio.Group
