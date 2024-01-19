@@ -30,7 +30,7 @@ const useDefaultAPI = () => {
     useContext(StateContext);
 
   const execute_post = ({ url, params = {}, data }) => {
-    // console.log("execute_post", url);
+    console.log("execute_post", url);
     let headers = { "Content-Type": "application/json" };
     if (!!token) headers["Authorization"] = `Token ${token}`;
     return axios.post(url, data, {
@@ -115,6 +115,7 @@ const useDefaultAPI = () => {
   };
 
   const getTaskByStatus = async (status, params) => {
+    console.log("get task by status");
     const response = await execute_get({
       url: status === "My Task" ? API_get_mytask_list : API_formdata,
       params: {
@@ -213,7 +214,6 @@ const useDefaultAPI = () => {
   };
 
   const uploadNewForm = async (data) => {
-    console.log("uploading new form");
     const response = await execute_post({
       url: API_formdata,
       data: data,

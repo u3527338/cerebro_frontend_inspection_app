@@ -5,6 +5,7 @@ import _ from "lodash";
 import { Box, HStack, Text, useDisclose } from "native-base";
 import { memo, useEffect, useState } from "react";
 import { Controller } from "react-hook-form";
+import { Platform } from "react-native";
 import useDefaultAPI from "../../../../../../hocks/useDefaultAPI";
 import CarouselPreview from "./CarouselPreview";
 import { CustomButton } from "./Custom";
@@ -50,7 +51,7 @@ const MediaPicker = ({ control, detail, editable = true, browseLibrary }) => {
   const handleLaunchDocumentLibrary = async () => {
     onClose();
     const result = await DocumentPicker.getDocumentAsync({
-      copyToCacheDirectory: false,
+      // copyToCacheDirectory: false,
       // multiple: true,
     });
 
@@ -80,12 +81,11 @@ const MediaPicker = ({ control, detail, editable = true, browseLibrary }) => {
   };
 
   const handleDeleteLocalFile = (fileToDelete) => {
-    //  need to handle pdf local delete
     if (fileToDelete.id) {
       setFiles(files.filter((file) => file.uri !== fileToDelete.uri));
       setPreviewFile(null);
     } else {
-      FileSystem.deleteAsync(fileToDelete.uri).then(() => {
+      FileSystem.deleteAsync(fileToDelete.uri).finally(() => {
         setFiles(files.filter((file) => file.uri !== fileToDelete.uri));
         setPreviewFile(null);
       });

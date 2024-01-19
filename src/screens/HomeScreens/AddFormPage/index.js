@@ -10,17 +10,13 @@ import {
 } from "native-base";
 import React, { useContext, useState } from "react";
 import { useForm } from "react-hook-form";
+import Spinner from "react-native-loading-spinner-overlay";
 import LoadingComponent from "../../../components/common/LoadingComponent";
 import { StateContext } from "../../../context/stateContext";
+import { filesToBeUploaded, setDefaultValues } from "../../../global/function";
 import GlobalHeader from "../../../global/globalHeader";
 import useDefaultAPI from "../../../hocks/useDefaultAPI";
 import { ComponentRender } from "../EditAndPreviewFormPage/components/ComponentRender";
-import Spinner from "react-native-loading-spinner-overlay";
-import {
-  dateConverter,
-  filesToBeUploaded,
-  setDefaultValues,
-} from "../../../global/function";
 
 const CustomButton = ({ title, callback, disabled, ...props }) => (
   <Pressable
@@ -66,21 +62,15 @@ const Body = ({ data, currentStep, templateId }) => {
     template: templateId,
     flow: data.flow.id,
     category: currentCategory.id,
-    DateScheduled: dateConverter(new Date()),
   };
 
   const onSubmit = (finalizedData) => {
-    //execute
-    console.log(finalizedData);
-    // alert(JSON.stringify(finalizedData));
     createNewFormMutate(finalizedData, {
       onSuccess: (response) => {
-        console.log("create form succeed");
-        // navigation.goBack();
+        navigation.navigate("My Task");
       },
       onError: (error) => {
-        console.log("create form error", error.message);
-        // alert(error.message);
+        alert(error.message);
       },
     });
   };
@@ -169,11 +159,11 @@ const Body = ({ data, currentStep, templateId }) => {
           mb={10}
         >
           {data.template.map((t, i) => {
-            const preview =
-              !intersectionWith(currentPermission, t.editable, isEqual)
-                .length ||
-              !hasNextStep ||
-              !intersectionWith(editRole, t.editable, isEqual).length;
+            // const preview =
+            //   !intersectionWith(currentPermission, t.editable, isEqual)
+            //     .length ||
+            //   !hasNextStep ||
+            //   !intersectionWith(editRole, t.editable, isEqual).length;
             return (
               <ComponentRender
                 template={{ ...t, disabled: disabled }}

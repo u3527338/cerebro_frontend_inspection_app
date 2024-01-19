@@ -17,7 +17,7 @@ const UseRouteSetting = () => {
     {
       name: "Project",
       component: ProjectScreen,
-      icon: <Ionicons name="ios-clipboard" />,
+      icon: <Ionicons name="clipboard" />,
       onPressCallBack: () => {
         setProfile(data);
       },

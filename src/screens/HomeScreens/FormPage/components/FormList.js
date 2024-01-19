@@ -1,11 +1,10 @@
-import { useNavigation } from "@react-navigation/native";
+import { useNavigation, useRoute } from "@react-navigation/native";
 import { FlashList } from "@shopify/flash-list";
 import { Box, Text } from "native-base";
 import { memo, useEffect, useRef, useState } from "react";
-import { RefreshControl } from "react-native";
+import { DeviceEventEmitter, RefreshControl } from "react-native";
 import useDefaultAPI from "../../../../hocks/useDefaultAPI";
 import Card from "./Card";
-import { DeviceEventEmitter } from "react-native";
 
 const getData = (response_data) => {
   if (!response_data) return [];
@@ -21,6 +20,8 @@ const getData = (response_data) => {
 
 const FormList = ({ tabName = "", currentTabName }) => {
   const navigator = useNavigation();
+  const route = useRoute();
+  console.log(route);
   const { useTaskListByStatusQuery } = useDefaultAPI();
   const [page, setPage] = useState(0);
   const [listData, setListData] = useState([]);
@@ -40,13 +41,13 @@ const FormList = ({ tabName = "", currentTabName }) => {
     state: tabName === "My Task" ? "all" : tabName.toLowerCase(),
   };
 
-  const { data, isFetching, error } = useTaskListByStatusQuery({
+  const { data, isFetching, error, refetch } = useTaskListByStatusQuery({
     status: tabName,
     params: default_filter,
     enabled: currentTabName === tabName,
   });
 
-  const handleScrollToTop = (event) => {
+  const handleScrollToTop = () => {
     if (flashListRef) {
       flashListRef.current.scrollToOffset({
         animated: true,
@@ -58,7 +59,7 @@ const FormList = ({ tabName = "", currentTabName }) => {
   useEffect(() => {
     DeviceEventEmitter.addListener("scrollToTop", handleScrollToTop);
     return () => {
-      DeviceEventEmitter.removeAllListeners();
+      DeviceEventEmitter.removeAllListeners("scrollToTop");
     };
   }, []);
 

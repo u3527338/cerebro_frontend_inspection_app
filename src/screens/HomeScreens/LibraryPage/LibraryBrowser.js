@@ -116,7 +116,7 @@ const LibraryCard = ({
               <Icon
                 as={
                   type === "folder" ? (
-                    <Ionicons name="ios-arrow-back" />
+                    <Ionicons name="arrow-back" />
                   ) : (
                     <FontAwesome name="file-text" />
                   )

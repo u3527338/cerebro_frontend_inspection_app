@@ -7,7 +7,7 @@ export const appName = "inspection";
 // export const apiServer = "https://inspection.cerebrohk.com"
 // export const apiServer = "http://10.88.88.151:8001"
 // export const apiServer = "http://10.17.30.125:8000";
-export const apiServer = "http://10.17.30.109:8000";
+export const apiServer = "http://10.88.88.113:8000";
 
 // export const apiServer = "https://inspection.cerebrohk.com"
 // const apiServer = "https://inspectiondev.cerebrohk.com"

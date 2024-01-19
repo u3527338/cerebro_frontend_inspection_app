@@ -34,7 +34,7 @@ export default function GlobalHeader({
             <Icon
               my={2}
               size={"md"}
-              as={<Ionicons name="ios-arrow-back" />}
+              as={<Ionicons name="arrow-back" />}
               color="white"
             />
           </Pressable>

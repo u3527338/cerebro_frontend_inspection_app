@@ -5,21 +5,21 @@ import primary from "../../../../../../themes/colors/primary";
 
 const AddSignature = ({ disabled, onPress }) => {
   return (
-    <HStack p={2} justifyContent="space-between" alignItems="center">
-      <Text numberOfLines={1} ellipsizeMode="tail" bold color="baseColor.400">
-        Signature
-      </Text>
-
-      <Pressable
-        borderRadius={8}
-        _pressed={{ backgroundColor: primary[100] }}
-        _disabled={{ opacity: 0.3 }}
-        disabled={disabled}
-        onPress={onPress}
-      >
+    <Pressable
+      borderRadius={8}
+      _pressed={{ backgroundColor: primary[100] }}
+      _disabled={{ opacity: 0.3 }}
+      disabled={disabled}
+      onPress={onPress}
+      p={2}
+    >
+      <HStack justifyContent="space-between" alignItems="center">
+        <Text numberOfLines={1} ellipsizeMode="tail" bold color="baseColor.400">
+          Signature
+        </Text>
         <Ionicons name="add-outline" size={20} color="gray" />
-      </Pressable>
-    </HStack>
+      </HStack>
+    </Pressable>
   );
 };
 

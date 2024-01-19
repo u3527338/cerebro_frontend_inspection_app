@@ -212,8 +212,11 @@ const TotalNumberArea = ({ data }) => {
                   m={2}
                   showsVerticalScrollIndicator={false}
                 >
-                  {Object.keys(pieChartArea).map((item) => (
-                    <Pressable onPress={() => setHighLightItem(item)}>
+                  {Object.keys(pieChartArea).map((item, index) => (
+                    <Pressable
+                      key={index}
+                      onPress={() => setHighLightItem(item)}
+                    >
                       <Box
                         bg={highLightItem === item ? "gray.200" : "transparent"}
                         p={1}
