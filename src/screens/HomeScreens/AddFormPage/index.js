@@ -1,5 +1,5 @@
 import { useNavigation, useRoute } from "@react-navigation/native";
-import _, { intersectionWith, isEqual } from "lodash";
+import _ from "lodash";
 import {
   Center,
   HStack,
@@ -53,6 +53,7 @@ const Body = ({ data, currentStep, templateId }) => {
     useNewFormMutation();
 
   const hasNextStep = data.flow.flow.length > (data.flow_data?.length || 0);
+
   const { control, handleSubmit } = useForm({
     defaultValues: setDefaultValues(data?.template),
   });
@@ -65,18 +66,20 @@ const Body = ({ data, currentStep, templateId }) => {
   };
 
   const onSubmit = (finalizedData) => {
-    createNewFormMutate(finalizedData, {
-      onSuccess: (response) => {
-        navigation.navigate("My Task");
-      },
-      onError: (error) => {
-        alert(error.message);
-      },
-    });
+    console.log(JSON.stringify(finalizedData));
+    // createNewFormMutate(finalizedData, {
+    //   onSuccess: (response) => {
+    //     navigation.navigate("My Task");
+    //   },
+    //   onError: (error) => {
+    //     alert(error.message);
+    //   },
+    // });
   };
 
   const preSubmit = (form_data) => {
     const filesArr = filesToBeUploaded(form_data);
+    console.log("filesArr", filesArr);
     if (filesArr.length === 0) onSubmit({ ...info, data: form_data });
     else
       uploadMultipleFileListMutate(filesArr, {

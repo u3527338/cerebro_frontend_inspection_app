@@ -97,7 +97,7 @@ const RenderItem = ({ handleOpenForm, data }) => {
             folderObject={folderObject}
           />
         ))}
-      {fileList.map((template, index) => (
+      {fileList?.map((template, index) => (
         <RenderFormItem
           detail={template}
           key={index}

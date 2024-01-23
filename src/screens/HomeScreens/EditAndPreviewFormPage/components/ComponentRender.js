@@ -1,6 +1,7 @@
 import _ from "lodash";
 import { Box, Divider, Text } from "native-base";
 import AutoComplete from "./edit/AutoComplete";
+import CustomItem from "./edit/CustomItem";
 import MyCheckBox from "./edit/CheckBox";
 import DateTimePicker from "./edit/DateTimePicker";
 import MediaPicker from "./edit/MediaPicker";
@@ -112,9 +113,12 @@ const InputRender = ({ control, template, preview }) => {
         <UserSignature control={control} detail={template} />
       );
 
-    // case "customItem":
-    //   return preview ? <RenderPreviewCustomItem template={template} data={formikProps}/> :
-    //     <RenderCustomItem items={template} props={formikProps}/>
+    case "customItem":
+      // return preview ? <RenderPreviewCustomItem template={template} data={formikProps}/> :
+      return <CustomItem control={control} detail={template} />;
+
+    case "attachment_title":
+      return <></>;
 
     default:
       return <DefaultPreview control={control} detail={template} />;

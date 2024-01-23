@@ -7,7 +7,6 @@ const FileGallery = ({
   files,
   handlePreviewFile,
   handleDeleteLocalFile,
-  updateId,
   status,
   loading,
 }) => {
@@ -35,8 +34,7 @@ const FileGallery = ({
             handlePreviewFile={() => {
               handlePreviewFile(index);
             }}
-            updateId={(id) => updateId(index, id)}
-            handleDeleteLocalFile={handleDeleteLocalFile}
+            handleDeleteLocalFile={() => handleDeleteLocalFile(file, index)}
             status={status}
           />
         ))}

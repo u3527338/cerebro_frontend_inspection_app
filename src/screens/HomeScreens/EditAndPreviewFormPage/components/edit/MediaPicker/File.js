@@ -10,9 +10,7 @@ const File = ({ file, handlePreviewFile, handleDeleteLocalFile, status }) => {
       {status.editable && (
         <DeleteBadge
           disabled={status.disabled}
-          handleDeleteFile={() => {
-            handleDeleteLocalFile(file);
-          }}
+          handleDeleteFile={handleDeleteLocalFile}
         />
       )}
       {isImage(file.uri) ? (

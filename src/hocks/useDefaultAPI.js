@@ -93,6 +93,7 @@ const useDefaultAPI = () => {
         page_size: 100,
       },
     });
+    console.log("data", response.data);
     return response.data;
   };
 
@@ -379,9 +380,9 @@ const useDefaultAPI = () => {
       queryFn: () => loadUser(),
     });
 
-  const useFormTemplateListQuery = (id) =>
+  const useFormTemplateListQuery = () =>
     useQuery({
-      queryKey: ["get form template list", id],
+      queryKey: ["get form template list", currentProject.project.id],
       queryFn: () => getFormTemplateList(),
     });
 

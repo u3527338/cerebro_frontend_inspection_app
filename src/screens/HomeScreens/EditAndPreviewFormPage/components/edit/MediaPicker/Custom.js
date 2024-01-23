@@ -72,7 +72,7 @@ export const CustomButton = ({ onPress, disabled, label }) => {
       px={3}
       py={2}
     >
-      <Text>{label}</Text>
+      <Text fontSize={10}>{label}</Text>
     </Pressable>
   );
 };

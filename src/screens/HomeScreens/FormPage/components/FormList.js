@@ -1,4 +1,4 @@
-import { useNavigation, useRoute } from "@react-navigation/native";
+import { useNavigation } from "@react-navigation/native";
 import { FlashList } from "@shopify/flash-list";
 import { Box, Text } from "native-base";
 import { memo, useEffect, useRef, useState } from "react";
@@ -20,8 +20,6 @@ const getData = (response_data) => {
 
 const FormList = ({ tabName = "", currentTabName }) => {
   const navigator = useNavigation();
-  const route = useRoute();
-  console.log(route);
   const { useTaskListByStatusQuery } = useDefaultAPI();
   const [page, setPage] = useState(0);
   const [listData, setListData] = useState([]);
