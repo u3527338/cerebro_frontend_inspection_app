@@ -13,9 +13,9 @@ const File = ({ file, handlePreviewFile, handleDeleteLocalFile, status }) => {
           handleDeleteFile={handleDeleteLocalFile}
         />
       )}
-      {isImage(file.uri) ? (
+      {isImage(file.data.uri) ? (
         <FilePreview
-          uri={file.uri}
+          uri={file.data.uri}
           size={{
             height: 100,
             width: 100,

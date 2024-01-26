@@ -22,7 +22,7 @@ import {
   API_userinfo_info,
   API_user_list,
 } from "../global/constants";
-import { isImage, isSignature } from "../global/function";
+import { dotNotationToJson, isImage, isSignature } from "../global/function";
 
 const useDefaultAPI = () => {
   const { token, full_name } = useContext(AuthContext);
@@ -30,7 +30,7 @@ const useDefaultAPI = () => {
     useContext(StateContext);
 
   const execute_post = ({ url, params = {}, data }) => {
-    console.log("execute_post", url);
+    // console.log("execute_post", url);
     let headers = { "Content-Type": "application/json" };
     if (!!token) headers["Authorization"] = `Token ${token}`;
     return axios.post(url, data, {
@@ -93,7 +93,6 @@ const useDefaultAPI = () => {
         page_size: 100,
       },
     });
-    console.log("data", response.data);
     return response.data;
   };
 
@@ -195,25 +194,6 @@ const useDefaultAPI = () => {
     return execute_get({ url: API_get_file_from_id(from_id) });
   };
 
-  const uploadMultipleFileLists = async (data) => {
-    const promises = data.map(async ({ key, file }) => {
-      let fileList = file;
-      const params = isSignature(file) ? { storage_path: "signature" } : null;
-
-      if (isSignature(file)) {
-        const file = await FileSystem.getInfoAsync(fileList, {
-          size: true,
-          md5: true,
-        });
-        fileList = [file];
-      }
-
-      return uploadFile(fileList, params, key);
-    });
-
-    return Promise.all(promises);
-  };
-
   const uploadNewForm = async (data) => {
     const response = await execute_post({
       url: API_formdata,
@@ -226,7 +206,7 @@ const useDefaultAPI = () => {
     return response;
   };
 
-  const uploadFile = async (data, params, key) => {
+  const uploadFiles = async (data) => {
     const FileType = {
       IMAGE: "image",
       PDF: "pdf",
@@ -239,12 +219,24 @@ const useDefaultAPI = () => {
       pdf: "application/pdf",
     };
 
-    const promises = data.map(async (file) => {
-      const type = isSignature(file.uri)
+    const keys = data.map((d) => d.key);
+
+    const promises = data.map(async (d) => {
+      let file = d.file;
+      const type = isSignature(file)
         ? FileType.SIGNATURE
         : isImage(file.uri)
         ? FileType.IMAGE
         : FileType.PDF;
+
+      const params = isSignature(file) ? { storage_path: "signature" } : null;
+
+      if (isSignature(file)) {
+        file = await FileSystem.getInfoAsync(file, {
+          size: true,
+          md5: true,
+        });
+      }
 
       let payload = {
         file_name: file.uri.split("/").pop(),
@@ -295,10 +287,8 @@ const useDefaultAPI = () => {
       return response.data.file;
     });
 
-    let response = {};
     const response_data = await Promise.all(promises);
-    response[key] = response_data;
-    return key ? response : response_data;
+    return dotNotationToJson(keys, response_data);
   };
 
   const changePassword = async (data) => {
@@ -442,13 +432,7 @@ const useDefaultAPI = () => {
   const useUploadFileMutation = () =>
     useMutation({
       mutationKey: ["upload file"],
-      mutationFn: ({ data, params }) => uploadFile(data, params),
-    });
-
-  const useUploadMultipleFileListsMutation = () =>
-    useMutation({
-      mutationKey: ["upload multiple file lists"],
-      mutationFn: (data) => uploadMultipleFileLists(data),
+      mutationFn: (data) => uploadFiles(data),
     });
 
   const useNewFormMutation = () =>
@@ -500,7 +484,6 @@ const useDefaultAPI = () => {
     useStatisticsQuery,
     useFileQuery,
     useUploadFileMutation,
-    useUploadMultipleFileListsMutation,
     useNewFormMutation,
     useDeleteFileMutation,
 

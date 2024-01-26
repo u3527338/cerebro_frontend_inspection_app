@@ -6,14 +6,21 @@ const MediaOptions = ({
   onClose,
   handleLaunchImageGallery,
   handleLaunchDocumentLibrary,
+  options,
 }) => {
   return (
     <Actionsheet isOpen={isOpen} onClose={onClose}>
       <Actionsheet.Content>
-        <Actionsheet.Item onPress={handleLaunchImageGallery}>
+        <Actionsheet.Item
+          disabled={options && !options?.includes("photo")}
+          onPress={handleLaunchImageGallery}
+        >
           Image
         </Actionsheet.Item>
-        <Actionsheet.Item onPress={handleLaunchDocumentLibrary}>
+        <Actionsheet.Item
+          disabled={options && !options?.includes("pdf")}
+          onPress={handleLaunchDocumentLibrary}
+        >
           Document
         </Actionsheet.Item>
       </Actionsheet.Content>

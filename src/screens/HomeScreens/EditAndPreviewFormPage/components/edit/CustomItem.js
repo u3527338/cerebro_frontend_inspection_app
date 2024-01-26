@@ -1,5 +1,4 @@
 import { AntDesign, FontAwesome } from "@expo/vector-icons";
-import _ from "lodash";
 import {
   Box,
   FlatList,
@@ -9,12 +8,13 @@ import {
   Text,
   VStack,
 } from "native-base";
-import { memo, useEffect } from "react";
+import { memo, useEffect, useRef } from "react";
 import { Controller, useFieldArray } from "react-hook-form";
 import { Dimensions } from "react-native";
 import { ComponentRender } from "../ComponentRender";
 
 const CustomItem = ({ control, detail }) => {
+  const flatListRef = useRef();
   const { fields, append, remove } = useFieldArray({
     control,
     name: detail.key,
@@ -24,7 +24,7 @@ const CustomItem = ({ control, detail }) => {
 
   const ItemGroup = ({ itemIndex }) => {
     return (
-      <VStack>
+      <VStack px={2}>
         {detail.item?.map((_item, index) => {
           return (
             <ComponentRender
@@ -48,14 +48,15 @@ const CustomItem = ({ control, detail }) => {
         borderRadius={4}
         borderColor={"gray.300"}
         width={windowWidth * 0.75}
-        p={3}
+        p={1}
+        pb={3}
         mx={1}
         mb={4}
         shadow={1}
         bg={"white"}
       >
         <HStack justifyContent={"space-between"} alignItems={"center"}>
-          <Text color={"baseColor.500"}>
+          <Text color={"baseColor.500"} p={2}>
             {detail.itemName} {index + 1}
           </Text>
           {index === fields.length - 1 ? (
@@ -64,6 +65,7 @@ const CustomItem = ({ control, detail }) => {
                 handleDeleteItem(index);
               }}
               disabled={detail.disabled}
+              p={2}
             >
               <Icon as={<FontAwesome name="trash-o" />} color={"gray.400"} />
             </Pressable>
@@ -77,14 +79,18 @@ const CustomItem = ({ control, detail }) => {
 
   const handleAddItem = () => {
     console.log("add item");
-    // const temp = _.mapValues(_.keyBy(detail.item, "key"), () => "");
-    const temp = { itemImageAttachments: [], description: "" };
-    append(temp);
+    append({ itemImageAttachments: [], description: "" });
   };
 
   const handleDeleteItem = (indexToDelete) => {
     console.log("delete item", indexToDelete);
     remove(indexToDelete);
+    if (flatListRef && indexToDelete > 0) {
+      flatListRef.current.scrollToIndex({
+        index: indexToDelete - 1,
+        animated: true,
+      });
+    }
   };
 
   return (
@@ -120,6 +126,7 @@ const CustomItem = ({ control, detail }) => {
                 </Text>
               </HStack>
               <FlatList
+                ref={flatListRef}
                 data={fields}
                 maximumZoomScale={2.0}
                 keyExtractor={(field) => field.id}

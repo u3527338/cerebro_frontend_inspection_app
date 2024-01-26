@@ -23,7 +23,6 @@ const MediaPicker = ({ control, detail, editable = true, browseLibrary }) => {
   const [statusM, requestMPermission] =
     ImagePicker.useMediaLibraryPermissions();
   const { isOpen, onOpen, onClose } = useDisclose();
-  // const [files, setFiles] = useState([]);
   const [modal, setModal] = useState(false);
   const [previewFile, setPreviewFile] = useState(null);
 
@@ -48,8 +47,7 @@ const MediaPicker = ({ control, detail, editable = true, browseLibrary }) => {
 
     if (!result.canceled) {
       const newFiles = result.assets;
-      // setFiles([...files, ...newFiles]);
-      append(newFiles);
+      append(newFiles.map((file) => ({ data: file, uploadRequired: true })));
     }
   };
 
@@ -61,8 +59,7 @@ const MediaPicker = ({ control, detail, editable = true, browseLibrary }) => {
     });
 
     if (result.type === "success") {
-      // setFiles([...files, result]);
-      append(result);
+      append({ data: result, uploadRequired: true });
     }
   };
 
@@ -74,8 +71,7 @@ const MediaPicker = ({ control, detail, editable = true, browseLibrary }) => {
 
     if (!result.canceled) {
       const newFiles = result.assets;
-      // setFiles([...files, ...newFiles]);
-      append(newFiles);
+      append(newFiles?.map((file) => ({ data: file, uploadRequired: true })));
     }
   };
 
@@ -87,18 +83,9 @@ const MediaPicker = ({ control, detail, editable = true, browseLibrary }) => {
     }
   };
 
-  const handleDeleteLocalFile = (fileToDelete, index) => {
-    if (fileToDelete.id) {
-      // setFiles(files.filter((file) => file.uri !== fileToDelete.uri));
-      remove(index);
-      setPreviewFile(null);
-    } else {
-      FileSystem.deleteAsync(fileToDelete.uri).finally(() => {
-        // setFiles(files.filter((file) => file.uri !== fileToDelete.uri));
-        remove(index);
-        setPreviewFile(null);
-      });
-    }
+  const handleDeleteLocalFile = (index) => {
+    remove(index);
+    setPreviewFile(null);
   };
 
   return (
@@ -109,22 +96,9 @@ const MediaPicker = ({ control, detail, editable = true, browseLibrary }) => {
         const [libraryPath, setLibraryPath] = useState(null);
         const { data, isFetching } = usePreviewFileQuery(libraryPath);
 
-        // useEffect(() => {
-        //   console.log("onChange", fields);
-        //   onChange(
-        //     browseLibrary
-        //       ? fields.map((file) => file.id)
-        //       : { uploadRequired: true, data: fields }
-        //   );
-        // }, [fields]);
-
         useEffect(() => {
           if (data && !isFetching) {
-            // setFiles((prevState) => [
-            //   ...prevState,
-            //   { id: data.id, uri: data.path },
-            // ]);
-            append({ id: data.id, uri: data.path });
+            append({ id: data.id, data: { uri: data.path } });
           }
         }, [data]);
 
@@ -146,7 +120,9 @@ const MediaPicker = ({ control, detail, editable = true, browseLibrary }) => {
                   <CustomButton
                     onPress={handleLaunchCamera}
                     disabled={
-                      !!detail.disabled || detail.limitation === fields.length
+                      !!detail.disabled ||
+                      detail.limitation === fields.length ||
+                      (detail.allow && !detail.allow?.includes("photo"))
                     }
                     label="TAKE PHOTO"
                   />
@@ -163,6 +139,7 @@ const MediaPicker = ({ control, detail, editable = true, browseLibrary }) => {
               handleDeleteLocalFile={handleDeleteLocalFile}
               status={{ editable: editable, disabled: !!detail.disabled }}
               loading={isFetching}
+              browseLibrary={browseLibrary}
             />
 
             <MediaOptions
@@ -170,6 +147,7 @@ const MediaPicker = ({ control, detail, editable = true, browseLibrary }) => {
               onClose={onClose}
               handleLaunchImageGallery={handleLaunchImageGallery}
               handleLaunchDocumentLibrary={handleLaunchDocumentLibrary}
+              options={detail.allow}
             />
 
             <CarouselPreview
@@ -177,10 +155,10 @@ const MediaPicker = ({ control, detail, editable = true, browseLibrary }) => {
               onBackdropPress={() => {
                 setModal(false);
               }}
-              // files={files}
               files={fields}
               previewFile={previewFile}
               setPreviewFile={setPreviewFile}
+              browseLibrary={browseLibrary}
             />
 
             <LibraryBrowserModal

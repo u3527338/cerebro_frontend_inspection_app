@@ -34,7 +34,7 @@ const FileGallery = ({
             handlePreviewFile={() => {
               handlePreviewFile(index);
             }}
-            handleDeleteLocalFile={() => handleDeleteLocalFile(file, index)}
+            handleDeleteLocalFile={() => handleDeleteLocalFile(index)}
             status={status}
           />
         ))}

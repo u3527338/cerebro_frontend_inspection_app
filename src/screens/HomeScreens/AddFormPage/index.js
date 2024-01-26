@@ -13,7 +13,11 @@ import { useForm } from "react-hook-form";
 import Spinner from "react-native-loading-spinner-overlay";
 import LoadingComponent from "../../../components/common/LoadingComponent";
 import { StateContext } from "../../../context/stateContext";
-import { filesToBeUploaded, setDefaultValues } from "../../../global/function";
+import {
+  filesToBeUploaded,
+  mergeObject,
+  setDefaultValues,
+} from "../../../global/function";
 import GlobalHeader from "../../../global/globalHeader";
 import useDefaultAPI from "../../../hocks/useDefaultAPI";
 import { ComponentRender } from "../EditAndPreviewFormPage/components/ComponentRender";
@@ -39,15 +43,13 @@ const CustomButton = ({ title, callback, disabled, ...props }) => (
 
 const Body = ({ data, currentStep, templateId }) => {
   const navigation = useNavigation();
-  const { useUploadMultipleFileListsMutation, useNewFormMutation } =
-    useDefaultAPI();
+  const { useNewFormMutation, useUploadFileMutation } = useDefaultAPI();
+
   const { currentProject, currentCategory, currentPermission } =
     useContext(StateContext);
 
-  const {
-    mutate: uploadMultipleFileListMutate,
-    isPending: uploadFilesPending,
-  } = useUploadMultipleFileListsMutation();
+  const { mutate: uploadFilesMutate, isPending: uploadFilesPending } =
+    useUploadFileMutation();
 
   const { mutate: createNewFormMutate, isPending: newFormCreationPending } =
     useNewFormMutation();
@@ -79,13 +81,11 @@ const Body = ({ data, currentStep, templateId }) => {
 
   const preSubmit = (form_data) => {
     const filesArr = filesToBeUploaded(form_data);
-    console.log("filesArr", filesArr);
     if (filesArr.length === 0) onSubmit({ ...info, data: form_data });
     else
-      uploadMultipleFileListMutate(filesArr, {
+      uploadFilesMutate(filesArr, {
         onSuccess: (uploadedData) => {
-          const formData = _.merge(form_data, ...uploadedData);
-          onSubmit({ ...info, data: formData });
+          onSubmit({ ...info, data: mergeObject(form_data, uploadedData) });
         },
         onError: (error) => {
           alert(error.message);

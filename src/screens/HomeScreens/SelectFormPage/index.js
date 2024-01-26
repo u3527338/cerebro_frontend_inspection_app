@@ -36,6 +36,7 @@ const RenderFormItem = ({ detail, handleOpenForm }) => {
     </>
   );
 };
+
 const RenderFolderItem = ({ name, handleOpenForm, folderObject }) => {
   const [isOpen, setIsOpen] = useState(true);
   const onPressHandler = () => {
