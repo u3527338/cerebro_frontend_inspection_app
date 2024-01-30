@@ -8,10 +8,11 @@ const LoadingComponent = ({
   noSpinner = false,
   noText = false,
   text = "Loading ..",
+  ...rest
 }) => {
   return (
     <>
-      <HStack alignItems={"center"} space={3}>
+      <HStack alignItems={"center"} space={3} {...rest}>
         {!noSpinner && <Spinner color={spinnerColor} size={spinnerSize} />}
         {!noText && (
           <Text color={textColor} fontSize={textFontSize}>

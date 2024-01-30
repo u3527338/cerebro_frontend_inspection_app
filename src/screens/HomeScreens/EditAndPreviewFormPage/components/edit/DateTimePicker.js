@@ -2,7 +2,7 @@ import { MaterialCommunityIcons } from "@expo/vector-icons";
 import moment from "moment";
 import { Box, HStack, Icon, Pressable, Text } from "native-base";
 import React, { memo, useCallback, useEffect, useState } from "react";
-import { Controller } from "react-hook-form";
+import { Controller, useWatch } from "react-hook-form";
 import { DatePickerModal } from "react-native-paper-dates";
 import { dateConverter } from "../../../../../global/function";
 import baseColor from "../../../../../themes/colors/baseColor";
@@ -44,8 +44,35 @@ const TimePicker = ({ open, setOpen, title, onChange, validRange }) => {
 };
 
 const MyDateTimePicker = ({ control, detail }) => {
+  const [validStartDate, setValidStartDate] = useState(
+    detail.infinite
+      ? null
+      : new Date(new Date().getTime() - backday * milliseconds)
+  );
   const backday = detail.backday || 5;
   const milliseconds = 24 * 60 * 60 * 1000;
+  // const linkage = detail.interaction?.linkage?.parent?.key
+  //   ? {
+  //       key: detail.interaction?.linkage?.parent?.key,
+  //       dayAfter: detail.interaction.linkage.child.dayAfter,
+  //     }
+  //   : null;
+
+  const linkageDate = useWatch({
+    control,
+    name: detail.interaction?.linkage?.parent?.key,
+  });
+  const linkageStartDate = linkageDate.toString().includes(",")
+    ? new Date(
+        new Date(linkageDate.toString().split(",")[1]).getTime() +
+          detail.interaction.linkage.child.dayAfter * milliseconds
+      )
+    : linkageDate;
+
+  useEffect(() => {
+    setValidStartDate(linkageStartDate);
+  }, [linkageDate]);
+
   return (
     <Controller
       name={detail.key}
@@ -67,15 +94,13 @@ const MyDateTimePicker = ({ control, detail }) => {
               setOpen={setOpen}
               onChange={(range) => {
                 onChange(
-                  `${dateConverter(range.startDate)},${dateConverter(
-                    range.endDate
-                  )}`
+                  `${dateConverter(
+                    linkageStartDate || range.startDate
+                  )},${dateConverter(range.endDate)}`
                 );
               }}
               validRange={{
-                startDate: detail.infinite
-                  ? null
-                  : new Date(new Date().getTime() - backday * milliseconds),
+                startDate: validStartDate,
               }}
             />
 

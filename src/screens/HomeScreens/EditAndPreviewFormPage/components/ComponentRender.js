@@ -18,6 +18,7 @@ import SignaturePreview from "./preview/SignaturePreview";
 import MyText from "./preview/Text";
 
 const InputRender = ({ control, template, preview }) => {
+  console.log("template", JSON.stringify(template));
   switch (template.type) {
     case "text":
     case "textFold":
@@ -134,23 +135,21 @@ export const ComponentRender = ({ control, template, preview }) => {
     "signature",
   ];
   return (
-    <Box bgColor={template.bgColor} px={4} pt={2}>
-      {!customSession.includes(template.type) && !!template.session && (
-        <Text color={"baseColor.300"} fontSize={"xs"}>
-          {_.startCase(template.session)}
-        </Text>
-      )}
-      <InputRender control={control} template={template} preview={preview} />
-      {template.caption ? (
-        <Text color={"gray.400"} sub px={2} pb={4}>
-          {template.caption}
-        </Text>
-      ) : (
-        <Box h={1} />
-      )}
-      {template.divider ? (
-        <Divider my={1} bg={"baseColor.300"} rounded={"md"} />
-      ) : null}
-    </Box>
+    <>
+      {!!template.divider && <Divider bg={"baseColor.300"} rounded={"md"} />}
+      <Box bgColor={template.bgColor} px={4} pt={2}>
+        {!customSession.includes(template.type) && !!template.session && (
+          <Text color={"baseColor.300"} fontSize={"xs"}>
+            {_.startCase(template.session)}
+          </Text>
+        )}
+        <InputRender control={control} template={template} preview={preview} />
+        {template.caption && (
+          <Text color={"gray.400"} sub px={2} pb={4}>
+            {template.caption}
+          </Text>
+        )}
+      </Box>
+    </>
   );
 };

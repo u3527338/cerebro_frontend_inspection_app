@@ -1,20 +1,13 @@
 import { AntDesign, FontAwesome } from "@expo/vector-icons";
-import {
-  Box,
-  FlatList,
-  HStack,
-  Icon,
-  Pressable,
-  Text,
-  VStack,
-} from "native-base";
+import { FlashList } from "@shopify/flash-list";
+import { Box, HStack, Icon, Pressable, Text, VStack } from "native-base";
 import { memo, useEffect, useRef } from "react";
 import { Controller, useFieldArray } from "react-hook-form";
 import { Dimensions } from "react-native";
 import { ComponentRender } from "../ComponentRender";
 
 const CustomItem = ({ control, detail }) => {
-  const flatListRef = useRef();
+  const flashListRef = useRef();
   const { fields, append, remove } = useFieldArray({
     control,
     name: detail.key,
@@ -78,15 +71,13 @@ const CustomItem = ({ control, detail }) => {
   };
 
   const handleAddItem = () => {
-    console.log("add item");
     append({ itemImageAttachments: [], description: "" });
   };
 
   const handleDeleteItem = (indexToDelete) => {
-    console.log("delete item", indexToDelete);
     remove(indexToDelete);
-    if (flatListRef && indexToDelete > 0) {
-      flatListRef.current.scrollToIndex({
+    if (flashListRef && indexToDelete > 0) {
+      flashListRef.current.scrollToIndex({
         index: indexToDelete - 1,
         animated: true,
       });
@@ -125,13 +116,15 @@ const CustomItem = ({ control, detail }) => {
                   {fields.length} / {detail.limit}
                 </Text>
               </HStack>
-              <FlatList
-                ref={flatListRef}
+              <FlashList
+                ref={flashListRef}
                 data={fields}
                 maximumZoomScale={2.0}
                 keyExtractor={(field) => field.id}
                 horizontal
                 renderItem={EachItem}
+                estimatedItemSize={100}
+                showsVerticalScrollIndicator={false}
               />
             </>
           );
