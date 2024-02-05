@@ -21,6 +21,8 @@ const TextInput = ({ control, detail }) => {
                 opacity: 0.5,
                 placeholderTextColor: "baseColor.400",
               }}
+              numberOfLines={1}
+              multiline={true}
               placeholder={detail.session}
               variant={"round"}
               size={"md"}

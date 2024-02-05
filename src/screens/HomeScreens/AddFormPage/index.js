@@ -1,4 +1,5 @@
 import { useNavigation, useRoute } from "@react-navigation/native";
+import { FlashList } from "@shopify/flash-list";
 import _ from "lodash";
 import {
   Center,
@@ -26,11 +27,12 @@ const CustomButton = ({ title, callback, disabled, ...props }) => (
   <Pressable
     py={1}
     shadow={6}
-    bg={"gray.500"}
+    bg={"primary.600"}
     borderRadius={4}
     onPress={callback}
     disabled={disabled}
-    _disabled={{ opacity: 0.5 }}
+    _disabled={{ bg: "primary.800", opacity: 0.5 }}
+    _pressed={{ bg: "primary.800" }}
     {...props}
   >
     <Center>
@@ -56,9 +58,11 @@ const Body = ({ data, currentStep, templateId }) => {
 
   const hasNextStep = data.flow.flow.length > (data.flow_data?.length || 0);
 
-  const { control, handleSubmit } = useForm({
+  const form = useForm({
     defaultValues: setDefaultValues(data?.template),
   });
+
+  const { control, handleSubmit } = form;
 
   const info = {
     project: currentProject.project.id,
@@ -104,8 +108,22 @@ const Body = ({ data, currentStep, templateId }) => {
 
   const [disabled, setDisabled] = useState(false);
   const [preview, setPreview] = useState(false);
+
+  const [currentPage, setCurrentPage] = useState(1);
+  const [addForm, setAddForm] = useState(
+    data.template.some((obj) => "page" in obj)
+      ? data.template.filter((obj) => obj.page === currentPage)
+      : data.template
+  );
+  const totalPage = _.max(data.template.map((obj) => obj.page)) || 1;
+
+  const addPage = (page) => {
+    setCurrentPage(currentPage + page);
+    setAddForm(data.template.filter((obj) => obj.page === currentPage + page));
+  };
+
   return (
-    <VStack space={2} justifyContent={"space-between"} h={"85%"}>
+    <VStack space={2} justifyContent={"space-between"} h={"88%"}>
       <Spinner visible={uploadFilesPending || newFormCreationPending} />
       <ScrollView
         py={4}
@@ -161,7 +179,30 @@ const Body = ({ data, currentStep, templateId }) => {
           py={4}
           mb={10}
         >
-          {data.template.map((t, i) => {
+          <FlashList
+            data={addForm}
+            renderItem={({ item }) => (
+              <ComponentRender
+                template={{ ...item, disabled: disabled }}
+                // template={t}
+                control={control}
+                preview={preview}
+                form={form}
+              />
+            )}
+            keyExtractor={(item, index) => index}
+            showsVerticalScrollIndicator={false}
+          />
+        </VStack>
+        {/* <VStack
+          bg={"white"}
+          borderRadius={6}
+          shadow={3}
+          key={"base"}
+          py={4}
+          mb={10}
+        >
+          {addForm.map((t, i) => {
             // const preview =
             //   !intersectionWith(currentPermission, t.editable, isEqual)
             //     .length ||
@@ -171,16 +212,34 @@ const Body = ({ data, currentStep, templateId }) => {
               <ComponentRender
                 template={{ ...t, disabled: disabled }}
                 // template={t}
-                control={control}
                 preview={preview}
                 key={i}
+                form={form}
               />
             );
           })}
-        </VStack>
+        </VStack> */}
       </ScrollView>
 
       <VStack space={2} px={4} py={1}>
+        <HStack justifyContent="space-between">
+          <CustomButton
+            w={24}
+            callback={() => addPage(-1)}
+            title="Previous"
+            disabled={currentPage <= 1}
+          />
+          <Text
+            marginY="auto"
+            color="black"
+          >{`${currentPage} / ${totalPage}`}</Text>
+          <CustomButton
+            w={24}
+            callback={() => addPage(1)}
+            title="Next"
+            disabled={currentPage >= totalPage}
+          />
+        </HStack>
         <CustomButton
           callback={handleSubmit(preSubmit)}
           title="Create & Submit"

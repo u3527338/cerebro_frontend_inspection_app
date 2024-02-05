@@ -1,6 +1,6 @@
 import * as FileSystem from "expo-file-system";
 import _ from "lodash";
-import { Box, Center, Text } from "native-base";
+import { Center, Text } from "native-base";
 import { memo, useEffect, useState } from "react";
 import { Controller } from "react-hook-form";
 import uuid from "react-native-uuid";
@@ -13,6 +13,8 @@ import SignatureModal from "./SignatureModal";
 const imageType = "png";
 
 const UserSignature = ({ control, detail }) => {
+  // const disabled = detail.disabled;
+  const disabled = false;
   const [open, setOpen] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
@@ -56,7 +58,7 @@ const UserSignature = ({ control, detail }) => {
           });
         };
 
-        if (detail.disabled) return null;
+        if (disabled) return null;
 
         return (
           <>
@@ -77,16 +79,16 @@ const UserSignature = ({ control, detail }) => {
               <LocalSignaturePreview
                 uri={path}
                 onPress={handleClearSignature}
-                disabled={!!detail.disabled}
+                disabled={!!disabled}
               />
             ) : (
               <AddSignature
-                disabled={!!detail.disabled}
+                disabled={!!disabled}
                 onPress={() => setOpen(true)}
               />
             )}
 
-            {!detail.disabled && (
+            {!disabled && (
               <DefaultSignatureOption
                 onChange={(isSelected) => setDefaultSignature(isSelected)}
                 defaultSignature={defaultSignature}

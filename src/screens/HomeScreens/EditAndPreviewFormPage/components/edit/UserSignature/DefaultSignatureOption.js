@@ -3,7 +3,7 @@ import { memo } from "react";
 
 const DefaultSignatureOption = ({ onChange, defaultSignature }) => {
   return (
-    <VStack pt={2} space={2}>
+    <VStack py={2} space={2}>
       <Checkbox onChange={onChange} size="sm" bgColor="transparent">
         <Text fontSize={12} color="baseColor.400">
           Use Default Signature

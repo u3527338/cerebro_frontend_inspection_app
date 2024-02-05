@@ -285,7 +285,7 @@ const ColorTag = ({ title, color }) => (
   </HStack>
 );
 
-const StaticArea = ({ data, control, setDateRange }) => {
+const StaticArea = ({ data, control, setDateRange, form }) => {
   const [isOpen, setIsOpen] = useState(false);
   const onCloseHandler = () => setIsOpen(false);
 
@@ -322,6 +322,7 @@ const StaticArea = ({ data, control, setDateRange }) => {
           key: "date",
           infinite: true,
         }}
+        form={form}
       />
       {Object.keys(resultArea).length === 0 ? (
         <Center flex={1}>
@@ -395,11 +396,13 @@ const Body = () => {
     created_at: dateRange,
   });
 
-  const { control } = useForm({
+  const form = useForm({
     defaultValues: {
       date: dateRange,
     },
   });
+
+  const { control } = form;
 
   return (
     <>
@@ -420,6 +423,7 @@ const Body = () => {
             data={data}
             control={control}
             setDateRange={setDateRange}
+            form={form}
           />
         </VStack>
       )}

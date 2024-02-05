@@ -17,8 +17,8 @@ import MediaPreview from "./preview/MediaPreview";
 import SignaturePreview from "./preview/SignaturePreview";
 import MyText from "./preview/Text";
 
-const InputRender = ({ control, template, preview }) => {
-  console.log("template", JSON.stringify(template));
+const InputRender = ({ template, preview, form }) => {
+  const { control } = form;
   switch (template.type) {
     case "text":
     case "textFold":
@@ -36,7 +36,7 @@ const InputRender = ({ control, template, preview }) => {
       return preview ? (
         <DateTimePreview control={control} detail={template} />
       ) : (
-        <DateTimePicker control={control} detail={template} />
+        <DateTimePicker control={control} detail={template} form={form} />
       );
 
     case "dropDown":
@@ -115,8 +115,7 @@ const InputRender = ({ control, template, preview }) => {
       );
 
     case "customItem":
-      // return preview ? <RenderPreviewCustomItem template={template} data={formikProps}/> :
-      return <CustomItem control={control} detail={template} />;
+      return <CustomItem form={form} detail={template} />;
 
     case "attachment_title":
       return <></>;
@@ -126,7 +125,7 @@ const InputRender = ({ control, template, preview }) => {
   }
 };
 
-export const ComponentRender = ({ control, template, preview }) => {
+export const ComponentRender = ({ template, preview, form }) => {
   const customSession = [
     "checkbox",
     "autocomplete",
@@ -134,16 +133,21 @@ export const ComponentRender = ({ control, template, preview }) => {
     "libraryPicker",
     "signature",
   ];
+
   return (
     <>
-      {!!template.divider && <Divider bg={"baseColor.300"} rounded={"md"} />}
+      {!!template.divider && (
+        <Box px={4}>
+          <Divider bg={"baseColor.300"} rounded={"md"} />
+        </Box>
+      )}
       <Box bgColor={template.bgColor} px={4} pt={2}>
         {!customSession.includes(template.type) && !!template.session && (
           <Text color={"baseColor.300"} fontSize={"xs"}>
             {_.startCase(template.session)}
           </Text>
         )}
-        <InputRender control={control} template={template} preview={preview} />
+        <InputRender template={template} preview={preview} form={form} />
         {template.caption && (
           <Text color={"gray.400"} sub px={2} pb={4}>
             {template.caption}

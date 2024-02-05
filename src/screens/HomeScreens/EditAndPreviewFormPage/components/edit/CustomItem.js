@@ -1,13 +1,32 @@
 import { AntDesign, FontAwesome } from "@expo/vector-icons";
-import { FlashList } from "@shopify/flash-list";
-import { Box, HStack, Icon, Pressable, Text, VStack } from "native-base";
+import _ from "lodash";
+import {
+  Box,
+  HStack,
+  Icon,
+  Pressable,
+  ScrollView,
+  Text,
+  VStack,
+} from "native-base";
 import { memo, useEffect, useRef } from "react";
 import { Controller, useFieldArray } from "react-hook-form";
 import { Dimensions } from "react-native";
 import { ComponentRender } from "../ComponentRender";
 
-const CustomItem = ({ control, detail }) => {
-  const flashListRef = useRef();
+const getTypeValue = (type) => {
+  switch (type) {
+    case "imagePicker":
+    case "libraryPicker":
+      return [];
+    default:
+      return "";
+  }
+};
+
+const CustomItem = ({ form, detail }) => {
+  const scrollViewRef = useRef();
+  const { control } = form;
   const { fields, append, remove } = useFieldArray({
     control,
     name: detail.key,
@@ -21,7 +40,7 @@ const CustomItem = ({ control, detail }) => {
         {detail.item?.map((_item, index) => {
           return (
             <ComponentRender
-              control={control}
+              form={form}
               template={{
                 ..._item,
                 key: `${detail.key}.${itemIndex}.${_item.key}`,
@@ -71,16 +90,18 @@ const CustomItem = ({ control, detail }) => {
   };
 
   const handleAddItem = () => {
-    append({ itemImageAttachments: [], description: "" });
+    console.log(detail.item);
+    append(
+      _.mapValues(_.keyBy(detail.item, "key"), (item) =>
+        getTypeValue(item.type)
+      )
+    );
   };
 
   const handleDeleteItem = (indexToDelete) => {
     remove(indexToDelete);
-    if (flashListRef && indexToDelete > 0) {
-      flashListRef.current.scrollToIndex({
-        index: indexToDelete - 1,
-        animated: true,
-      });
+    if (scrollViewRef && indexToDelete > 0) {
+      scrollViewRef.current.scrollToEnd();
     }
   };
 
@@ -116,16 +137,13 @@ const CustomItem = ({ control, detail }) => {
                   {fields.length} / {detail.limit}
                 </Text>
               </HStack>
-              <FlashList
-                ref={flashListRef}
-                data={fields}
-                maximumZoomScale={2.0}
-                keyExtractor={(field) => field.id}
-                horizontal
-                renderItem={EachItem}
-                estimatedItemSize={100}
-                showsVerticalScrollIndicator={false}
-              />
+              <ScrollView horizontal ref={scrollViewRef}>
+                <HStack space={5}>
+                  {fields.map((field, i) => (
+                    <EachItem key={i} index={i} />
+                  ))}
+                </HStack>
+              </ScrollView>
             </>
           );
         }}

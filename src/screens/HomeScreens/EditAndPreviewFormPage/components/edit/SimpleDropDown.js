@@ -21,7 +21,7 @@ const SimpleDropDown = ({ control, detail }) => {
       control={control}
       render={({ field: { onChange, value } }) => {
         useEffect(() => {
-          if (!value) onChange(detail.preset || "");
+          if (!value) onChange(detail.preset || detail.item[0].title);
         }, []);
 
         return (

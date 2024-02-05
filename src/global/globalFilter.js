@@ -8,7 +8,7 @@ import {
   Text,
   VStack,
 } from "native-base";
-import React, { memo, useContext, useEffect } from "react";
+import React, { memo, useContext } from "react";
 import { useForm } from "react-hook-form";
 import Modal from "react-native-modal";
 import { StateContext } from "../context/stateContext";
@@ -31,14 +31,14 @@ const CustomButton = ({ title, callback }) => (
   </Button>
 );
 
-const FilterForm = ({ control, sessions, handleResetFilter, handleSubmit }) => {
+const FilterForm = ({ form, sessions, handleResetFilter, handleSubmit }) => {
   return (
     <Box h={"85%"} bg={"baseColor.500"} borderTopRadius={16} py={6} px={4}>
       <ScrollView showsVerticalScrollIndicator={false} nestedScrollEnabled>
         {sessions.map((session, i) => (
           <VStack key={i}>
             <Box py={2}>
-              <ComponentRender control={control} template={session} />
+              <ComponentRender form={form} template={session} />
             </Box>
           </VStack>
         ))}
@@ -51,6 +51,7 @@ const FilterForm = ({ control, sessions, handleResetFilter, handleSubmit }) => {
     </Box>
   );
 };
+
 const GlobalFilter = ({ open, handleCloseModal, queryData }) => {
   const defaultFilter = {
     global_filter: "",
@@ -64,12 +65,13 @@ const GlobalFilter = ({ open, handleCloseModal, queryData }) => {
   };
   const { setGlobalFilter, resetGlobalFilter, globalFilter } =
     useContext(StateContext);
-  const { control, handleSubmit, reset } = useForm({
+  const form = useForm({
     defaultValues: {
       ...defaultFilter,
       ...globalFilter,
     },
   });
+  const { control, handleSubmit, reset } = form;
 
   const handleResetFilter = () => {
     resetGlobalFilter();
@@ -149,7 +151,7 @@ const GlobalFilter = ({ open, handleCloseModal, queryData }) => {
       propagateSwipe={true}
     >
       <FilterForm
-        control={control}
+        form={form}
         sessions={sessions}
         handleResetFilter={handleResetFilter}
         handleSubmit={handleSubmit(onSubmit)}

@@ -1,77 +1,90 @@
 import { MaterialCommunityIcons } from "@expo/vector-icons";
-import moment from "moment";
 import { Box, HStack, Icon, Pressable, Text } from "native-base";
 import React, { memo, useCallback, useEffect, useState } from "react";
 import { Controller, useWatch } from "react-hook-form";
-import { DatePickerModal } from "react-native-paper-dates";
+import { DatePickerModal, TimePickerModal } from "react-native-paper-dates";
 import { dateConverter } from "../../../../../global/function";
 import baseColor from "../../../../../themes/colors/baseColor";
 
-const TimePicker = ({ open, setOpen, title, onChange, validRange }) => {
-  const [range, setRange] = useState({
-    startDate: undefined,
-    endDate: undefined,
-  });
-  const onDismiss = useCallback(() => {
+const milliseconds = 24 * 60 * 60 * 1000;
+
+const getAppendedDate = (dateString = null, dayToAdd) =>
+  new Date(new Date(dateString).getTime() + dayToAdd * milliseconds);
+
+const TimePicker = ({
+  open,
+  title,
+  setOpen,
+  setDate,
+  date,
+  validRange,
+  setTime,
+  time,
+}) => {
+  const [timePicker, setTimePicker] = useState(false);
+  const onDismissSingle = useCallback(() => {
     setOpen(false);
   }, [setOpen]);
-  const onConfirm = useCallback(
-    ({ startDate, endDate }) => {
+
+  const onConfirmSingle = useCallback(
+    (params) => {
       setOpen(false);
-      setRange({ startDate, endDate });
-      onChange({ startDate, endDate });
+      setDate(params.date);
+      setTimePicker(true);
     },
-    [setOpen, setRange]
+    [setOpen, setDate]
+  );
+
+  const onDismiss = useCallback(() => {
+    setTimePicker(false);
+  }, [setTimePicker]);
+
+  const onConfirm = useCallback(
+    ({ hours, minutes }) => {
+      setTimePicker(false);
+      setTime({ hours, minutes });
+    },
+    [setTimePicker, setTime]
   );
 
   return (
-    <DatePickerModal
-      locale="en"
-      mode="range"
-      visible={open}
-      onDismiss={onDismiss}
-      startDate={range.startDate}
-      endDate={range.endDate}
-      onConfirm={onConfirm}
-      uppercase
-      label={title || "Date"}
-      startLabel={null}
-      endLabel={null}
-      presentationStyle="pageSheet"
-      validRange={validRange}
-    />
+    <>
+      <DatePickerModal
+        locale="en"
+        mode="single"
+        visible={open}
+        onDismiss={onDismissSingle}
+        onConfirm={onConfirmSingle}
+        uppercase
+        label={title || "Date"}
+        presentationStyle="pageSheet"
+        date={date}
+        validRange={validRange}
+      />
+      <TimePickerModal
+        visible={timePicker}
+        onDismiss={onDismiss}
+        onConfirm={onConfirm}
+        hours={time?.hours}
+        minutes={time?.minutes}
+      />
+    </>
   );
 };
 
-const MyDateTimePicker = ({ control, detail }) => {
-  const [validStartDate, setValidStartDate] = useState(
-    detail.infinite
-      ? null
-      : new Date(new Date().getTime() - backday * milliseconds)
-  );
+const MyDateTimePicker = ({ detail, form }) => {
+  const { watch, control } = form;
+
   const backday = detail.backday || 5;
-  const milliseconds = 24 * 60 * 60 * 1000;
-  // const linkage = detail.interaction?.linkage?.parent?.key
-  //   ? {
-  //       key: detail.interaction?.linkage?.parent?.key,
-  //       dayAfter: detail.interaction.linkage.child.dayAfter,
-  //     }
-  //   : null;
 
-  const linkageDate = useWatch({
+  const [validStartDate, setValidStartDate] = useState(
+    detail.infinite ? detail.interaction : getAppendedDate(null, -backday)
+  );
+
+  const watchValue = useWatch({
     control,
-    name: detail.interaction?.linkage?.parent?.key,
+    name: detail?.interaction?.linkage?.parent?.key,
   });
-  const linkageStartDate = linkageDate.toString().includes(",")
-    ? new Date(
-        new Date(linkageDate.toString().split(",")[1]).getTime() +
-          detail.interaction.linkage.child.dayAfter * milliseconds
-      )
-    : linkageDate;
-
-  useEffect(() => {
-    setValidStartDate(linkageStartDate);
-  }, [linkageDate]);
 
   return (
     <Controller
@@ -79,28 +92,41 @@ const MyDateTimePicker = ({ control, detail }) => {
       control={control}
       render={({ field: { onChange, value } }) => {
         const [open, setOpen] = useState(false);
+
         useEffect(() => {
-          if (!value)
-            onChange(
-              detail.preset ||
-                `${dateConverter(new Date())},${dateConverter(new Date())}`
-            );
+          onChange(`${dateConverter(new Date())}`);
         }, []);
 
+        useEffect(() => {
+          if (!!detail?.interaction?.linkage?.parent?.key) {
+            const parentValue = watch(
+              detail?.interaction?.linkage?.parent?.key
+            );
+            const startDate = getAppendedDate(
+              `${parentValue}`,
+              detail.interaction.linkage.child.dayAfter
+            );
+            onChange(`${dateConverter(startDate)}`);
+            setValidStartDate(startDate);
+          }
+        }, [watchValue]);
+
         return (
-          <Box p={2}>
+          <Box p={2} pb={0}>
             <TimePicker
               open={open}
               setOpen={setOpen}
-              onChange={(range) => {
+              setDate={(date) => onChange(`${dateConverter(date)}`)}
+              setTime={(time) =>
                 onChange(
                   `${dateConverter(
-                    linkageStartDate || range.startDate
-                  )},${dateConverter(range.endDate)}`
-                );
-              }}
+                    new Date(value).setHours(time.hours, time.minutes)
+                  )}`
+                )
+              }
+              date={new Date(value)}
               validRange={{
-                startDate: validStartDate,
+                startDate: new Date(validStartDate),
               }}
             />
 
@@ -123,10 +149,7 @@ const MyDateTimePicker = ({ control, detail }) => {
             >
               <HStack justifyContent="space-between" alignItems={"center"}>
                 <Text color={"baseColor.400"}>
-                  {`${dateConverter(
-                    value?.split(",")[0],
-                    "ll"
-                  )} - ${dateConverter(value?.split(",")[1], "ll")}`}
+                  {`${dateConverter(value, "lll")}`}
                 </Text>
                 {!detail.disabled && (
                   <Icon

@@ -12,6 +12,16 @@ import React, { memo, useEffect, useState } from "react";
 import { Controller } from "react-hook-form";
 import baseColor from "../../../../../themes/colors/baseColor";
 
+const recursiveItem = (detail, inputString = "") => {
+  if (!detail) return null;
+  return "item" in detail.item[0]
+    ? recursiveItem(
+        detail.item[0],
+        `${inputString ? `${inputString} - ` : ""}${detail.item[0].default}`
+      )
+    : `${inputString} - ${detail.item[0].default}`;
+};
+
 const getStructuredData = (list) =>
   list.map((i) => ({
     key: i.key,
@@ -30,15 +40,16 @@ const NestedDropDown = ({ control, detail }) => {
       control={control}
       render={({ field: { onChange, value } }) => {
         useEffect(() => {
-          if (!value) onChange(detail.preset || "");
+          if (!value) onChange(detail.preset || recursiveItem(detail));
         }, []);
 
         const handleOnChange = (selection) => {
           if (!selection.children) {
-            onChange(selection.value);
+            onChange(`${value} - ${selection.value}`);
             onClose();
             setData(parentData);
           } else {
+            onChange(selection.value);
             setData(getStructuredData(selection.children));
           }
         };
