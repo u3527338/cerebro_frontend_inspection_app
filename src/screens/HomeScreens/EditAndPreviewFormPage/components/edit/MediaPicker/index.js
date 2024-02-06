@@ -13,7 +13,13 @@ import FileGallery from "./FileGallery";
 import LibraryBrowserModal from "./LibraryBrowserModal";
 import MediaOptions from "./MediaOptions";
 
-const MediaPicker = ({ control, detail, editable = true, browseLibrary }) => {
+const MediaPicker = ({
+  control,
+  detail,
+  editable = true,
+  browseLibrary,
+  disabled,
+}) => {
   const { fields, append, remove } = useFieldArray({
     control,
     name: detail.key,
@@ -111,16 +117,14 @@ const MediaPicker = ({ control, detail, editable = true, browseLibrary }) => {
               <HStack pb={2} justifyContent={"space-around"}>
                 <CustomButton
                   onPress={handleChooseMedia}
-                  disabled={
-                    !!detail.disabled || detail.limitation === fields.length
-                  }
+                  disabled={disabled || detail.limitation === fields.length}
                   label="CHOOSE"
                 />
                 {!browseLibrary && (
                   <CustomButton
                     onPress={handleLaunchCamera}
                     disabled={
-                      !!detail.disabled ||
+                      disabled ||
                       detail.limitation === fields.length ||
                       (detail.allow && !detail.allow?.includes("photo"))
                     }
@@ -137,7 +141,7 @@ const MediaPicker = ({ control, detail, editable = true, browseLibrary }) => {
                 setModal(true);
               }}
               handleDeleteLocalFile={handleDeleteLocalFile}
-              status={{ editable: editable, disabled: !!detail.disabled }}
+              status={{ editable: editable, disabled: disabled }}
               loading={isFetching}
               browseLibrary={browseLibrary}
             />

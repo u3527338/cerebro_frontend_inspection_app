@@ -12,7 +12,7 @@ import React, { memo, useEffect } from "react";
 import { Controller } from "react-hook-form";
 import baseColor from "../../../../../themes/colors/baseColor";
 
-const SimpleDropDown = ({ control, detail }) => {
+const SimpleDropDown = ({ control, detail, disabled }) => {
   const { isOpen, onOpen, onClose } = useDisclose();
 
   return (
@@ -33,13 +33,11 @@ const SimpleDropDown = ({ control, detail }) => {
               borderWidth={1}
               borderColor="baseColor.400"
               style={{
-                backgroundColor: !!detail.disabled
-                  ? baseColor[100]
-                  : "transparent",
-                opacity: !!detail.disabled ? 0.5 : 1,
+                backgroundColor: disabled ? baseColor[100] : "transparent",
+                opacity: disabled ? 0.5 : 1,
               }}
               onPress={onOpen}
-              disabled={!!detail.disabled}
+              disabled={disabled}
             >
               <HStack justifyContent="space-between" alignItems={"center"}>
                 <Text

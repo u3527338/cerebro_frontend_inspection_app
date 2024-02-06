@@ -2,6 +2,7 @@ import { useNavigation, useRoute } from "@react-navigation/native";
 import { FlashList } from "@shopify/flash-list";
 import _ from "lodash";
 import {
+  Box,
   Center,
   HStack,
   Pressable,
@@ -9,7 +10,7 @@ import {
   Text,
   VStack,
 } from "native-base";
-import React, { useContext, useState } from "react";
+import React, { useContext, useRef, useState } from "react";
 import { useForm } from "react-hook-form";
 import Spinner from "react-native-loading-spinner-overlay";
 import LoadingComponent from "../../../components/common/LoadingComponent";
@@ -44,6 +45,7 @@ const CustomButton = ({ title, callback, disabled, ...props }) => (
 );
 
 const Body = ({ data, currentStep, templateId }) => {
+  const scrollListRef = useRef();
   const navigation = useNavigation();
   const { useNewFormMutation, useUploadFileMutation } = useDefaultAPI();
 
@@ -106,9 +108,6 @@ const Body = ({ data, currentStep, templateId }) => {
         : currentFlow.role;
   }
 
-  const [disabled, setDisabled] = useState(false);
-  const [preview, setPreview] = useState(false);
-
   const [currentPage, setCurrentPage] = useState(1);
   const [addForm, setAddForm] = useState(
     data.template.some((obj) => "page" in obj)
@@ -120,57 +119,19 @@ const Body = ({ data, currentStep, templateId }) => {
   const addPage = (page) => {
     setCurrentPage(currentPage + page);
     setAddForm(data.template.filter((obj) => obj.page === currentPage + page));
+    scrollListRef.current.scrollTo({ y: 0 });
   };
 
   return (
     <VStack space={2} justifyContent={"space-between"} h={"88%"}>
       <Spinner visible={uploadFilesPending || newFormCreationPending} />
       <ScrollView
+        ref={scrollListRef}
         py={4}
         px={2}
         showsVerticalScrollIndicator={false}
         nestedScrollEnabled
       >
-        <HStack justifyContent={"space-around"} p={2}>
-          <Pressable
-            onPress={() => {
-              setDisabled(false);
-              setPreview(false);
-            }}
-            bgColor={"primary.500"}
-            p={2}
-          >
-            <Text>DEFAULT</Text>
-          </Pressable>
-          <Pressable
-            onPress={() => {
-              setDisabled(!disabled);
-              setPreview(false);
-            }}
-            bgColor={"primary.500"}
-            p={2}
-            disabled={disabled}
-            _disabled={{ opacity: 0.5 }}
-          >
-            <Text>SET DISABLED</Text>
-          </Pressable>
-          <Pressable
-            onPress={() => {
-              setDisabled(false);
-              setPreview(!preview);
-            }}
-            bgColor={"primary.500"}
-            p={2}
-            disabled={preview}
-            _disabled={{ opacity: 0.5 }}
-          >
-            <Text>SET PREVIEW</Text>
-          </Pressable>
-        </HStack>
-        <HStack justifyContent={"space-around"} p={1}>
-          <Text bold color="black">{`Disabled: ${disabled}`}</Text>
-          <Text bold color="black">{`Preview: ${preview}`}</Text>
-        </HStack>
         <VStack
           bg={"white"}
           borderRadius={6}
@@ -180,47 +141,38 @@ const Body = ({ data, currentStep, templateId }) => {
           mb={10}
         >
           <FlashList
-            data={addForm}
-            renderItem={({ item }) => (
-              <ComponentRender
-                template={{ ...item, disabled: disabled }}
-                // template={t}
-                control={control}
-                preview={preview}
-                form={form}
-              />
-            )}
-            keyExtractor={(item, index) => index}
             showsVerticalScrollIndicator={false}
+            nestedScrollEnabled
+            data={addForm}
+            renderItem={({ item }) => {
+              // const preview =
+              //   !_.intersectionWith(
+              //     currentPermission,
+              //     item.editable,
+              //     _.isEqual
+              //   ).length ||
+              //   !hasNextStep ||
+              //   !_.intersectionWith(editRole, item.editable, _.isEqual)
+              //     .length;
+              const preview = false;
+              return (
+                <ComponentRender
+                  template={item}
+                  control={control}
+                  preview={preview}
+                  disabled={
+                    _.intersection(item.editable, currentPermission).length ===
+                    0
+                  }
+                  form={form}
+                />
+              );
+            }}
+            keyExtractor={(item, index) => index}
+            // removeClippedSubviews
           />
         </VStack>
-        {/* <VStack
-          bg={"white"}
-          borderRadius={6}
-          shadow={3}
-          key={"base"}
-          py={4}
-          mb={10}
-        >
-          {addForm.map((t, i) => {
-            // const preview =
-            //   !intersectionWith(currentPermission, t.editable, isEqual)
-            //     .length ||
-            //   !hasNextStep ||
-            //   !intersectionWith(editRole, t.editable, isEqual).length;
-            return (
-              <ComponentRender
-                template={{ ...t, disabled: disabled }}
-                // template={t}
-                preview={preview}
-                key={i}
-                form={form}
-              />
-            );
-          })}
-        </VStack> */}
       </ScrollView>
-
       <VStack space={2} px={4} py={1}>
         <HStack justifyContent="space-between">
           <CustomButton

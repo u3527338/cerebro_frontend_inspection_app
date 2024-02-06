@@ -29,7 +29,7 @@ const getStructuredData = (list) =>
     children: i.item,
   }));
 
-const NestedDropDown = ({ control, detail }) => {
+const NestedDropDown = ({ control, detail, disabled }) => {
   const parentData = getStructuredData(detail.item);
   const [data, setData] = useState(parentData);
   const { isOpen, onOpen, onClose } = useDisclose();
@@ -63,13 +63,11 @@ const NestedDropDown = ({ control, detail }) => {
               borderWidth={1}
               borderColor="baseColor.400"
               style={{
-                backgroundColor: !!detail.disabled
-                  ? baseColor[100]
-                  : "transparent",
-                opacity: !!detail.disabled ? 0.5 : 1,
+                backgroundColor: disabled ? baseColor[100] : "transparent",
+                opacity: disabled ? 0.5 : 1,
               }}
               onPress={onOpen}
-              disabled={!!detail.disabled}
+              disabled={disabled}
             >
               <HStack justifyContent="space-between" alignItems={"center"}>
                 <Text

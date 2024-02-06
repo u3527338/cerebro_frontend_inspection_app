@@ -12,9 +12,7 @@ import SignatureModal from "./SignatureModal";
 
 const imageType = "png";
 
-const UserSignature = ({ control, detail }) => {
-  // const disabled = detail.disabled;
-  const disabled = false;
+const UserSignature = ({ control, detail, disabled }) => {
   const [open, setOpen] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
@@ -58,8 +56,6 @@ const UserSignature = ({ control, detail }) => {
           });
         };
 
-        if (disabled) return null;
-
         return (
           <>
             <Text color={"baseColor.300"} fontSize={"xs"}>
@@ -79,13 +75,10 @@ const UserSignature = ({ control, detail }) => {
               <LocalSignaturePreview
                 uri={path}
                 onPress={handleClearSignature}
-                disabled={!!disabled}
+                disabled={disabled}
               />
             ) : (
-              <AddSignature
-                disabled={!!disabled}
-                onPress={() => setOpen(true)}
-              />
+              <AddSignature disabled={disabled} onPress={() => setOpen(true)} />
             )}
 
             {!disabled && (

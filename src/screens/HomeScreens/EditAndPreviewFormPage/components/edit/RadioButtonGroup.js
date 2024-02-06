@@ -2,7 +2,7 @@ import { Box, Radio, Stack, Text } from "native-base";
 import { memo, useEffect } from "react";
 import { Controller } from "react-hook-form";
 
-const RadioButtonGroup = ({ control, detail }) => {
+const RadioButtonGroup = ({ control, detail, disabled }) => {
   return (
     <Controller
       name={detail.key}
@@ -34,7 +34,7 @@ const RadioButtonGroup = ({ control, detail }) => {
                     bg="transparent"
                     key={index}
                     size="sm"
-                    isDisabled={!!detail.disabled}
+                    isDisabled={disabled}
                   >
                     <Text
                       textAlign="justify"

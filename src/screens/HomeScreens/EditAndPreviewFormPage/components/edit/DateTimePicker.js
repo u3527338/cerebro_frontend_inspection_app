@@ -72,7 +72,7 @@ const TimePicker = ({
   );
 };
 
-const MyDateTimePicker = ({ detail, form }) => {
+const MyDateTimePicker = ({ detail, form, disabled }) => {
   const { watch, control } = form;
 
   const backday = detail.backday || 5;
@@ -137,21 +137,19 @@ const MyDateTimePicker = ({ detail, form }) => {
               borderWidth={1}
               borderColor="baseColor.400"
               style={{
-                backgroundColor: !!detail.disabled
-                  ? baseColor[100]
-                  : "transparent",
-                opacity: !!detail.disabled ? 0.5 : 1,
+                backgroundColor: disabled ? baseColor[100] : "transparent",
+                opacity: disabled ? 0.5 : 1,
               }}
               onPress={() => {
                 setOpen(true);
               }}
-              disabled={!!detail.disabled}
+              disabled={disabled}
             >
               <HStack justifyContent="space-between" alignItems={"center"}>
                 <Text color={"baseColor.400"}>
                   {`${dateConverter(value, "lll")}`}
                 </Text>
-                {!detail.disabled && (
+                {!disabled && (
                   <Icon
                     size={"md"}
                     as={<MaterialCommunityIcons name="calendar-edit" />}

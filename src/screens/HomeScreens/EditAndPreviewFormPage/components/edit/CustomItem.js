@@ -24,7 +24,8 @@ const getTypeValue = (type) => {
   }
 };
 
-const CustomItem = ({ form, detail }) => {
+const CustomItem = ({ form, detail, disabled }) => {
+  console.log(JSON.stringify(detail));
   const scrollViewRef = useRef();
   const { control } = form;
   const { fields, append, remove } = useFieldArray({
@@ -76,7 +77,7 @@ const CustomItem = ({ form, detail }) => {
               onPress={() => {
                 handleDeleteItem(index);
               }}
-              disabled={detail.disabled}
+              disabled={disabled}
               p={2}
             >
               <Icon as={<FontAwesome name="trash-o" />} color={"gray.400"} />
@@ -90,7 +91,6 @@ const CustomItem = ({ form, detail }) => {
   };
 
   const handleAddItem = () => {
-    console.log(detail.item);
     append(
       _.mapValues(_.keyBy(detail.item, "key"), (item) =>
         getTypeValue(item.type)
@@ -122,7 +122,7 @@ const CustomItem = ({ form, detail }) => {
                   onPress={() => {
                     handleAddItem();
                   }}
-                  disabled={detail.disabled || fields.length >= detail.limit}
+                  disabled={disabled || fields.length >= detail.limit}
                   _disabled={{ opacity: 0.2 }}
                 >
                   <HStack alignItems={"center"} space={2} py={2}>

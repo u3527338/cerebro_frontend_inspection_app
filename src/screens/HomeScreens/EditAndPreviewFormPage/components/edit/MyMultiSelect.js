@@ -9,7 +9,7 @@ import primary from "../../../../../themes/colors/primary";
 import secondary from "../../../../../themes/colors/secondary";
 import montserrat from "../../../../../themes/fonts/montserrat";
 
-const MyMultiSelect = ({ control, detail }) => {
+const MyMultiSelect = ({ control, detail, disabled }) => {
   return (
     <Controller
       name={detail.key}

@@ -17,7 +17,7 @@ import MediaPreview from "./preview/MediaPreview";
 import SignaturePreview from "./preview/SignaturePreview";
 import MyText from "./preview/Text";
 
-const InputRender = ({ template, preview, form }) => {
+const InputRender = ({ template, preview, disabled, form }) => {
   const { control } = form;
   switch (template.type) {
     case "text":
@@ -29,40 +29,62 @@ const InputRender = ({ template, preview, form }) => {
       return preview ? (
         <DefaultPreview control={control} detail={template} />
       ) : (
-        <TextInput control={control} detail={template} />
+        <TextInput control={control} detail={template} disabled={disabled} />
       );
 
     case "datetimepicker":
       return preview ? (
         <DateTimePreview control={control} detail={template} />
       ) : (
-        <DateTimePicker control={control} detail={template} form={form} />
+        <DateTimePicker
+          control={control}
+          detail={template}
+          form={form}
+          disabled={disabled}
+        />
       );
 
     case "dropDown":
       return preview ? (
         <DefaultPreview control={control} detail={template} />
       ) : (
-        <SimpleDropDown control={control} detail={template} />
+        <SimpleDropDown
+          control={control}
+          detail={template}
+          disabled={disabled}
+        />
       );
 
     case "checkbox":
       return (
-        <MyCheckBox control={control} detail={template} preview={preview} />
+        <MyCheckBox
+          control={control}
+          detail={template}
+          preview={preview}
+          disabled={disabled}
+        />
       );
 
     case "multiSelect":
       return preview ? (
         <DefaultPreview control={control} detail={template} />
       ) : (
-        <MyMultiSelect control={control} detail={template} />
+        <MyMultiSelect
+          control={control}
+          detail={template}
+          disabled={disabled}
+        />
       );
 
     case "nestedDropDown":
       return preview ? (
         <DefaultPreview control={control} detail={template} />
       ) : (
-        <NestedDropDown control={control} detail={template} />
+        <NestedDropDown
+          control={control}
+          detail={template}
+          disabled={disabled}
+        />
       );
 
     case "radio":
@@ -70,7 +92,11 @@ const InputRender = ({ template, preview, form }) => {
       return preview ? (
         <DefaultPreview control={control} detail={template} />
       ) : (
-        <RadioButtonGroup control={control} detail={template} />
+        <RadioButtonGroup
+          control={control}
+          detail={template}
+          disabled={disabled}
+        />
       );
 
     case "autocomplete":
@@ -93,6 +119,7 @@ const InputRender = ({ template, preview, form }) => {
           control={control}
           detail={template}
           browseLibrary={false}
+          disabled={disabled}
         />
       );
 
@@ -104,18 +131,27 @@ const InputRender = ({ template, preview, form }) => {
           browseLibrary={true}
         />
       ) : (
-        <MediaPicker control={control} detail={template} browseLibrary={true} />
+        <MediaPicker
+          control={control}
+          detail={template}
+          browseLibrary={true}
+          disabled={disabled}
+        />
       );
 
     case "signature":
       return preview ? (
         <SignaturePreview control={control} detail={template} />
       ) : (
-        <UserSignature control={control} detail={template} />
+        <UserSignature
+          control={control}
+          detail={template}
+          disabled={disabled}
+        />
       );
 
     case "customItem":
-      return <CustomItem form={form} detail={template} />;
+      return <CustomItem form={form} detail={template} disabled={disabled} />;
 
     case "attachment_title":
       return <></>;
@@ -125,7 +161,7 @@ const InputRender = ({ template, preview, form }) => {
   }
 };
 
-export const ComponentRender = ({ template, preview, form }) => {
+export const ComponentRender = ({ template, preview, disabled, form }) => {
   const customSession = [
     "checkbox",
     "autocomplete",
@@ -134,6 +170,8 @@ export const ComponentRender = ({ template, preview, form }) => {
     "signature",
   ];
 
+  const noRender = disabled && template.type === "signature";
+
   return (
     <>
       {!!template.divider && (
@@ -141,19 +179,26 @@ export const ComponentRender = ({ template, preview, form }) => {
           <Divider bg={"baseColor.300"} rounded={"md"} />
         </Box>
       )}
-      <Box bgColor={template.bgColor} px={4} pt={2}>
-        {!customSession.includes(template.type) && !!template.session && (
-          <Text color={"baseColor.300"} fontSize={"xs"}>
-            {_.startCase(template.session)}
-          </Text>
-        )}
-        <InputRender template={template} preview={preview} form={form} />
-        {template.caption && (
-          <Text color={"gray.400"} sub px={2} pb={4}>
-            {template.caption}
-          </Text>
-        )}
-      </Box>
+      {!noRender && (
+        <Box bgColor={template.bgColor} px={4} pt={2}>
+          {!customSession.includes(template.type) && !!template.session && (
+            <Text color={"baseColor.300"} fontSize={"xs"}>
+              {_.startCase(template.session)}
+            </Text>
+          )}
+          <InputRender
+            template={template}
+            preview={preview}
+            disabled={disabled}
+            form={form}
+          />
+          {template.caption && (
+            <Text color={"gray.400"} sub px={2} pb={4}>
+              {template.caption}
+            </Text>
+          )}
+        </Box>
+      )}
     </>
   );
 };
