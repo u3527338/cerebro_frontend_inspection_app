@@ -146,14 +146,10 @@ const Body = ({ data, currentStep, templateId }) => {
             data={addForm}
             renderItem={({ item }) => {
               // const preview =
-              //   !_.intersectionWith(
-              //     currentPermission,
-              //     item.editable,
-              //     _.isEqual
-              //   ).length ||
+              //   !_.intersectionWith(currentPermission, item.editable, _.isEqual)
+              //     .length ||
               //   !hasNextStep ||
-              //   !_.intersectionWith(editRole, item.editable, _.isEqual)
-              //     .length;
+              //   !_.intersectionWith(editRole, item.editable, _.isEqual).length;
               const preview = false;
               return (
                 <ComponentRender
@@ -161,15 +157,13 @@ const Body = ({ data, currentStep, templateId }) => {
                   control={control}
                   preview={preview}
                   disabled={
-                    _.intersection(item.editable, currentPermission).length ===
-                    0
+                    !_.intersection(item.editable, currentPermission).length
                   }
                   form={form}
                 />
               );
             }}
             keyExtractor={(item, index) => index}
-            // removeClippedSubviews
           />
         </VStack>
       </ScrollView>

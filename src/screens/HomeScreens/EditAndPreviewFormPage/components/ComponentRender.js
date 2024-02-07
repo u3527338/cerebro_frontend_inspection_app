@@ -55,7 +55,7 @@ const InputRender = ({ template, preview, disabled, form }) => {
         />
       );
 
-    case "checkbox":
+    case "checkBox":
       return (
         <MyCheckBox
           control={control}

@@ -65,6 +65,9 @@ const SimpleDropDown = ({ control, detail, disabled }) => {
                       onChange(item.title);
                       onClose();
                     }}
+                    backgroundColor={
+                      value === item.title ? "primary.500" : null
+                    }
                   >
                     {item.title}
                   </Actionsheet.Item>

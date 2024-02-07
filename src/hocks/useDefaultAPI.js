@@ -115,7 +115,6 @@ const useDefaultAPI = () => {
   };
 
   const getTaskByStatus = async (status, params) => {
-    console.log("get task by status");
     const response = await execute_get({
       url: status === "My Task" ? API_get_mytask_list : API_formdata,
       params: {

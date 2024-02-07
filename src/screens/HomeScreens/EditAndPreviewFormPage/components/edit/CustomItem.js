@@ -19,13 +19,14 @@ const getTypeValue = (type) => {
     case "imagePicker":
     case "libraryPicker":
       return [];
+    case "checkBox":
+      return false;
     default:
       return "";
   }
 };
 
 const CustomItem = ({ form, detail, disabled }) => {
-  console.log(JSON.stringify(detail));
   const scrollViewRef = useRef();
   const { control } = form;
   const { fields, append, remove } = useFieldArray({
@@ -54,7 +55,7 @@ const CustomItem = ({ form, detail, disabled }) => {
     );
   };
 
-  const EachItem = ({ item, index }) => {
+  const EachItem = ({ index }) => {
     return (
       <Box
         borderWidth={1}

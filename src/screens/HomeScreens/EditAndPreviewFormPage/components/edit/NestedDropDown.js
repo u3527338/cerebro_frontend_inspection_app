@@ -94,6 +94,11 @@ const NestedDropDown = ({ control, detail, disabled }) => {
                     onPress={() => {
                       handleOnChange(selection);
                     }}
+                    backgroundColor={
+                      value?.split(" - ").includes(selection.value)
+                        ? "primary.500"
+                        : null
+                    }
                   >
                     {selection.value}
                   </Actionsheet.Item>

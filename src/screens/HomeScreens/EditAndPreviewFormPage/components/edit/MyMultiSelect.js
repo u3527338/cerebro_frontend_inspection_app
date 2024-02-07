@@ -1,5 +1,15 @@
 import { AntDesign } from "@expo/vector-icons";
-import { Badge, Box, HStack, Text } from "native-base";
+import {
+  Actionsheet,
+  Badge,
+  Box,
+  Button,
+  HStack,
+  Icon,
+  Pressable,
+  Text,
+  useDisclose,
+} from "native-base";
 import { memo } from "react";
 import { Controller } from "react-hook-form";
 import { Dimensions } from "react-native";
@@ -8,8 +18,12 @@ import baseColor from "../../../../../themes/colors/baseColor";
 import primary from "../../../../../themes/colors/primary";
 import secondary from "../../../../../themes/colors/secondary";
 import montserrat from "../../../../../themes/fonts/montserrat";
+import { Entypo } from "@expo/vector-icons";
+import _ from "lodash";
+import { FlashList } from "@shopify/flash-list";
 
 const MyMultiSelect = ({ control, detail, disabled }) => {
+  const { isOpen, onOpen, onClose } = useDisclose();
   return (
     <Controller
       name={detail.key}
@@ -17,58 +31,80 @@ const MyMultiSelect = ({ control, detail, disabled }) => {
       render={({ field: { onChange, onBlur, value } }) => {
         return (
           <Box p={2}>
-            <MultiSelect
-              data={detail.item}
-              labelField="label"
-              valueField="value"
-              mode="modal"
-              // placeholder={detail.session}
-              placeholder="Select options"
-              search
-              searchPlaceholder="Search"
-              value={value || detail.preset?.split(",")}
-              onChange={onChange}
-              containerStyle={{
-                backgroundColor: secondary[200],
-                borderRadius: 4,
-                padding: 8,
-                paddingBottom: 0,
-                minHeight: Dimensions.get("window").height * 0.5,
-                maxHeight: Dimensions.get("window").height * 0.9,
-                width: Dimensions.get("window").width,
-                position: "absolute",
-                bottom: 0,
+            <Pressable
+              p={2}
+              px={3}
+              borderRadius={5}
+              borderWidth={1}
+              borderColor="baseColor.400"
+              style={{
+                backgroundColor: disabled ? baseColor[100] : "transparent",
+                opacity: disabled ? 0.5 : 1,
               }}
-              itemTextStyle={{
-                color: baseColor[500],
-                fontSize: 12,
-                fontFamily: montserrat[700].normal,
-              }}
-              renderSelectedItem={(item, unselect) => (
-                <Badge borderRadius={16} m={1} py={1.5} bgColor={primary[500]}>
-                  <HStack space={3}>
-                    <Text fontSize={10} bold>
-                      {item.label}
-                    </Text>
-                    <AntDesign name="closecircleo" size={16} color="white" />
-                  </HStack>
-                </Badge>
-              )}
-              inputSearchStyle={{
-                borderRadius: 10,
-                borderColor: baseColor[500],
-                fontFamily: montserrat[400].normal,
-                fontSize: 14,
-              }}
-              placeholderStyle={{
-                color: "white",
-                fontSize: 14,
-                paddingLeft: 8,
-                fontFamily: montserrat[400].normal,
-              }}
-              iconColor="white"
-              activeColor={primary[300]}
-            />
+              onPress={onOpen}
+              disabled={disabled}
+            >
+              <HStack justifyContent="space-between" alignItems={"center"}>
+                <Text
+                  w="90%"
+                  numberOfLines={1}
+                  ellipsizeMode="tail"
+                  color={"baseColor.400"}
+                >
+                  Select options
+                </Text>
+                <Icon
+                  size={5}
+                  as={Entypo}
+                  name={"chevron-small-down"}
+                  color={baseColor[400]}
+                />
+              </HStack>
+            </Pressable>
+            <Actionsheet isOpen={isOpen} onClose={onClose}>
+              <Actionsheet.Content>
+                {detail.item.map((item) => (
+                  <Actionsheet.Item
+                    key={item.key}
+                    onPress={() => {
+                      onChange([...value, item.label]);
+                    }}
+                    backgroundColor={
+                      value.includes(item.label) ? "primary.500" : null
+                    }
+                    disabled={value.includes(item.label)}
+                    _disabled={{ opacity: 1 }}
+                  >
+                    {item.label}
+                  </Actionsheet.Item>
+                ))}
+              </Actionsheet.Content>
+            </Actionsheet>
+            {value.length > 0 && (
+              <FlashList
+                horizontal
+                data={value}
+                renderItem={({ item }) => (
+                  <Button
+                    backgroundColor="primary.400"
+                    onPress={() => {
+                      onChange(value.filter((ev) => ev !== item));
+                    }}
+                    endIcon={<Icon as={Entypo} name={"circle-with-cross"} />}
+                    p={3}
+                    py={1}
+                    m={1}
+                    mt={3}
+                    alignSelf="flex-start"
+                    borderRadius={16}
+                  >
+                    <Text fontSize={12}>{item}</Text>
+                  </Button>
+                )}
+                keyExtractor={(item, index) => index}
+                showsHorizontalScrollIndicator={false}
+              />
+            )}
           </Box>
         );
       }}
