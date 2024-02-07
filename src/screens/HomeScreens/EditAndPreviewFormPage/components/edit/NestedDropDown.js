@@ -33,6 +33,8 @@ const NestedDropDown = ({ control, detail, disabled }) => {
   const parentData = getStructuredData(detail.item);
   const [data, setData] = useState(parentData);
   const { isOpen, onOpen, onClose } = useDisclose();
+  const [tempValue, setTempValue] = useState(null);
+  const [layer, setLayer] = useState(0);
 
   return (
     <Controller
@@ -45,11 +47,16 @@ const NestedDropDown = ({ control, detail, disabled }) => {
 
         const handleOnChange = (selection) => {
           if (!selection.children) {
-            onChange(`${value} - ${selection.value}`);
+            onChange(`${tempValue} - ${selection.value}`);
+            setTempValue(null);
+            setLayer(0);
             onClose();
             setData(parentData);
           } else {
-            onChange(selection.value);
+            setLayer((prevState) => prevState + 1);
+            setTempValue(
+              `${tempValue ? `${tempValue} - ` : ""}${selection.value}`
+            );
             setData(getStructuredData(selection.children));
           }
         };
@@ -95,7 +102,7 @@ const NestedDropDown = ({ control, detail, disabled }) => {
                       handleOnChange(selection);
                     }}
                     backgroundColor={
-                      value?.split(" - ").includes(selection.value)
+                      value?.split(" - ")[layer] === selection.value
                         ? "primary.500"
                         : null
                     }

@@ -3,7 +3,6 @@ import { memo, useEffect } from "react";
 import { Controller } from "react-hook-form";
 
 const RadioButtonGroup = ({ control, detail, disabled }) => {
-  console.log(JSON.stringify(detail));
   return (
     <Controller
       name={detail.key}
