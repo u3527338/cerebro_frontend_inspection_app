@@ -50,8 +50,8 @@ const NestedDropDown = ({ control, detail, disabled }) => {
             onChange(`${tempValue} - ${selection.value}`);
             setTempValue(null);
             setLayer(0);
-            onClose();
             setData(parentData);
+            onClose();
           } else {
             setLayer((prevState) => prevState + 1);
             setTempValue(

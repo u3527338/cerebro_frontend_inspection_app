@@ -1,7 +1,7 @@
-import { AntDesign } from "@expo/vector-icons";
+import { Entypo } from "@expo/vector-icons";
+import { FlashList } from "@shopify/flash-list";
 import {
   Actionsheet,
-  Badge,
   Box,
   Button,
   HStack,
@@ -12,15 +12,7 @@ import {
 } from "native-base";
 import { memo } from "react";
 import { Controller } from "react-hook-form";
-import { Dimensions } from "react-native";
-import { MultiSelect } from "react-native-element-dropdown";
 import baseColor from "../../../../../themes/colors/baseColor";
-import primary from "../../../../../themes/colors/primary";
-import secondary from "../../../../../themes/colors/secondary";
-import montserrat from "../../../../../themes/fonts/montserrat";
-import { Entypo } from "@expo/vector-icons";
-import _ from "lodash";
-import { FlashList } from "@shopify/flash-list";
 
 const MyMultiSelect = ({ control, detail, disabled }) => {
   const { isOpen, onOpen, onClose } = useDisclose();
