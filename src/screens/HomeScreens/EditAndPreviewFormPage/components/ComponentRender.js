@@ -92,11 +92,7 @@ const InputRender = ({ template, preview, disabled, form }) => {
       return preview ? (
         <DefaultPreview control={control} detail={template} />
       ) : (
-        <RadioButtonGroup
-          control={control}
-          detail={template}
-          disabled={disabled}
-        />
+        <RadioButtonGroup form={form} detail={template} disabled={disabled} />
       );
 
     case "autocomplete":

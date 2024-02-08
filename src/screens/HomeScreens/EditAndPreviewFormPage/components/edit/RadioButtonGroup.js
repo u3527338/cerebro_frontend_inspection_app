@@ -1,8 +1,15 @@
 import { Box, Radio, ScrollView, Stack, Text } from "native-base";
 import { memo, useEffect } from "react";
-import { Controller } from "react-hook-form";
+import { Controller, useWatch } from "react-hook-form";
 
-const RadioButtonGroup = ({ control, detail, disabled }) => {
+const RadioButtonGroup = ({ form, detail, disabled }) => {
+  const { watch, control, setValue } = form;
+  const linkage = detail?.interaction?.linkage;
+  const watchParentValue = useWatch({
+    control,
+    name: linkage?.parent?.key,
+  });
+
   return (
     <Controller
       name={detail.key}
@@ -11,6 +18,27 @@ const RadioButtonGroup = ({ control, detail, disabled }) => {
         useEffect(() => {
           if (!value) onChange(detail.preset || detail.item[0].title);
         }, []);
+
+        useEffect(() => {
+          if (!!linkage) {
+            const parentValueIndex = linkage?.parent?.item?.indexOf(
+              watch(linkage?.parent?.key)
+            );
+            onChange(linkage?.child?.item[parentValueIndex]);
+          }
+        }, [watchParentValue]);
+
+        useEffect(() => {
+          if (!!linkage && value) {
+            const childValueIndex = linkage?.child?.item?.indexOf(value);
+            if (childValueIndex >= 0) {
+              setValue(
+                linkage?.parent?.key,
+                linkage?.parent?.item[childValueIndex]
+              );
+            }
+          }
+        }, [value]);
 
         return (
           <Box p={2}>

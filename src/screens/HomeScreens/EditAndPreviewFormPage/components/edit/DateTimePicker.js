@@ -75,15 +75,16 @@ const TimePicker = ({
 const MyDateTimePicker = ({ detail, form, disabled }) => {
   const { watch, control } = form;
 
+  const linkage = detail?.interaction?.linkage;
   const backday = detail.backday || 5;
 
   const [validStartDate, setValidStartDate] = useState(
-    detail.infinite ? detail.interaction : getAppendedDate(null, -backday)
+    detail.infinite ? null : getAppendedDate(null, -backday)
   );
 
   const watchValue = useWatch({
     control,
-    name: detail?.interaction?.linkage?.parent?.key,
+    name: linkage?.parent?.key,
   });
 
   return (
@@ -98,13 +99,11 @@ const MyDateTimePicker = ({ detail, form, disabled }) => {
         }, []);
 
         useEffect(() => {
-          if (!!detail?.interaction?.linkage?.parent?.key) {
-            const parentValue = watch(
-              detail?.interaction?.linkage?.parent?.key
-            );
+          if (!!linkage?.parent?.key) {
+            const parentValue = watch(linkage?.parent?.key);
             const startDate = getAppendedDate(
               `${parentValue}`,
-              detail.interaction.linkage.child.dayAfter
+              linkage?.child.dayAfter
             );
             onChange(`${dateConverter(startDate)}`);
             setValidStartDate(startDate);
